@@ -4,6 +4,18 @@ const AdminFields = ({ formData, errors, handleChange }) => (
   <>
     <div className="input-group">
       <input
+        type="name"
+        name="name"
+        placeholder="FullName"
+        className={`form-input ${errors.email ? 'error' : ''}`}
+        value={formData.name || ''}
+        onChange={handleChange}
+        required
+      />
+      {errors.name && <span className="error-message">{errors.name}</span>}
+    </div>
+    <div className="input-group">
+      <input
         type="email"
         name="email"
         placeholder="Email"

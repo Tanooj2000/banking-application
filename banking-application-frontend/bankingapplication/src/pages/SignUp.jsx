@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import './SignUp.css';
 import { signUpUser, signUpAdmin } from '../api/userApi';
+import { useNavigate } from 'react-router-dom';
 import UserFields from './UserFields';
 import AdminFields from './AdminFields';
 const SignUp = () => {
-const [userType, setUserType] = useState('');
+  const [userType, setUserType] = useState('');
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   // Validation functions
   const validateEmail = (email) => {
@@ -36,6 +38,9 @@ const [userType, setUserType] = useState('');
 
     if (userType === 'user') {
       // User specific validations
+      if (!formData.name) {
+        newErrors.name = 'Full name is required';
+      }
       if (!formData.mobile) {
         newErrors.mobile = 'Mobile number is required';
       } else if (!validateMobile(formData.mobile)) {
@@ -92,6 +97,7 @@ const [userType, setUserType] = useState('');
         if (userType === 'user') {
           // Prepare user payload
           const userPayload = {
+            name: formData.name,
             email: formData.email,
             mobile: formData.mobile,
             password: formData.password,
@@ -101,6 +107,7 @@ const [userType, setUserType] = useState('');
         } else if (userType === 'admin') {
           // Prepare admin payload
           const adminPayload = {
+            name: formData.name,
             email: formData.email,
             bankName: formData.bankName,
             password: formData.adminPassword,
@@ -108,9 +115,11 @@ const [userType, setUserType] = useState('');
           };
           response = await signUpAdmin(adminPayload);
         }
-        alert('Sign up successful!');
-        setFormData({});
-        setUserType('');
+  alert('Sign up successful!');
+  setFormData({});
+  // Redirect to sign in page with userType as query param
+  navigate(`/signin?usertype=${userType}`);
+  setUserType('');
       } catch (error) {
         console.error('Submission error:', error);
         alert('An error occurred. Please try again.');
