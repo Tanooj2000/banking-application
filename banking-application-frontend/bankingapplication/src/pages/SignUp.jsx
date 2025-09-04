@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './SignUp.css';
+import { signUpUser, signUpAdmin } from '../api/userApi';
+import UserFields from './UserFields';
+import AdminFields from './AdminFields';
 const SignUp = () => {
 const [userType, setUserType] = useState('');
   const [formData, setFormData] = useState({});
@@ -85,12 +88,27 @@ const [userType, setUserType] = useState('');
 
     if (validateForm()) {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('Form submitted successfully:', formData);
+        let response;
+        if (userType === 'user') {
+          // Prepare user payload
+          const userPayload = {
+            email: formData.email,
+            mobile: formData.mobile,
+            password: formData.password,
+            userType: 'user',
+          };
+          response = await signUpUser(userPayload);
+        } else if (userType === 'admin') {
+          // Prepare admin payload
+          const adminPayload = {
+            email: formData.email,
+            bankName: formData.bankName,
+            password: formData.adminPassword,
+            userType: 'admin',
+          };
+          response = await signUpAdmin(adminPayload);
+        }
         alert('Sign up successful!');
-        
-        // Reset form after successful submission
         setFormData({});
         setUserType('');
       } catch (error) {
@@ -98,107 +116,8 @@ const [userType, setUserType] = useState('');
         alert('An error occurred. Please try again.');
       }
     }
-    
     setIsSubmitting(false);
   };
-  const renderUserFields = () => (
-    <>
-      <div className="input-group">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className={`form-input ${errors.email ? 'error' : ''}`}
-          value={formData.email || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.email && <span className="error-message">{errors.email}</span>}
-      </div>
-      
-      <div className="input-group">
-        <input
-          type="tel"
-          name="mobile"
-          placeholder="Mobile Number"
-          className={`form-input ${errors.mobile ? 'error' : ''}`}
-          value={formData.mobile || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.mobile && <span className="error-message">{errors.mobile}</span>}
-      </div>
-      
-      <div className="input-group">
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className={`form-input ${errors.password ? 'error' : ''}`}
-          value={formData.password || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.password && <span className="error-message">{errors.password}</span>}
-      </div>
-      
-      <div className="input-group">
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-          value={formData.confirmPassword || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-      </div>
-    </>
-  );
-
- const renderAdminFields = () => (
-    <>
-      <div className="input-group">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className={`form-input ${errors.email ? 'error' : ''}`}
-          value={formData.email || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.email && <span className="error-message">{errors.email}</span>}
-      </div>
-      
-      <div className="input-group">
-        <input
-          type="text"
-          name="bankName"
-          placeholder="Bank Name"
-          className={`form-input ${errors.bankName ? 'error' : ''}`}
-          value={formData.bankName || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.bankName && <span className="error-message">{errors.bankName}</span>}
-      </div>
-      
-      <div className="input-group">
-        <input
-          type="password"
-          name="adminPassword"
-          placeholder="Admin Password"
-          className={`form-input ${errors.adminPassword ? 'error' : ''}`}
-          value={formData.adminPassword || ''}
-          onChange={handleChange}
-          required
-        />
-        {errors.adminPassword && <span className="error-message">{errors.adminPassword}</span>}
-      </div>
-    </>
-  );
 return (
     <div className="signup-container">
       <h2 className="signup-title">Signup Page</h2>
@@ -245,7 +164,11 @@ return (
 
       {userType && (
         <form onSubmit={handleSubmit} className="signup-form">
-          {userType === 'user' ? renderUserFields() : renderAdminFields()}
+          {userType === 'user' ? (
+            <UserFields formData={formData} errors={errors} handleChange={handleChange} />
+          ) : (
+            <AdminFields formData={formData} errors={errors} handleChange={handleChange} />
+          )}
           <button 
             type="submit" 
             className={`submit-button ${isSubmitting ? 'loading' : ''}`}
