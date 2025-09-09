@@ -10,8 +10,10 @@ import com.example.banking_application.entity.Account;
 import com.example.banking_application.mapper.AccountMapper;
 import com.example.banking_application.repository.AccountRepository;
 import com.example.banking_application.service.AccountService;
+
 @Service
 public class AccountServiceImpl implements AccountService {
+    
     @Autowired
     private AccountRepository accountRepository;
 
