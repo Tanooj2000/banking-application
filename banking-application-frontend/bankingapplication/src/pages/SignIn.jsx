@@ -1,7 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { signInUser, signInAdmin } from '../api/signInApi';
 import { useNavigate, useLocation } from 'react-router-dom';
+import './SignIn.css';
 
 
 
@@ -41,12 +43,12 @@ const SignIn = () => {
 			setIsSubmitting(true);
 			if (validateForm()) {
 				try {
-					let response;
+					// let response;
 					if (userType === 'admin') {
-						response = await signInAdmin(formData);
+						// response = await signInAdmin(formData);
 						navigate('/adminpage');
 					} else {
-						response = await signInUser(formData);
+						// response = await signInUser(formData);
 						navigate('/userpage');
 					}
 				} catch (error) {

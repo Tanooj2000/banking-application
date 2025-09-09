@@ -99,9 +99,8 @@ const SignUp = () => {
           const userPayload = {
             name: formData.name,
             email: formData.email,
-            mobile: formData.mobile,
+            phone: formData.mobile,
             password: formData.password,
-            userType: 'user',
           };
           response = await signUpUser(userPayload);
         } else if (userType === 'admin') {
@@ -111,7 +110,6 @@ const SignUp = () => {
             email: formData.email,
             bankName: formData.bankName,
             password: formData.adminPassword,
-            userType: 'admin',
           };
           response = await signUpAdmin(adminPayload);
         }
