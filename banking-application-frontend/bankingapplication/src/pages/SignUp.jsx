@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import './SignUp.css';
 import { signUpUser, signUpAdmin } from '../api/userApi';
+import { useNavigate } from 'react-router-dom';
 import UserFields from './UserFields';
 import AdminFields from './AdminFields';
 const SignUp = () => {
-const [userType, setUserType] = useState('');
+  const [userType, setUserType] = useState('');
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   // Validation functions
   const validateEmail = (email) => {
@@ -36,6 +38,9 @@ const [userType, setUserType] = useState('');
 
     if (userType === 'user') {
       // User specific validations
+      if (!formData.name) {
+        newErrors.name = 'Full name is required';
+      }
       if (!formData.mobile) {
         newErrors.mobile = 'Mobile number is required';
       } else if (!validateMobile(formData.mobile)) {
@@ -92,34 +97,30 @@ const [userType, setUserType] = useState('');
         if (userType === 'user') {
           // Prepare user payload
           const userPayload = {
+            name: formData.name,
             email: formData.email,
-            phone: formData.phone,
-            password: formData.password
+            mobile: formData.mobile,
+            password: formData.password,
+            userType: 'user',
           };
           response = await signUpUser(userPayload);
         } else if (userType === 'admin') {
           // Prepare admin payload
           const adminPayload = {
+            name: formData.name,
             email: formData.email,
             bankName: formData.bankName,
             password: formData.adminPassword,
-            userType: 'admin',
           };
           response = await signUpAdmin(adminPayload);
         }
         alert('Sign up successful!');
         setFormData({});
         setUserType('');
-        } catch (error) {
-          console.log('Submission error:', error);
-          if (error && error.message) {
-            console.log('Error message:', error.message);
-          }
-          if (error && error.stack) {
-            console.log('Error stack:', error.stack);
-          }
-          alert('An error occurred. Please try again.');
-        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        alert('An error occurred. Please try again.');
+      }
     }
     setIsSubmitting(false);
   };
