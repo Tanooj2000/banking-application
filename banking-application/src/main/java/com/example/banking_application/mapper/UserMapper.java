@@ -7,7 +7,7 @@ public class UserMapper {
     public static User mapToUser(UserDto userDto){
         User user = new User(
             userDto.getId(),
-            //userDto.getName(),
+            userDto.getName(),
             userDto.getEmail(),
             userDto.getPhone(),
             userDto.getPassword()
@@ -17,7 +17,7 @@ public class UserMapper {
     public static UserDto mapToUserDto(User user){
         UserDto userDto = new UserDto(
             user.getId(),
-            //user.getName(),
+            user.getName(),
             user.getEmail(),
             user.getPhone(),
             user.getPassword()

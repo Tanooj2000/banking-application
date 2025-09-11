@@ -3,7 +3,7 @@
 const BASE_URL = 'http://localhost:8080/api/';
 
 export const signUpUser = async (userData) => {
-  const response = await fetch(`${BASE_URL}/users`, {
+  const response = await fetch(`${BASE_URL}users`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

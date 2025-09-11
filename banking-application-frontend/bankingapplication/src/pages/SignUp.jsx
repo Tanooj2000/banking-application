@@ -99,7 +99,7 @@ const SignUp = () => {
           const userPayload = {
             name: formData.name,
             email: formData.email,
-            mobile: formData.mobile,
+            phone: formData.mobile,
             password: formData.password,
             userType: 'user',
           };

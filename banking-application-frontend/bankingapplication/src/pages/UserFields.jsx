@@ -29,7 +29,7 @@ const UserFields = ({ formData, errors, handleChange }) => (
     <div className="input-group">
       <input
         type="tel"
-        name="phone"
+        name="mobile"
         placeholder="Mobile Number"
         className={`form-input ${errors.mobile ? 'error' : ''}`}
         value={formData.mobile || ''}
