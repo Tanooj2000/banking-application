@@ -29,5 +29,3 @@ The **Banking Application** is a web-based platform designed to provide essentia
 | Database     | MySQL          |
 | Version Control | Git         |
 |Testing|Java Selenium, Rest Assured API|
-
----
