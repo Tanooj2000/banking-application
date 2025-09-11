@@ -7,18 +7,20 @@ public class UserMapper {
     public static User mapToUser(UserDto userDto){
         User user = new User(
             userDto.getId(),
-            userDto.getName(),
+            //userDto.getName(),
             userDto.getEmail(),
-            userDto.getPhone()
+            userDto.getPhone(),
+            userDto.getPassword()
         );
         return user;
     }
     public static UserDto mapToUserDto(User user){
         UserDto userDto = new UserDto(
             user.getId(),
-            user.getName(),
+            //user.getName(),
             user.getEmail(),
-            user.getPhone()
+            user.getPhone(),
+            user.getPassword()
         );
         return userDto;
     }

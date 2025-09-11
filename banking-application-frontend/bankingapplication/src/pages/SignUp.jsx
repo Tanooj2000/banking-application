@@ -93,9 +93,8 @@ const [userType, setUserType] = useState('');
           // Prepare user payload
           const userPayload = {
             email: formData.email,
-            mobile: formData.mobile,
-            password: formData.password,
-            userType: 'user',
+            phone: formData.phone,
+            password: formData.password
           };
           response = await signUpUser(userPayload);
         } else if (userType === 'admin') {
@@ -111,10 +110,16 @@ const [userType, setUserType] = useState('');
         alert('Sign up successful!');
         setFormData({});
         setUserType('');
-      } catch (error) {
-        console.error('Submission error:', error);
-        alert('An error occurred. Please try again.');
-      }
+        } catch (error) {
+          console.log('Submission error:', error);
+          if (error && error.message) {
+            console.log('Error message:', error.message);
+          }
+          if (error && error.stack) {
+            console.log('Error stack:', error.stack);
+          }
+          alert('An error occurred. Please try again.');
+        }
     }
     setIsSubmitting(false);
   };

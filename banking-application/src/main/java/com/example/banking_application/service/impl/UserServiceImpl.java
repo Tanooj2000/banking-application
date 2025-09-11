@@ -10,6 +10,9 @@ import com.example.banking_application.entity.User;
 import com.example.banking_application.mapper.UserMapper;
 import com.example.banking_application.repository.UserRepository;
 import com.example.banking_application.service.UserService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -19,9 +22,12 @@ public class UserServiceImpl implements UserService{
     
     @Override
     public UserDto createUser(UserDto userDto) {
-        User user = UserMapper.mapToUser(userDto);
-        User savedUser = userRepository.save(user);
-        return UserMapper.mapToUserDto(savedUser);
+    User user = UserMapper.mapToUser(userDto);
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    String hashedPassword = passwordEncoder.encode(user.getPassword());
+    user.setPassword(hashedPassword);
+    User savedUser = userRepository.save(user);
+    return UserMapper.mapToUserDto(savedUser);
     }
 
     @Override
