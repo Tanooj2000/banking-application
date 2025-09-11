@@ -1,16 +1,10 @@
-import { Link } from 'react-router-dom';
+import Header from '../components/Header';
 import './HomePage.css';
 const HomePage = () => {
   return (
     <div>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-logo">BankingApplication</div>
-        <div className="navbar-links">
-          <Link to="/signin">Sign In</Link>
-          <Link to="/signup">Sign Up</Link>
-        </div>
-      </nav>
+  {/* Navbar */}
+  <Header />
 
       {/* Body Content */}
       <div className="homepage-body">

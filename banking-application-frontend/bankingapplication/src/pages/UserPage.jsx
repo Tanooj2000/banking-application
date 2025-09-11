@@ -1,5 +1,7 @@
 
 import React, { useState } from 'react';
+import Header from '../components/Header';
+import { useNavigate } from 'react-router-dom';
 import './UserPage.css';
 import sbiImg from '../assets/SBI.webp';
 import hdfcImg from '../assets/HDFC.webp';
@@ -73,9 +75,12 @@ const getUniqueCities = (banks) => [
   ...new Set(banks.map((bank) => bank.city)),
 ];
 
+
 const UserPage = () => {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('');
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const navigate = useNavigate();
 
   const cities = getUniqueCities(BANKS);
 
@@ -85,8 +90,13 @@ const UserPage = () => {
     return matchesSearch && matchesCity;
   });
 
+  const handleCreate = (bankName) => {
+    navigate(`/createaccount?bank=${encodeURIComponent(bankName)}`);
+  };
+
   return (
     <>
+      <Header />
       <h2 style={{ textAlign: 'center', marginBottom: 18, color: '#222' }}>Welcome to the User Page!</h2>
       <div className="userpage-searchbar">
         <input
@@ -94,7 +104,7 @@ const UserPage = () => {
           placeholder="Search banks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: '350px' }}
+          style={{ width: '450px' }}
         />
         <select
           value={city}
@@ -112,7 +122,13 @@ const UserPage = () => {
         ) : (
           <div className="userpage-grid">
             {filteredBanks.map((bank, idx) => (
-              <div key={idx} className="userpage-bankcard">
+              <div
+                key={idx}
+                className="userpage-bankcard"
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                style={{ position: 'relative' }}
+              >
                 <img
                   src={bank.image}
                   alt={bank.name + ' logo'}
@@ -121,6 +137,14 @@ const UserPage = () => {
                   <strong>{bank.name}</strong> <br />
                   <span>Type: {bank.type}</span> <br />
                   <span>City: {bank.city}</span>
+                  {hoveredIdx === idx && (
+                    <button
+                      className="userpage-create-btn"
+                      onClick={() => handleCreate(bank.name)}
+                    >
+                      Create
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

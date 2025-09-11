@@ -38,25 +38,29 @@ const SignIn = () => {
 		}
 	};
 
-		const handleSubmit = async (e) => {
-			e.preventDefault();
-			setIsSubmitting(true);
-			if (validateForm()) {
-				try {
-					// let response;
-					if (userType === 'admin') {
-						// response = await signInAdmin(formData);
-						navigate('/adminpage');
-					} else {
-						// response = await signInUser(formData);
-						navigate('/userpage');
+			const handleSubmit = async (e) => {
+				e.preventDefault();
+				setIsSubmitting(true);
+				if (validateForm()) {
+					try {
+						// let response;
+									if (userType === 'admin') {
+										// response = await signInAdmin(formData);
+										sessionStorage.setItem('userToken', 'admin-token');
+										window.dispatchEvent(new Event('storage'));
+										navigate('/adminpage');
+									} else {
+										// response = await signInUser(formData);
+										sessionStorage.setItem('userToken', 'user-token');
+										window.dispatchEvent(new Event('storage'));
+										navigate('/userpage');
+									}
+					} catch (error) {
+						setErrors({ form: error.message });
 					}
-				} catch (error) {
-					setErrors({ form: error.message });
 				}
-			}
-			setIsSubmitting(false);
-		};
+				setIsSubmitting(false);
+			};
 
 	return (
 		<div className="signin-container">
