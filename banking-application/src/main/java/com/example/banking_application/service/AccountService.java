@@ -1,7 +1,6 @@
 package com.example.banking_application.service;
 
 import java.util.List;
-
 import com.example.banking_application.dto.AccountDto;
 
 public interface AccountService {

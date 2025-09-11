@@ -1,0 +1,87 @@
+/* Create button for bank card */
+.userpage-create-btn {
+  display: block;
+  margin: 16px auto 0 auto;
+  padding: 6px 14px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+.userpage-create-btn:hover {
+  background: #1251a3;
+}
+/* Removed outer container styles */
+
+.userpage-searchbar {
+  margin: 24px auto 32px auto;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.userpage-searchbar input,
+.userpage-searchbar select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+
+.userpage-bankgrid {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.userpage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* No longer needed: .userpage-banklist ul */
+
+.userpage-bankcard {
+  padding: 18px 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafbfc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 180px;
+  min-width: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+.userpage-bankcard:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+.userpage-bankcard img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.userpage-bankcard strong {
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.userpage-bankcard span {
+  font-size: 0.98rem;
+  color: #555;
+}
