@@ -1,65 +1,236 @@
-.signin-container {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 32px 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+
+.signup-promo-card {
+ 
+  padding: 2.2rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 340px;
+  margin: 0 0 5rem 0;
+  color: #fff;
+  text-align: center;
+}
+.signup-promo-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.01em;
 }
 
-.signin-form {
+.signup-promo-sub {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #e3eafc;
+}
+.signup-promo-desc {
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  color: #e3eafc;
+  opacity: 0.92;
+}
+.signup-promo-btn {
+  background: #fff;
+  color: #3949ab;
+  font-weight: 700;
+  font-size: 1.08rem;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.7rem 2.2rem;
+  box-shadow: 0 2px 12px #23252622;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.signup-promo-btn:hover {
+  background: #3949ab;
+  color: #fff;
+  box-shadow: 0 4px 24px #3949ab33;
+}
+
+
+/* Professional SignIn background */
+.signin-bg-gradient {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #384973 0%, #f5f7fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signin-card {
+    display: flex;
+    width: 900px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+.signin-card-left {
+  flex: 1;
+    background: linear-gradient(to right, #362a6c, #4911c2);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    margin-left: 0.5rem;
+/* Ensuring it's always visible */
+  
+/* Entrance animation */
+animation: fadeFlash 3.5s ease-in-out forwards;
+
+}
+/* Flashing fade-in effect */
+@keyframes fadeFlash {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px); /* Start slightly to the left */
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0); /* Moves to original position */
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.signin-illustration {
+  width: 90%;
+  max-width: 340px;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 16px #0003;
+  object-fit: cover;
+}
+.signin-card-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  min-width: 0;
+}
+.signin-headline {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #232526;
+  margin-bottom: 0.5rem;
+}
+.signin-subtitle {
+  font-size: 1.13rem;
+  color: #3949ab;
+  margin-bottom: 2.2rem;
+  opacity: 0.85;
+}
+.signin-type-select-pro {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+.signin-type-btn-pro {
+  width: 260px;
+  padding: 1.1rem 0;
+  font-size: 1.18rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.8rem;
+  background: #3949ab;
+  color: #fff;
+  box-shadow: 0 2px 12px #23252622;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  letter-spacing: 0.01em;
+}
+.signin-type-btn-pro.admin {
+  background: #232526;
+}
+.signin-type-btn-pro:hover {
+  background: #1a237e;
+  color: #90caf9;
+}
+.signin-btn-icon {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+.signin-btn-arrow {
+  font-size: 1.3rem;
+  margin-left: 0.5rem;
+}
+
+/* Modal overlay for form */
+.signin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(14, 42, 70, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.signin-modal-form {
+  background: #d8d2d2;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 40px #23252622;
+  padding: 2.2rem 2.5rem 2rem 2.5rem;
+  min-width: 320px;
+  max-width: 95vw;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  position: relative;
+  animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
 }
-
-.input-group {
-  display: flex;
-  flex-direction: column;
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
-
-.form-input {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  outline: none;
-  transition: border 0.2s;
-}
-
-.form-input:focus {
-  border-color: #007bff;
-}
-
-.form-input.error {
-  border-color: #e74c3c;
-}
-
-.error-message {
-  color: #e74c3c;
-  font-size: 0.92rem;
-  margin-top: 4px;
-}
-
-.submit-button {
-  padding: 10px 0;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.submit-button:disabled,
-.submit-button.loading {
-  background: #a0c4ff;
-  cursor: not-allowed;
-}
-
-h2 {
+.signin-modal-form h2 {
   text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+  color: #232526;
+}
+.signin-modal-back {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.1rem;
+  background: none;
+  border: none;
+  color: #3949ab;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  z-index: 2;
+}
+
+@media (max-width: 1000px) {
+  .signin-card {
+    flex-direction: column;
+    width: 98vw;
+    min-height: 0;
+    border-radius: 1.2rem;
+  }
+  .signin-card-left, .signin-card-right {
+    width: 100%;
+    min-width: 0;
+    padding: 1.2rem 0.5rem;
+  }
+}
+
+.signin-form {
   margin-bottom: 18px;
   color: #222;
 }

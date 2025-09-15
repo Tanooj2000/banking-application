@@ -1,3 +1,14 @@
+body {
+  background: linear-gradient(135deg, #e3f0ff 0%, #f8fafc 60%, #dbeafe 100%);
+  min-height: 100vh;
+}
+
+.userpage-bg-gradient {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2b353f 0%, #f8fafc 60%, #dbeafe 100%);
+  display: flex;
+  flex-direction: column;
+}
 /* Create button for bank card */
 .userpage-create-btn {
   display: block;

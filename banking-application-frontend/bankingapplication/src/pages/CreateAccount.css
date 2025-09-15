@@ -1,0 +1,176 @@
+/* Info line for bank and country */
+.createaccount-info-line {
+  text-align: center;
+  font-size: 1.13rem;
+  color: #3949ab;
+  font-weight: 600;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  letter-spacing: 0.2px;
+}
+
+/* Section divider */
+.createaccount-section-divider {
+  border: none;
+  border-top: 1.5px solid #e0e7ef;
+  margin: 32px 0 0 0;
+}
+/* Form section headings and group spacing */
+.createaccount-form-section {
+  margin-bottom: 28px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid #e0e7ef;
+}
+.createaccount-form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.createaccount-section-title {
+  font-size: 2.22rem;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 18px;
+  margin-top: 0;
+  letter-spacing: 0.5px;
+  text-align: left;
+  background-color: #15264a;
+}
+
+
+.createaccount-title {
+ font-size: 2.5rem;
+  font-weight: 800;
+  color: #3949ab;
+  margin-bottom: 8px;
+  letter-spacing: 1.5px;
+  text-align: center;
+  background: linear-gradient(90deg, #3949ab 30%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.createaccount-subtitle {
+  font-size: 1.18rem;
+  color: #232526;
+  margin-bottom: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  font-weight: 500;
+  background: rgba(57,73,171,0.07);
+  border-radius: 10px;
+  padding: 8px 0 8px 0;
+  margin-bottom: 10px;
+}
+
+.createaccount-form {
+ margin-top: 18px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #3949ab11;
+  padding: 18px 12px 10px 12px;
+}
+
+.createaccount-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 24px;
+}
+
+.createaccount-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.createaccount-form-group label {
+  font-size: 1rem;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.createaccount-form-group input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #b6c2d6;
+  font-size: 1.08rem;
+  background: #f8fafc;
+  transition: border 0.18s;
+}
+.createaccount-form-group textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #b6c2d6;
+  font-size: 1.08rem;
+  background: #f8fafc;
+  transition: border 0.18s;
+  resize: vertical;
+}
+.createaccount-form-group textarea:focus {
+  border: 1.5px solid #2563eb;
+  outline: none;
+}
+.createaccount-form-group select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #b6c2d6;
+  font-size: 1.08rem;
+  background: #f8fafc;
+  transition: border 0.18s;
+}
+.createaccount-form-group select:focus {
+  border: 1.5px solid #2563eb;
+  outline: none;
+}
+.createaccount-form-group input[type="file"] {
+  padding: 6px 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+}
+.createaccount-form-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  accent-color: #3949ab;
+}
+.createaccount-form-group[style*="flexDirection: row"] {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px;
+}
+.createaccount-form-group input:focus {
+  border: 1.5px solid #2563eb;
+  outline: none;
+}
+
+.createaccount-submit-btn {
+  margin: 32px auto 0 auto;
+  display: block;
+  background: linear-gradient(90deg, #3949ab 0%, #232526 100%);
+  color: #fff;
+  border: none;
+  border-radius: 1.2rem;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.13rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 12px #23252622;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s;
+}
+.createaccount-submit-btn:hover, .createaccount-submit-btn:focus {
+  background: linear-gradient(90deg, #232526 0%, #3949ab 100%);
+  color: #fff;
+  box-shadow: 0 4px 24px #3949ab33;
+  transform: translateY(-2px) scale(1.04);
+}
+
+@media (max-width: 700px) {
+  .createaccount-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px 0;
+  }
+}

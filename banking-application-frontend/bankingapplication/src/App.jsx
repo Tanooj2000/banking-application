@@ -7,11 +7,13 @@ import CreateAccount from './pages/CreateAccount';
 import AdminPage from './pages/AdminPage';
 import './App.css'
 import HomePage from './pages/HomePage.jsx'
+import AboutPage from './pages/AboutPage.jsx';
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/userpage" element={<UserPage />} />
