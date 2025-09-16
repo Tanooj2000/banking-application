@@ -42,7 +42,7 @@ const Header = () => {
   return (
     <nav className="nav">
 
-  <h1 className='nav__logo'><FaUniversity style={{ marginRight: '10px', verticalAlign: 'middle' }} />AllBanksOne</h1>
+  <h1 className='nav__logo'><FaUniversity style={{width:'70px',height:'50px', marginRight: '10px', verticalAlign: 'middle' }} />AllBanksOne</h1>
       
       <ul className="nav__links">
         <li className="nav__item"><Link className="nav__link" to="/">Home</Link></li>
