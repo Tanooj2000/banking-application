@@ -1,6 +1,7 @@
 package com.example.banking_application.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,14 @@ public class AdminController {
     @PostMapping
     public ResponseEntity<AdminDto> addAdmin(@RequestBody AdminDto adminDto){
         return new ResponseEntity<>(adminService.createAdmin(adminDto),HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData) {
+        String email = loginData.get("email");
+        String password = loginData.get("password");
+        adminService.login(email, password);
+        return ResponseEntity.ok("Login successful");
     }
 
     @GetMapping

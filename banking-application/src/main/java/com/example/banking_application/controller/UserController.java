@@ -1,6 +1,7 @@
 package com.example.banking_application.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,10 +31,19 @@ public class UserController {
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginData) {
+        String email = loginData.get("email");
+        String password = loginData.get("password");
+        userService.login(email, password);
+        return ResponseEntity.ok("Login successful");
     }
+
+
+    // @GetMapping
+    // public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+    //     return ResponseEntity.ok(userService.getUserById(id));
+    // }
 
     @GetMapping("/allusers")
     public ResponseEntity<List<UserDto>> getAllUsers() {

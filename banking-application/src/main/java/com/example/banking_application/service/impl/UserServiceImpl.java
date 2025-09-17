@@ -58,4 +58,16 @@ public class UserServiceImpl implements UserService{
             userRepository.delete(user);
         }
     }
+
+    @Override
+    public void login(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+    }
 }

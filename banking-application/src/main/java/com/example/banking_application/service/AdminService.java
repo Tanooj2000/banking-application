@@ -14,5 +14,7 @@ public interface AdminService {
     public AdminDto updateAdmin(Long id, AdminDto adminDto);
 
     public void deleteAdmin(Long id);
+
+    public void login(String email, String password);
     
 } 

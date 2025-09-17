@@ -7,5 +7,7 @@ import com.example.banking_application.entity.Admin;
 
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
-    // Add custom query methods if needed
+
+    Admin findByEmail(String email);
+    
 }
