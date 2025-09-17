@@ -43,12 +43,12 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					// await signInAdmin(formData);
+					await signInAdmin(formData);
 					sessionStorage.setItem('userToken', 'admin-token');
 					window.dispatchEvent(new Event('storage'));
 					navigate('/adminpage');
 				} else {
-					// await signInUser(formData);
+					await signInUser(formData);
 					sessionStorage.setItem('userToken', 'user-token');
 					window.dispatchEvent(new Event('storage'));
 					navigate('/userpage');

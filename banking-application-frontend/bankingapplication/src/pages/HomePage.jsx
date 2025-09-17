@@ -5,9 +5,6 @@ import MainTop from '../components/MainTop';
 import MainBottom from '../components/MainBottom';
 import './HomePage.css';
 
-import image from '../assets/image.png';
-import React, { useEffect, useRef } from 'react';
-
 const HomePage = () => {
  
   return (

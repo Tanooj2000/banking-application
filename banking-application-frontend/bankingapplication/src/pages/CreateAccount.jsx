@@ -22,8 +22,7 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Aadhaar Card', 'PAN Card', 'Voter ID', 'Passport', 'Driving License'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
+  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Aadhaar Card', 'PAN Card', 'Voter ID', 'Passport', 'Driving License'] },
     { label: 'Initial Deposit (INR)', name: 'deposit', type: 'number', required: true },
     { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
@@ -36,8 +35,7 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'State ID', 'Social Security Card'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
+  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'State ID', 'Social Security Card'] },
     { label: 'Initial Deposit (USD)', name: 'deposit', type: 'number', required: true },
     { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
@@ -50,8 +48,7 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'National ID Card', 'Residence Permit'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
+  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'National ID Card', 'Residence Permit'] },
     { label: 'Initial Deposit (GBP)', name: 'deposit', type: 'number', required: true },
     { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
@@ -77,7 +74,7 @@ const CreateAccount = () => {
     },
     {
       title: 'Identification',
-      names: ['aadhaar', 'pan', 'ssn', 'nin', 'photoId'],
+      names: ['aadhaar', 'pan', 'ssn', 'nin'],
     },
     {
       title: 'Account Details',
@@ -94,24 +91,20 @@ const CreateAccount = () => {
     e.preventDefault();
     setFormStatus({ loading: true, success: null, error: null });
     const form = e.target;
-    const formData = new FormData();
+    const data = {};
     // Add bank and country info
-    formData.append('bank', bankName || '');
-    formData.append('country', country);
+    data.bank = bankName || '';
+    data.country = country;
     // Add all fields
     fields.forEach(field => {
-      if (field.type === 'file') {
-        if (form[field.name]?.files?.[0]) {
-          formData.append(field.name, form[field.name].files[0]);
-        }
-      } else if (field.type === 'checkbox') {
-        formData.append(field.name, form[field.name]?.checked ? 'true' : 'false');
+      if (field.type === 'checkbox') {
+        data[field.name] = form[field.name]?.checked ? true : false;
       } else {
-        formData.append(field.name, form[field.name]?.value || '');
+        data[field.name] = form[field.name]?.value || '';
       }
     });
     try {
-      //await createAccount(formData);
+      await createAccount(data);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
     } catch (err) {
@@ -126,7 +119,7 @@ const CreateAccount = () => {
       <div className="createaccount-info-line">
         Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong>
       </div>
-      <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit} encType="multipart/form-data">
+  <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit}>
         {groups.map((group, idx) => {
           const groupFields = getFieldsForGroup(group.names);
           if (groupFields.length === 0) return null;

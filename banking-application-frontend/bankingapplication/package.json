@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "axios": "^1.12.2",
+    "start": "vite"
+  }
+}
