@@ -17,7 +17,7 @@ export const signUpUser = async (userData) => {
 };
 
 export const signUpAdmin = async (adminData) => {
-  const response = await fetch(`${BASE_URL}/admins`, {
+  const response = await fetch(`${BASE_URL}admins`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

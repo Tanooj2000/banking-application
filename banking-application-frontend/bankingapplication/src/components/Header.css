@@ -45,9 +45,10 @@
   width: auto;
   filter: drop-shadow(0 2px 8px white);
   transition: transform 0.2s;
+  cursor: pointer;
 }
 .nav__logo:hover {
-  transform: scale(1.08) rotate(-2deg);
+  transform: scale(1.08) rotate(-0deg);
 }
 
 .nav__links {

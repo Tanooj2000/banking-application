@@ -1,7 +1,7 @@
 const BASE_URL = 'http://localhost:8080/api';
 
 export const signInUser = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/signin`, {
+  const response = await fetch(`${BASE_URL}/users/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -11,7 +11,8 @@ export const signInUser = async (credentials) => {
   if (!response.ok) {
     throw new Error('Invalid email or password');
   }
-  return response.json();
+  console.log(response);
+  return response.text();
 };
 
 export const signInAdmin = async (credentials) => {

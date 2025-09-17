@@ -71,9 +71,10 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-        alert('Sign up successful!');
-        setFormData({});
-        setUserType('');
+  alert('Sign up successful!');
+  setFormData({});
+  setUserType('');
+  navigate('/signin');
       } catch (error) {
         console.error('Submission error:', error);
         alert('An error occurred. Please try again.');
