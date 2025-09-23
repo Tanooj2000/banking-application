@@ -57,11 +57,7 @@ const SignUp = () => {
           const userPayload = {
             username: formData.name,
             email: formData.email,
-<<<<<<< HEAD
-            phone: formData.mobile,
-=======
             phonenumber: formData.mobile,
->>>>>>> 7c7dd756d0e10c0ef8d6c667acf05fe4483512c2
             password: formData.password,
             userType: 'user',
           };
