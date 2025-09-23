@@ -228,7 +228,23 @@ const SignUp = () => {
                 </>
               ) : (
                 <>
-               
+                  <div className="input-group">
+                    <label htmlFor="name">Username</label>
+                    <div className="input-icon-wrapper">
+                      <FaUser className="input-icon" />
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        className={`form-input${errors.name ? ' error' : ''}`}
+                        placeholder="Enter your username"
+                        value={formData.name || ''}
+                        onChange={handleChange}
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                      />
+                    </div>
+                    {errors.name && <span className="error-message">{errors.name}</span>}
+                  </div>
                   <div className="input-group">
                     <label htmlFor="bankName">Bank Name</label>
                     <div className="input-icon-wrapper">
