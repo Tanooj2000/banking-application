@@ -1,21 +1,20 @@
-const BASE_URL = 'http://localhost:8080/api';
 
-export const signInUser = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/signin`, {
+const BASE_URL = 'http://localhost:8083/api/admin';
+export const signUpAdmin = async (adminData) => {
+  const response = await fetch(`${BASE_URL}/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(credentials),
+    body: JSON.stringify(adminData),
   });
   if (!response.ok) {
-    throw new Error('Invalid email or password');
+    throw new Error('Failed to sign up admin');
   }
-  return response.json();
+  return response.text();
 };
-
 export const signInAdmin = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/admin/signin`, {
+  const response = await fetch(`${BASE_URL}/signin`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
