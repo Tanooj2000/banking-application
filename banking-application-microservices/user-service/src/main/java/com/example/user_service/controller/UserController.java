@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.user_service.dto.LoginRequest;
 import com.example.user_service.dto.RegisterRequest;
+import com.example.user_service.entity.User;
 import com.example.user_service.service.UserService;
 
 @RestController
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public User login(@RequestBody LoginRequest request) {
         return userService.login(request);
     }
 }

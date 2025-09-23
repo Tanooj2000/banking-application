@@ -1,6 +1,9 @@
 package com.example.admin_service.service;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +35,7 @@ public class AdminService {
         return "Admin registered. Awaiting root verification.";
     }
 
-    public String login(AdminLoginRequest request) {
+    public Map<String, Admin> login(AdminLoginRequest request) {
         Admin admin = adminRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
@@ -41,10 +44,10 @@ public class AdminService {
         }
 
         if (!admin.isVerifiedByRoot()) {
-            return "Admin not verified by root.";
+            return Map.of("Admin is not verified", admin);
         }
 
-        return "Admin login successful.";
+        return Map.of("Logged in sucessfully", admin);
     }
 
     public String verifyAdmin(String username, String rootUsername, String rootPassword) {

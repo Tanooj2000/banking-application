@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import Footer from '../components/Footer';
 import './SignUp.css';
-import { signUpUser, signUpAdmin } from '../api/userApi';
+import {signUpUser} from '../api/userApi';
+import { signUpAdmin } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUniversity, FaUserShield } from 'react-icons/fa';
 import Header from '../components/Header';

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
  
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
-import UserPage from './pages/UserPage';
+import BrowseBank from './pages/BrowseBank';
 import CreateAccount from './pages/CreateAccount';
 import AdminPage from './pages/AdminPage';
 import './App.css'
@@ -16,7 +16,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/userpage" element={<UserPage />} />
+        <Route path="/browsebank" element={<BrowseBank />} />
         <Route path="/adminpage" element={<AdminPage />} />
         <Route path="/createaccount" element={<CreateAccount />} />
       </Routes>

@@ -4,7 +4,8 @@
 import React, { useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { signInUser, signInAdmin } from '../api/signInApi';
+import { signInUser } from '../api/userApi';
+import { signInAdmin } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 import './SignIn.css';
 import welcomeImg from '../assets/bank-1.jpg'; // Use your preferred illustration or SVG
@@ -43,15 +44,15 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					// await signInAdmin(formData);
+					await signInAdmin(formData);
 					sessionStorage.setItem('userToken', 'admin-token');
 					window.dispatchEvent(new Event('storage'));
 					navigate('/adminpage');
 				} else {
-					// await signInUser(formData);
+					await signInUser(formData);
 					sessionStorage.setItem('userToken', 'user-token');
 					window.dispatchEvent(new Event('storage'));
-					navigate('/userpage');
+					navigate('/browsebank');
 				}
 			} catch (error) {
 				setErrors({ form: error.message });

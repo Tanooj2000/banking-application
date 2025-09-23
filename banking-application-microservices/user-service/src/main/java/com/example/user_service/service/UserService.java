@@ -32,7 +32,7 @@ public class UserService {
         return "User registered successfully.";
     }
 
-    public String login(LoginRequest request) {
+    public User login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -40,7 +40,7 @@ public class UserService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return "Login successful.";
+        return user;
     }
 
 }
