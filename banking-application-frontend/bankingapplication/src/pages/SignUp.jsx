@@ -55,18 +55,22 @@ const SignUp = () => {
         let response;
         if (userType === 'user') {
           const userPayload = {
-            name: formData.name,
+            username: formData.name,
             email: formData.email,
+<<<<<<< HEAD
             phone: formData.mobile,
+=======
+            phonenumber: formData.mobile,
+>>>>>>> 7c7dd756d0e10c0ef8d6c667acf05fe4483512c2
             password: formData.password,
             userType: 'user',
           };
           response = await signUpUser(userPayload);
         } else if (userType === 'admin') {
           const adminPayload = {
-            name: formData.name,
+            username: formData.name,
             email: formData.email,
-            bankName: formData.bankName,
+            bankname: formData.bankName,
             password: formData.adminPassword,
           };
           response = await signUpAdmin(adminPayload);
@@ -140,7 +144,7 @@ const SignUp = () => {
               {userType === 'user' ? (
                 <>
                   <div className="input-group">
-                    <label htmlFor="name">Full Name</label>
+                    <label htmlFor="name">User Name</label>
                     <div className="input-icon-wrapper">
                       <FaUser className="input-icon" />
                       <input
