@@ -48,10 +48,10 @@ const SignIn = () => {
 					window.dispatchEvent(new Event('storage'));
 					navigate('/adminpage');
 				} else {
-					await signInUser(formData);
+					//await signInUser(formData);
 					sessionStorage.setItem('userToken', 'user-token');
 					window.dispatchEvent(new Event('storage'));
-					navigate('/userpage');
+					navigate('/browsebank');
 				}
 			} catch (error) {
 				setErrors({ form: error.message });
