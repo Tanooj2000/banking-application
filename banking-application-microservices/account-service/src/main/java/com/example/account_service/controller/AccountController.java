@@ -11,29 +11,27 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
-@RequiredArgsConstructor
 public class AccountController {
 
-    private final AccountService accountService;
+    @Autowired
+    private AccountService accountService;
 
-    @PostMapping("/create")
-    public String createAccount(@RequestBody AccountRequest request) {
-        return accountService.createAccount(request);
+    @PostMapping("/create/{country}")
+    public ResponseEntity<String> createAccount(@PathVariable String country, @RequestBody Map<String, Object> payload) {
+        try {
+            accountService.createAccount(country, payload);
+            return ResponseEntity.ok("Account created for " + country);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @GetMapping("/pending")
-    public List<Account> getPendingAccounts() {
-        return accountService.getPendingAccounts();
-    }
-
-    @PostMapping("/approve/{id}")
-    public String approve(@PathVariable Long id) {
-        return accountService.approveAccount(id);
-    }
-
-    @PostMapping("/reject/{id}")
-    public String reject(@PathVariable Long id) {
-        return accountService.rejectAccount(id);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId) {
+        List<Account> accounts = accountService.getAccountsByUserId(userId);
+        if (accounts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(accounts);
     }
 }
-

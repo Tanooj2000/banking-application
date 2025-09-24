@@ -11,39 +11,35 @@ import com.example.account_service.repository.AccountRepository;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class AccountService {
 
-    private final AccountRepository accountRepository;
+    @Autowired
+    private AccountStrategyFactory strategyFactory;
 
-    public String createAccount(AccountRequest request) {
-        Account account = new Account();
-        account.setUsername(request.getUsername());
-        account.setBankName(request.getBankName());
-        account.setAccountType(request.getAccountType());
-        account.setStatus(AccountStatus.PENDING);
-        accountRepository.save(account);
-        return "Account request submitted.";
+    @Autowired
+    private AccountRepository accountRepository;
+
+    public void createAccount(String country, Map<String, Object> payload) {
+        AccountCreationStrategy strategy = strategyFactory.getStrategy(country);
+        if (strategy == null) {
+            throw new IllegalArgumentException("Unsupported country: " + country);
+        }
+
+        Object dto = convertPayloadToDto(payload, country);
+        strategy.createAccount(dto);
     }
 
-    public List<Account> getPendingAccounts() {
-        return accountRepository.findByStatus(AccountStatus.PENDING);
+    public List<Account> getAccountsByUserId(Long userId) {
+        return accountRepository.findByUserId(userId);
     }
 
-    public String approveAccount(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-        account.setStatus(AccountStatus.APPROVED);
-        accountRepository.save(account);
-        return "Account approved.";
-    }
-
-    public String rejectAccount(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-        account.setStatus(AccountStatus.REJECTED);
-        accountRepository.save(account);
-        return "Account rejected.";
+    private Object convertPayloadToDto(Map<String, Object> payload, String country) {
+        ObjectMapper mapper = new ObjectMapper();
+        switch (country.toUpperCase()) {
+            case "IN": return mapper.convertValue(payload, IndiaAccountRequest.class);
+            case "US": return mapper.convertValue(payload, USAAccountRequest.class);
+            case "UK": return mapper.convertValue(payload, UKAccountRequest.class);
+            default: throw new IllegalArgumentException("Invalid country");
+        }
     }
 }
-

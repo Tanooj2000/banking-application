@@ -7,7 +7,8 @@ import com.example.account_service.entity.AccountStatus;
 
 import java.util.List;
 
+@Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    List<Account> findByStatus(AccountStatus status);
+    List<Account> findByUserId(Long userId);
 }
 
