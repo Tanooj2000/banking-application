@@ -1,6 +1,10 @@
 package com.example.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public String register(RegisterRequest request) {
+    public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            System.out.println("$$$$$$$$$$$$$"+request.getUsername()+"$$$$$$$$$$$$$$$");
-            throw new RuntimeException("Username already exists");
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        if (userRepository.findByPhonenumber(request.getPhonenumber()).isPresent()) {
+            return ResponseEntity.badRequest().body("Phone number already exists");
         }
 
         User user = new User();
@@ -29,18 +38,25 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        return "User registered successfully.";
+        return ResponseEntity.ok("User registered successfully.");
     }
 
-    public User login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+    public Map<String, Object> login(LoginRequest request) {
+        Map<String, Object> result = new java.util.HashMap<>();
+        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        if (user == null) {
+            result.put("user", null);
+            result.put("message", "User not found");
+            return result;
         }
-
-        return user;
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            result.put("user", null);
+            result.put("message", "Invalid credentials");
+            return result;
+        }
+        result.put("user", user);
+        result.put("message", "Login successful");
+        return result;
     }
 
 }

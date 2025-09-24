@@ -1,10 +1,9 @@
 // src/api/userApi.js
 
-const BASE_URL = 'http://localhost:8081/api/user';
+const BASE_URL = 'http://localhost:8081/api/user/';
 
 export const signUpUser = async (userData) => {
-
-  const response = await fetch(`${BASE_URL}/register`, {
+  const response = await fetch(`${BASE_URL}register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -12,13 +11,15 @@ export const signUpUser = async (userData) => {
     body: JSON.stringify(userData),
   });
   if (!response.ok) {
-    throw new Error('Failed to sign up user');
+    // Always read error as text, since backend sends plain string
+    const errorMsg = await response.text();
+    throw new Error(errorMsg || 'Failed to sign up user');
   }
   return response.text();
 };
 
 export const signInUser = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/signin`, {
+  const response = await fetch(`${BASE_URL}login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

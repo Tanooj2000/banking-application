@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.admin_service.dto.AdminLoginRequest;
+import com.example.admin_service.dto.AdminLoginResponse;
 import com.example.admin_service.dto.AdminRegisterRequest;
 import com.example.admin_service.entity.Admin;
 import com.example.admin_service.repository.AdminRepository;
@@ -19,9 +22,18 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public String register(AdminRegisterRequest request) {
+    public ResponseEntity<String> register(AdminRegisterRequest request) {
         if (adminRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Admin already exists");
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        if (adminRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        
+        java.util.List<Admin> adminsForBank = adminRepository.findByBankname(request.getBankname());
+        boolean verifiedAdminExists = adminsForBank.stream().anyMatch(Admin::isVerifiedByRoot);
+        if (verifiedAdminExists) {
+            return ResponseEntity.badRequest().body("Verified Bank Admin already exists");
         }
 
         Admin admin = new Admin();
@@ -32,22 +44,23 @@ public class AdminService {
         admin.setVerifiedByRoot(false); // initially not verified
         adminRepository.save(admin);
 
-        return "Admin registered. Awaiting root verification.";
+        return ResponseEntity.ok("Admin registered. Awaiting root verification.");
     }
 
-    public Map<String, Admin> login(AdminLoginRequest request) {
+    public Map<String, Object> login(AdminLoginRequest request) {
         Admin admin = adminRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
-
+                .orElse(null);
+        if (admin == null) {
+            return Map.of("success", false, "message", "Admin not found", "admin", null);
+        }
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            return Map.of("success", false, "message", "Invalid credentials", "admin", null);
         }
-
         if (!admin.isVerifiedByRoot()) {
-            return Map.of("Admin is not verified", admin);
+            return Map.of("success", false, "message", "Admin is not verified", "admin", admin);
         }
 
-        return Map.of("Logged in sucessfully", admin);
+        return Map.of("success", true, "message", "Logged in successfully", "admin", admin);
     }
 
     public String verifyAdmin(String username, String rootUsername, String rootPassword) {
