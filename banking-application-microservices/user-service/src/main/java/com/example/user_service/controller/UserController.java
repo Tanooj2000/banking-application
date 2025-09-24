@@ -2,12 +2,11 @@ package com.example.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.user_service.dto.LoginRequest;
+import com.example.user_service.dto.LoginResponse;
 import com.example.user_service.dto.RegisterRequest;
 import com.example.user_service.service.UserService;
 
@@ -24,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.login(request);
     }
 }

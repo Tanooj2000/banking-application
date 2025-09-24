@@ -24,7 +24,8 @@ export const signInAdmin = async (credentials) => {
     body: JSON.stringify(credentials),
   });
   if (!response.ok) {
-    throw new Error('Invalid admin email or password');
+    const errorMsg = await response.text();
+    throw new Error(errorMsg || 'Failed to sign in admin');
   }
   return response.json();
 };

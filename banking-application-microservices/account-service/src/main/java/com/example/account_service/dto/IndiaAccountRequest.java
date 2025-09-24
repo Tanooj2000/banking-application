@@ -1,4 +1,10 @@
+package com.example.account_service.dto;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import lombok.Data;
+
 @Data
 public class IndiaAccountRequest {
     public Long userId;

@@ -2,9 +2,6 @@ package com.example.admin_service.service;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
-
-import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,20 +44,27 @@ public class AdminService {
         return ResponseEntity.ok("Admin registered. Awaiting root verification.");
     }
 
-    public Map<String, Object> login(AdminLoginRequest request) {
-        Admin admin = adminRepository.findByUsername(request.getUsername())
-                .orElse(null);
+    public ResponseEntity<AdminLoginResponse> login(AdminLoginRequest request) {
+        Admin admin = null;
+        // Try to find user by username
+        if (request.getUsernameOrEmail() != null && !request.getUsernameOrEmail().isEmpty()) {
+            admin = adminRepository.findByUsername(request.getUsernameOrEmail()).orElse(null);
+            if (admin == null) {
+                // Try to find user by email
+                admin = adminRepository.findByEmail(request.getUsernameOrEmail()).orElse(null);
+            }
+        }
         if (admin == null) {
-            return Map.of("success", false, "message", "Admin not found", "admin", null);
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin not found", null));
         }
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            return Map.of("success", false, "message", "Invalid credentials", "admin", null);
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials", null));
         }
         if (!admin.isVerifiedByRoot()) {
-            return Map.of("success", false, "message", "Admin is not verified", "admin", admin);
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin is not verified please wait for some time and try again", admin));
         }
 
-        return Map.of("success", true, "message", "Logged in successfully", "admin", admin);
+        return ResponseEntity.ok(new AdminLoginResponse(true, "Logged in successfully", admin));
     }
 
     public String verifyAdmin(String username, String rootUsername, String rootPassword) {

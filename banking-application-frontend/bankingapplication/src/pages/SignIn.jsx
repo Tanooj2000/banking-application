@@ -12,7 +12,7 @@ import welcomeImg from '../assets/bank-1.jpg'; // Use your preferred illustratio
 import { FaUser, FaUserShield, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 
 const SignIn = () => {
-	const [formData, setFormData] = useState({ email: '', password: '' });
+	const [formData, setFormData] = useState({ usernameOrEmail: '', password: '' });
 	const [errors, setErrors] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [userType, setUserType] = useState(null);
@@ -20,7 +20,7 @@ const SignIn = () => {
 
 	const validateForm = () => {
 		const newErrors = {};
-		if (!formData.email) newErrors.email = 'Email is required';
+	if (!formData.usernameOrEmail) newErrors.usernameOrEmail = 'Username or Email is required';
 		if (!formData.password) newErrors.password = 'Password is required';
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -35,7 +35,7 @@ const SignIn = () => {
 	const handleUserType = (type) => {
 		setUserType(type);
 		setErrors({});
-		setFormData({ email: '', password: '' });
+		setFormData({ identifier: '', password: '' });
 	};
 
 	const handleSubmit = async (e) => {
@@ -103,15 +103,15 @@ const SignIn = () => {
 										<h2>Sign In as {userType === 'admin' ? 'Admin' : 'User'}</h2>
 										<div className="input-group">
 											<input
-												type="email"
-												name="email"
-												placeholder="Email"
-												value={formData.email}
+												type="text"
+												name="usernameOrEmail"
+												placeholder="Username or Email"
+												value={formData.usernameOrEmail}
 												onChange={handleChange}
-												className={`form-input ${errors.email ? 'error' : ''}`}
+												className={`form-input ${errors.usernameOrEmail ? 'error' : ''}`}
 												required
 											/>
-											{errors.email && <span className="error-message">{errors.email}</span>}
+											{errors.usernameOrEmail && <span className="error-message">{errors.usernameOrEmail}</span>}
 										</div>
 										<div className="input-group">
 											<input
