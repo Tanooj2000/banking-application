@@ -42,10 +42,10 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    if (errors[name]) setErrors({ ...errors, [name]: '' });
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData(prevData => ({ ...prevData, [name]: value }));
+      if (errors[name]) setErrors({ ...errors, [name]: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -72,12 +72,12 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-        alert('Sign up successful!');
+        alert(response);
         setFormData({});
         setUserType('');
       } catch (error) {
         console.error('Submission error:', error);
-        alert('An error occurred. Please try again.');
+        alert(error.message); 
       }
     }
     setIsSubmitting(false);
@@ -249,16 +249,47 @@ const SignUp = () => {
                     <label htmlFor="bankName">Bank Name</label>
                     <div className="input-icon-wrapper">
                       <FaUniversity className="input-icon" />
-                      <input
-                        type="text"
+                      <select
                         id="bankName"
                         name="bankName"
-                        className={`form-input${errors.bankName ? ' error' : ''}`}
-                        placeholder="Enter your bank name"
                         value={formData.bankName || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
-                      />
+                        style={{
+                          width: '100%',
+                          height: '48px',
+                          padding: '12px 15px 12px 40px',
+                          fontSize: '14px',
+                          border: `2px solid ${errors.bankName ? '#dc3545' : '#e0e0e0'}`,
+                          borderRadius: '6px',
+                          backgroundColor: '#fff',
+                          color: '#333',
+                          cursor: 'pointer',
+                          outline: 'none',
+                          transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+                          appearance: 'none',
+                          backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6,9 12,15 18,9\'%3e%3c/polyline%3e%3c/svg%3e")',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 12px center',
+                          backgroundSize: '16px'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#007bff';
+                          e.target.style.boxShadow = '0 0 0 3px rgba(0, 123, 255, 0.1)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = errors.bankName ? '#dc3545' : '#e0e0e0';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      >
+                        <option value="" disabled style={{ color: '#999' }}>
+                          Select your bank
+                        </option>
+                        <option value="HDFC">HDFC</option>
+                        <option value="SBI">SBI</option>
+                        <option value="ICICI">ICICI</option>
+                        <option value="KOTAK">KOTAK</option>
+                        <option value="AXIS">AXIS</option>
+                      </select>
                     </div>
                     {errors.bankName && <span className="error-message">{errors.bankName}</span>}
                   </div>

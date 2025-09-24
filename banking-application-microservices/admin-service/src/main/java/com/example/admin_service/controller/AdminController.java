@@ -1,6 +1,10 @@
 package com.example.admin_service.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.admin_service.dto.AdminLoginRequest;
@@ -15,12 +19,12 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/register")
-    public String register(@RequestBody AdminRegisterRequest request) {
+    public ResponseEntity<String> register(@RequestBody AdminRegisterRequest request) {
         return adminService.register(request);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody AdminLoginRequest request) {
+    public Map<String, Object> login(@RequestBody AdminLoginRequest request) {
         return adminService.login(request);
     }
 

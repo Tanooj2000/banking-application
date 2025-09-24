@@ -1,6 +1,10 @@
 package com.example.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public String register(RegisterRequest request) {
+    public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            System.out.println("$$$$$$$$$$$$$"+request.getUsername()+"$$$$$$$$$$$$$$$");
-            throw new RuntimeException("Username already exists");
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        if (userRepository.findByPhonenumber(request.getPhonenumber()).isPresent()) {
+            return ResponseEntity.badRequest().body("Phone number already exists");
         }
 
         User user = new User();
@@ -29,7 +38,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        return "User registered successfully.";
+        return ResponseEntity.ok("User registered successfully.");
     }
 
     public LoginResponse login(LoginRequest request) {
