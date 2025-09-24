@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/bankAccountApi';
+import './UserPage.css';
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -24,9 +25,9 @@ const UserPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '2rem', padding: '2rem' }}>
+    <div className="userpage-container-vertical">
       {/* User Details Section */}
-      <div style={{ flex: 1, borderRight: '1px solid #ccc', paddingRight: '2rem' }}>
+      <div className="userpage-details">
         <h2>User Details</h2>
         <p><strong>Name:</strong> {user.name}</p>
         <p><strong>Email:</strong> {user.email}</p>
@@ -34,14 +35,14 @@ const UserPage = () => {
         {/* Add more user fields as needed */}
       </div>
       {/* Bank Accounts Section */}
-      <div style={{ flex: 2, paddingLeft: '2rem' }}>
+      <div className="userpage-accounts">
         <h2>Bank Accounts</h2>
         {bankAccounts.length === 0 ? (
           <p>No bank accounts found.</p>
         ) : (
-          <ul>
+          <ul className="userpage-account-list">
             {bankAccounts.map((account, idx) => (
-              <li key={idx}>
+              <li key={idx} className="userpage-account-item">
                 <strong>Account Number:</strong> {account.accountNumber} <br />
                 <strong>Status:</strong> {account.status}
                 {/* Add more account details as needed */}
@@ -49,7 +50,7 @@ const UserPage = () => {
             ))}
           </ul>
         )}
-        <button onClick={handleCreateBankAccount} style={{ marginTop: '2rem', padding: '0.75rem 2rem', fontSize: '1rem' }}>
+        <button onClick={handleCreateBankAccount} className="userpage-create-btn">
           Create Bank Account
         </button>
       </div>

@@ -1,6 +1,6 @@
 // src/api/bankAccountApi.js
-
-const BASE_URL = 'http://localhost:8082/api/accounts';
+import axios from 'axios';
+const BASE_URL = 'http://localhost:8085/api/accounts';
 
 export const getUserBankAccounts = async (userId) => {
   const response = await fetch(`${BASE_URL}/user/${userId}`);
@@ -9,3 +9,10 @@ export const getUserBankAccounts = async (userId) => {
   }
   return response.json();
 };
+export const createAccount = async (data) => {
+  const response = await axios.post('http://localhost:8080/api/indiabankaccounts', data, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return response.data;
+};
+

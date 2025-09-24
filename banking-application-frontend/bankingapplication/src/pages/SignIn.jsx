@@ -49,10 +49,14 @@ const SignIn = () => {
 					window.dispatchEvent(new Event('storage'));
 					navigate('/adminpage');
 				} else {
-					await signInUser(formData);
-					sessionStorage.setItem('userToken', 'user-token');
-					window.dispatchEvent(new Event('storage'));
-					navigate('/browsebank');
+					const response = await signInUser(formData);
+					if (response.success) {
+						sessionStorage.setItem('userToken', 'user-token');
+						window.dispatchEvent(new Event('storage'));
+						navigate('/userpage', { state: { user: response.user } });
+					} else {
+						setErrors({ form: response.message });
+					}
 				}
 			} catch (error) {
 				setErrors({ form: error.message });

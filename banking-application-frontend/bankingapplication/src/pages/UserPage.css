@@ -1,0 +1,96 @@
+/* Vertical layout for UserPage */
+.userpage-container-vertical {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 80vh;
+  background: #f7f8fa;
+  box-sizing: border-box;
+  padding: 2rem 0;
+  gap: 0;
+}
+
+.userpage-details {
+  background: #fff;
+  border-bottom: 2px solid #e0e0e0;
+  border-right: none;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.userpage-accounts {
+  background: #f9fafc;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.userpage-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 80vh;
+  background: #f7f8fa;
+  box-sizing: border-box;
+  padding: 2rem 0;
+}
+
+.userpage-details {
+  flex: 1;
+  background: #fff;
+  border-right: 2px solid #e0e0e0;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.userpage-details h2 {
+  margin-bottom: 1.5rem;
+  color: #3949ab;
+}
+
+.userpage-accounts {
+  flex: 2;
+  background: #f9fafc;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userpage-accounts h2 {
+  margin-bottom: 1.5rem;
+  color: #3949ab;
+}
+
+.userpage-account-list {
+  list-style: none;
+  padding: 0;
+}
+
+.userpage-account-item {
+  background: #fff;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 1rem 1.5rem;
+  border-left: 4px solid #3949ab;
+}
+
+.userpage-create-btn {
+  margin-top: 2rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background: #3949ab;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}

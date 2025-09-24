@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import { useLocation } from 'react-router-dom';
 import './CreateAccount.css';
 
-import { createAccount } from '../api/createAccountApi';
+import { createAccount } from '../api/bankAccountApi';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);

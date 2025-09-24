@@ -25,10 +25,9 @@ export const signInUser = async (credentials) => {
     },
     body: JSON.stringify(credentials),
   });
-  if (!response.ok) {
-    throw new Error('Invalid email or password');
-  }
-  return response.json();
+  // Always return the JSON, even for error cases, so frontend can handle message
+  const data = await response.json();
+  return data;
 };
 
 

@@ -8,6 +8,7 @@ import AdminPage from './pages/AdminPage';
 import './App.css'
 import HomePage from './pages/HomePage.jsx'
 import AboutPage from './pages/AboutPage.jsx';
+import UserPage from './pages/UserPage.jsx';
 function App() {
   return (
     <Router>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/browsebank" element={<BrowseBank />} />
+        <Route path="/userpage" element={<UserPage />} />
         <Route path="/adminpage" element={<AdminPage />} />
         <Route path="/createaccount" element={<CreateAccount />} />
       </Routes>

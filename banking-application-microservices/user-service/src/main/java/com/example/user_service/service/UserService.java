@@ -32,15 +32,15 @@ public class UserService {
         return "User registered successfully.";
     }
 
-    public String login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        if (user == null) {
+            return new LoginResponse(false, "User not found", null);
         }
-
-        return "Login successful.";
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return new LoginResponse(false, "Invalid credentials", null);
+        }
+        return new LoginResponse(true, "Login successful.", user);
     }
 
 }
