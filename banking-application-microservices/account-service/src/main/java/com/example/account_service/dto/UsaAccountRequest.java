@@ -13,7 +13,6 @@ public class UsaAccountRequest {
     public String gender;
     public String occupation;
     public String address;
-    public String idProofType;
     public BigDecimal deposit;
     public boolean consent;
 }
