@@ -22,9 +22,10 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Aadhaar Card', 'PAN Card', 'Voter ID', 'Passport', 'Driving License'] },
-    { label: 'Initial Deposit (INR)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+  // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['SAVINGS', 'CURRENT', 'SALARY', 'FIXED_DEPOSIT'] },
+  { label: 'Initial Deposit (INR)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
   USA: [
     { label: 'Full Name', name: 'fullName', type: 'text', required: true },
@@ -35,9 +36,10 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'State ID', 'Social Security Card'] },
-    { label: 'Initial Deposit (USD)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+    // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['CHECKING', 'SAVINGS', 'MONEY_MARKET', 'CERTIFICATE_OF_DEPOSIT'] },
+  { label: 'Initial Deposit (USD)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
   UK: [
     { label: 'Full Name', name: 'fullName', type: 'text', required: true },
@@ -48,9 +50,10 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-  { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'National ID Card', 'Residence Permit'] },
-    { label: 'Initial Deposit (GBP)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+    // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['CURRENT', 'SAVINGS', 'ISA', 'FIXED_TERM'] },
+  { label: 'Initial Deposit (GBP)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
 };
 
@@ -78,7 +81,7 @@ const CreateAccount = () => {
     },
     {
       title: 'Account Details',
-      names: ['deposit', 'consent'],
+      names: ['deposit', 'consent', 'accountType'],
     },
   ];
 
@@ -92,9 +95,11 @@ const CreateAccount = () => {
     setFormStatus({ loading: true, success: null, error: null });
     const form = e.target;
     const data = {};
-    // Add bank and country info
-    data.bank = bankName || '';
-    data.country = country;
+  // Add bank and country info
+  data.bank = bankName || '';
+  data.country = country;
+  // Set status to PENDING
+  data.status = 'PENDING';
     // Add all fields
     fields.forEach(field => {
       if (field.type === 'checkbox') {

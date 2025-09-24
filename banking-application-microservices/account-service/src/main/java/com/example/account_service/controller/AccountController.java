@@ -1,13 +1,12 @@
 package com.example.account_service.controller;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.example.account_service.dto.AccountRequest;
 import com.example.account_service.entity.Account;
 import com.example.account_service.service.AccountService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")

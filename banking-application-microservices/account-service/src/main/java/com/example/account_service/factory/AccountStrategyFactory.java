@@ -1,3 +1,14 @@
+package com.example.account_service.factory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.example.account_service.stratergy.AccountCreationStrategy;
+
 @Component
 public class AccountStrategyFactory {
 

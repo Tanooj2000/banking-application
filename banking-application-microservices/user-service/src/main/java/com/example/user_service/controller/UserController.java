@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.user_service.dto.LoginRequest;
+import com.example.user_service.dto.LoginResponse;
 import com.example.user_service.dto.RegisterRequest;
 import com.example.user_service.service.UserService;
 

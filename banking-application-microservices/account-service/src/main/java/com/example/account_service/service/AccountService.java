@@ -1,14 +1,21 @@
 package com.example.account_service.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.account_service.dto.AccountRequest;
+
+import com.example.account_service.dto.IndiaAccountRequest;
+import com.example.account_service.dto.UkAccountRequest;
+import com.example.account_service.dto.UsaAccountRequest;
 import com.example.account_service.entity.Account;
-import com.example.account_service.entity.AccountStatus;
+
+import com.example.account_service.factory.AccountStrategyFactory;
 import com.example.account_service.repository.AccountRepository;
+import com.example.account_service.stratergy.AccountCreationStrategy;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AccountService {
@@ -37,8 +44,8 @@ public class AccountService {
         ObjectMapper mapper = new ObjectMapper();
         switch (country.toUpperCase()) {
             case "IN": return mapper.convertValue(payload, IndiaAccountRequest.class);
-            case "US": return mapper.convertValue(payload, USAAccountRequest.class);
-            case "UK": return mapper.convertValue(payload, UKAccountRequest.class);
+            case "US": return mapper.convertValue(payload, UsaAccountRequest.class);
+            case "UK": return mapper.convertValue(payload, UkAccountRequest.class);
             default: throw new IllegalArgumentException("Invalid country");
         }
     }

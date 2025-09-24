@@ -72,9 +72,10 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-        alert(response);
-        setFormData({});
-        setUserType('');
+  alert(response);
+  setFormData({});
+  setUserType('');
+  navigate('/signin');
       } catch (error) {
         console.error('Submission error:', error);
         alert(error.message); 

@@ -3,6 +3,9 @@ package com.example.account_service.stratergy;
 import com.example.account_service.dto.UkAccountRequest;
 import com.example.account_service.entity.Account;
 import com.example.account_service.repository.AccountRepository;
+
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,25 +17,25 @@ public class UkAccountStrategy implements AccountCreationStrategy {
 
     @Override
     public void createAccount(Object request) {
-    UkAccountRequest req = (UkAccountRequest) request;
+        UkAccountRequest req = (UkAccountRequest) request;
 
-    Account account = new Account();
-    account.userId = req.userId;
-    account.country = "UK";
-    account.fullName = req.fullName;
-    account.nationalInsuranceNumber = req.nationalInsuranceNumber;
-    account.mobile = req.mobile;
-    account.email = req.email;
-    account.dob = req.dob;
-    account.gender = req.gender;
-    account.occupation = req.occupation;
-    account.address = req.address;
-    account.deposit = req.deposit;
-    account.consent = req.consent;
-    account.accountType = req.accountType;
-    account.status = req.status;
+        Account account = new Account();
+        account.setUserId(req.getUserId());
+        account.setCountry("UK");
+        account.setFullName(req.getFullName());
+    account.setNin(req.getNin());
+        account.setMobile(req.getMobile());
+        account.setEmail(req.getEmail());
+        account.setDob(LocalDate.parse(req.getDob()));
+        account.setGender(req.getGender());
+        account.setOccupation(req.getOccupation());
+        account.setAddress(req.getAddress());
+        account.setDeposit(req.getDeposit());
+        account.setConsent(req.isConsent());
+        account.setAccountType(req.getAccountType());
+        account.setStatus(req.getStatus());
 
-    accountRepository.save(account);
+        accountRepository.save(account);
     }
 
     @Override

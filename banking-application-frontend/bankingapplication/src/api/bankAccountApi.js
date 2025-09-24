@@ -10,9 +10,22 @@ export const getUserBankAccounts = async (userId) => {
   return response.json();
 };
 export const createAccount = async (data) => {
-  const response = await axios.post('http://localhost:8080/api/indiabankaccounts', data, {
-    headers: { 'Content-Type': 'application/json' }
-  });
+  // Map country name to country code
+  let countryCode = 'IN';
+  if (data.country) {
+    const countryMap = {
+      'India': 'IN',
+      'USA': 'USA',
+      'UK': 'UK',
+    };
+    countryCode = countryMap[data.country.trim()] || 'IN';
+  }
+
+  const response = await axios.post(
+    `${BASE_URL}/create/${countryCode}`,
+    data,
+    { headers: { 'Content-Type': 'application/json' } }
+  );
   return response.data;
 };
 

@@ -1,16 +1,27 @@
+package com.example.account_service.dto;
+
 import lombok.Data;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import com.example.account_service.entity.AccountStatus;
+import com.example.account_service.entity.AccountType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 public class IndiaAccountRequest {
-    public Long userId;
-    public String fullName;
-    public String aadhaar;
-    public String pan;
-    public String mobile;
-    public String email;
-    public LocalDate dob;
-    public String gender;
-    public String occupation;
-    public String address;
-    public BigDecimal deposit;
-    public boolean consent;
+    private Long userId;
+    private String fullName;
+    private String aadhaar;
+    private String pan;
+    private String mobile;
+    private String email;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private String dob;
+    private String gender;
+    private String occupation;
+    private String address;
+    private BigDecimal deposit;
+    private boolean consent;
+    private AccountType accountType;
+    private AccountStatus status;
 }

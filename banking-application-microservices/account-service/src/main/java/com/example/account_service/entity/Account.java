@@ -2,6 +2,10 @@ package com.example.account_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "accounts")
@@ -10,26 +14,27 @@ import lombok.*;
 @AllArgsConstructor
 public class Account {
 
-   @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-    public Long userId;
-    public String country;
-    public String fullName;
-    public String email;
-    public LocalDate dob;
-    public String gender;
-    public String occupation;
-    public String address;
-    public BigDecimal deposit;
-    public boolean consent;
+    private Long id;
+    private Long userId;
+    private String country;
+    private String fullName;
+    private String email;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dob;
+    private String gender;
+    private String occupation;
+    private String address;
+    private BigDecimal deposit;
+    private boolean consent;
     //based on country either of these will be used
-    public String aadhaar;
-    public String pan;
-    public String mobile;
-    public String ssn;
-    public String phone;
-    public String nin;
+    private String aadhaar;
+    private String pan;
+    private String mobile;
+    private String ssn;
+    private String phone;
+    private String nin;
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
     @Enumerated(EnumType.STRING)
