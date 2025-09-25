@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/bankAccountApi';
 import './UserPage.css';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { FaUser } from 'react-icons/fa'; // Changed to FaUser for a simple user icon
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -13,7 +16,7 @@ const UserPage = () => {
     if (user.id) {
       getUserBankAccounts(user.id)
         .then(setBankAccounts)
-        .catch((err) => {
+        .catch(() => {
           setBankAccounts([]);
         });
     }
@@ -21,40 +24,80 @@ const UserPage = () => {
 
   const handleCreateBankAccount = () => {
     // Redirect to BrowseBank page with userId
-    navigate(`/browsebank/${user.id}`);
+    navigate(`/browsebank`);
   };
 
   return (
-    <div className="userpage-container-vertical">
-      {/* User Details Section */}
-      <div className="userpage-details">
-        <h2>User Details</h2>
-        <p><strong>Name:</strong> {user.name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Phone:</strong> {user.phonenumber}</p>
-        {/* Add more user fields as needed */}
-      </div>
-      {/* Bank Accounts Section */}
-      <div className="userpage-accounts">
-        <h2>Bank Accounts</h2>
-        {bankAccounts.length === 0 ? (
-          <p>No bank accounts found.</p>
-        ) : (
-          <ul className="userpage-account-list">
-            {bankAccounts.map((account, idx) => (
-              <li key={idx} className="userpage-account-item">
-                <strong>Account Number:</strong> {account.accountNumber} <br />
-                <strong>Status:</strong> {account.status}
-                {/* Add more account details as needed */}
-              </li>
-            ))}
+    <>
+      <Header />
+      <div
+        className="userpage-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column', // Changed from 'row' to 'column'
+          minHeight: '70vh',
+          width: '100%',
+        }}
+      >
+        {/* User Info Section */}
+        <div
+          className="user-section"
+          style={{
+            flex: 1,
+            padding: '2rem',
+            borderBottom: '1px solid #eee', // Changed to bottom border
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <FaUser size={64} style={{ marginBottom: '1rem' }} />
+          <h2>{user.name || 'User'}</h2>
+          <p>Email: {user.email || 'N/A'}</p>
+          <p>User ID: {user.id || 'N/A'}</p>
+        </div>
+        {/* Accounts Section */}
+        <div
+          className="accounts-section"
+          style={{
+            flex: 2,
+            padding: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Bank Accounts</h2>
+            <button onClick={handleCreateBankAccount}>Create Bank Account</button>
+          </div>
+          <ul style={{ marginTop: '1rem' }}>
+            {bankAccounts.length === 0 ? (
+              <li>No accounts found.</li>
+            ) : (
+              bankAccounts.map((account) => (
+                <li
+                  key={account.id}
+                  style={{
+                    marginBottom: '1rem',
+                    padding: '1rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <strong>Account Number:</strong> {account.accountNumber}
+                  <br />
+                  <strong>Type:</strong> {account.type}
+                  <br />
+                  <strong>Balance:</strong> ${account.balance}
+                </li>
+              ))
+            )}
           </ul>
-        )}
-        <button onClick={handleCreateBankAccount} className="userpage-create-btn">
-          Create Bank Account
-        </button>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
