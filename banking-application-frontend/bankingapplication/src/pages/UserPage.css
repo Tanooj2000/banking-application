@@ -1,83 +1,86 @@
-/* Vertical layout for UserPage */
-.userpage-container-vertical {
+.userpage-container {
   display: flex;
   flex-direction: column;
+  min-height: 70vh;
   width: 100%;
-  min-height: 80vh;
-  background: #f7f8fa;
-  box-sizing: border-box;
-  gap: 2px;
+  background: #f9f9f9;
 }
 
-.userpage-details {
-  background: #f4f6f7;
-  border: 2px solid #e0e0e0;
-  border-radius: 5px;
-  padding: 2.5rem 2rem;
+.user-info-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
 }
-.userpage-profile-photo {
+
+.user-profile-icon {
+  flex: 0 0 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 80px;
   height: 80px;
+  border: 2px solid #0f0f0f;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ccc;
-  background: #f3f3f3;
-}
-
-.userpage-accounts {
-  background: #f9fafc;
-  padding: 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.userpage-details h2 {
-  margin-bottom: 1.5rem;
-  color: #3949ab;
-}
-
-.userpage-accounts {
-  flex: 2;
-  background: #f9fafc;
-  padding: 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.userpage-accounts h2 {
-  margin-bottom: 1.5rem;
-  color: #3949ab;
-}
-
-.userpage-account-list {
-  list-style: none;
-  padding: 0;
-}
-
-.userpage-account-item {
   background: #fff;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 1rem 1.5rem;
-  border-left: 4px solid #3949ab;
+  padding: 20px;
 }
 
-.userpage-create-btn {
-  margin-top: 2rem;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  background: #3949ab;
+.user-details {
+  flex: 2;
+  text-align: center;
+  
+}
+
+.create-account-btn {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.create-account-btn button {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
   color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  align-self: flex-start;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  font-size: 1rem;
+}
+
+.create-account-btn button:hover {
+  background: #0056b3;
+}
+
+.accounts-container {
+  flex: 2;
+  padding: 2rem;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+.accounts-container h2 {
+  margin-bottom: 1rem;
+}
+
+.accounts-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.account-item {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
 }

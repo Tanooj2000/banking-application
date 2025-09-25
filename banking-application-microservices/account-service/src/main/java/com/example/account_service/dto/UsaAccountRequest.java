@@ -1,7 +1,7 @@
 package com.example.account_service.dto;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+
 
 import com.example.account_service.entity.AccountStatus;
 import com.example.account_service.entity.AccountType;

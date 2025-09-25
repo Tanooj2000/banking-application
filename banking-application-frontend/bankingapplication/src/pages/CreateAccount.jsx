@@ -59,6 +59,8 @@ const countryFields = {
 
 const CreateAccount = () => {
   const query = useQuery();
+  const location = useLocation();
+  const userId = location.state?.userId;
   const bankName = query.get('bank');
   const country = query.get('country') || 'India';
   const fields = countryFields[country] || countryFields['India'];
@@ -95,11 +97,14 @@ const CreateAccount = () => {
     setFormStatus({ loading: true, success: null, error: null });
     const form = e.target;
     const data = {};
-  // Add bank and country info
+  // Add bank info
   data.bank = bankName || '';
-  data.country = country;
   // Set status to PENDING
   data.status = 'PENDING';
+  // Add userId if available
+  if (userId) {
+    data.userId = userId;
+  }
     // Add all fields
     fields.forEach(field => {
       if (field.type === 'checkbox') {
@@ -109,7 +114,7 @@ const CreateAccount = () => {
       }
     });
     try {
-      await createAccount(data);
+      await createAccount(data, country);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
     } catch (err) {

@@ -10,6 +10,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, 
+             allowedHeaders = "*", 
+             methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class AccountController {
 
     @Autowired

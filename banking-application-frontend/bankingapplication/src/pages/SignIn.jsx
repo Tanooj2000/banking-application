@@ -49,8 +49,7 @@ const SignIn = () => {
 					window.dispatchEvent(new Event('storage'));
 					navigate('/adminpage');
 				} else {
-					//const response = await signInUser(formData);
-					navigate('/userpage');
+					const response = await signInUser(formData);
 					if (response.success) {
 						sessionStorage.setItem('userToken', 'user-token');
 						window.dispatchEvent(new Event('storage'));

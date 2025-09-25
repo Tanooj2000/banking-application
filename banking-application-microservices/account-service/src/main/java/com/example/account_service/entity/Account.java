@@ -5,8 +5,6 @@ import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -24,6 +22,7 @@ public class Account {
     private String country;
     private String fullName;
     private String email;
+    private String bank;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private String gender;

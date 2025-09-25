@@ -9,23 +9,38 @@ export const getUserBankAccounts = async (userId) => {
   }
   return response.json();
 };
-export const createAccount = async (data) => {
+export const createAccount = async (data, country = 'India') => {
   // Map country name to country code
+  console.log("Creating account with data:", data);
+  console.log("Country:", country);
   let countryCode = 'IN';
-  if (data.country) {
+  if (country) {
     const countryMap = {
       'India': 'IN',
       'USA': 'USA',
       'UK': 'UK',
     };
-    countryCode = countryMap[data.country.trim()] || 'IN';
+    countryCode = countryMap[country.trim()] || 'IN';
   }
 
-  const response = await axios.post(
-    `${BASE_URL}/create/${countryCode}`,
-    data,
-    { headers: { 'Content-Type': 'application/json' } }
-  );
-  return response.data;
+  try {
+    console.log('Using country code:', countryCode);
+    console.log('API URL:', `${BASE_URL}/create/${countryCode}`);
+    
+    const response = await axios.post(
+      `${BASE_URL}/create/${countryCode}`,
+      data,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    
+    console.log('Account creation successful:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating account:', error);
+    console.error('Error response:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    console.error('Error headers:', error.response?.headers);
+    throw error;
+  }
 };
 
