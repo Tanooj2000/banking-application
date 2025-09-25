@@ -18,7 +18,7 @@ public class IndiaAccountStrategy implements AccountCreationStrategy {
     @Override
     public void createAccount(Object request) {
         IndiaAccountRequest req = (IndiaAccountRequest) request;
-
+        System.out.println("Creating account for India: " + req);
         Account account = new Account();
         account.setUserId(req.getUserId());
         account.setCountry("IN");
@@ -27,6 +27,7 @@ public class IndiaAccountStrategy implements AccountCreationStrategy {
         account.setPan(req.getPan());
         account.setMobile(req.getMobile());
         account.setEmail(req.getEmail());
+        account.setBank(req.getBank());
         account.setDob(LocalDate.parse(req.getDob()));
         account.setGender(req.getGender());
         account.setOccupation(req.getOccupation());

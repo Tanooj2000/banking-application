@@ -22,6 +22,7 @@ public class Account {
     private String country;
     private String fullName;
     private String email;
+    private String bank;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private String gender;

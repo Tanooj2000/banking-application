@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './BrowseBank.css';
 import sbiImg from '../assets/SBI.webp';
 import hdfcImg from '../assets/HDFC.webp';
@@ -125,6 +125,8 @@ const BrowseBank = () => {
   const [country, setCountry] = useState('India');
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const userId = location.state?.userId;
 
   const cities = getUniqueCities(BANKS.filter(b => b.country === country));
 
@@ -136,7 +138,9 @@ const BrowseBank = () => {
   });
 
   const handleCreate = (bankName) => {
-    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}`);
+    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}`, {
+      state: { userId: userId }
+    });
   };
 
   return (

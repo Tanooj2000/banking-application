@@ -26,6 +26,7 @@ public class UsaAccountStrategy implements AccountCreationStrategy {
         account.setSsn(req.getSsn());
         account.setMobile(req.getMobile());
         account.setEmail(req.getEmail());
+        account.setBank(req.getBank());
         account.setDob(LocalDate.parse(req.getDob()));
         account.setGender(req.getGender());
         account.setOccupation(req.getOccupation());
