@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { signInUser } from '../api/userApi';
@@ -13,7 +13,54 @@ const SignIn = () => {
 	const [errors, setErrors] = useState({});
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [userType, setUserType] = useState(null);
+	const [isRedirecting, setIsRedirecting] = useState(false); // Add redirecting state
 	const navigate = useNavigate();
+
+	// Redirect if already signed in
+	useEffect(() => {
+		const token = sessionStorage.getItem('userToken');
+		const storedUserType = sessionStorage.getItem('userType');
+		
+		console.log('SignIn useEffect - token:', token, 'userType:', storedUserType); // Debug log
+		
+		if (token && storedUserType) {
+			setIsRedirecting(true);
+			// User is already signed in, redirect to appropriate dashboard
+			if (storedUserType === 'admin') {
+				console.log('Redirecting to admin page'); // Debug log
+				navigate('/adminpage', { replace: true });
+			} else {
+				console.log('Redirecting to user page'); // Debug log
+				navigate('/userpage', { replace: true });
+			}
+		}
+	}, [navigate]);
+
+	// Prevent browser back navigation to sign-in when authenticated
+	useEffect(() => {
+		const handlePopState = (event) => {
+			const token = sessionStorage.getItem('userToken');
+			const storedUserType = sessionStorage.getItem('userType');
+			
+			if (token && storedUserType) {
+				// User is authenticated, prevent staying on sign-in page
+				event.preventDefault();
+				if (storedUserType === 'admin') {
+					navigate('/adminpage', { replace: true });
+				} else {
+					navigate('/userpage', { replace: true });
+				}
+			}
+		};
+
+		// Listen for browser back/forward navigation
+		window.addEventListener('popstate', handlePopState);
+
+		// Cleanup
+		return () => {
+			window.removeEventListener('popstate', handlePopState);
+		};
+	}, [navigate]);
 
 	const validateForm = () => {
 		const newErrors = {};
@@ -44,8 +91,10 @@ const SignIn = () => {
 					const response = await signInAdmin(formData);
 					if (response.success) {
 						sessionStorage.setItem('userToken', 'admin-token');
+						sessionStorage.setItem('userType', 'admin'); // Store user type
+						sessionStorage.setItem('adminId', response.admin.id); // Store admin ID
 						window.dispatchEvent(new Event('storage'));
-						navigate('/adminpage', { state: { admin: response.admin } });
+						navigate('/adminpage', { state: { admin: response.admin }, replace: true });
 					} else {
 						setErrors({ form: response.message });
 					}
@@ -53,8 +102,10 @@ const SignIn = () => {
 					const response = await signInUser(formData);
 					if (response.success) {
 						sessionStorage.setItem('userToken', 'user-token');
+						sessionStorage.setItem('userType', 'user'); // Store user type
+						sessionStorage.setItem('userId', response.user.id); // Store userId for persistence
 						window.dispatchEvent(new Event('storage'));
-						navigate('/userpage', { state: { userId: response.user.id } });
+						navigate('/userpage', { state: { userId: response.user.id }, replace: true });
 					} else {
 						setErrors({ form: response.message });
 					}
@@ -65,6 +116,37 @@ const SignIn = () => {
 		}
 		setIsSubmitting(false);
 	};
+
+	// Show loading while redirecting
+	if (isRedirecting) {
+		return (
+			<>
+				<Header />
+				<div className="signin-bg-gradient">
+					<div className="signin-card">
+						<div style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							height: '200px',
+							flexDirection: 'column',
+							gap: '1rem'
+						}}>
+							<div style={{
+								width: '50px',
+								height: '50px',
+								border: '4px solid #f3f3f3',
+								borderTop: '4px solid #667eea',
+								borderRadius: '50%',
+								animation: 'spin 1s linear infinite'
+							}}></div>
+							<p>Redirecting to dashboard...</p>
+						</div>
+					</div>
+				</div>
+			</>
+		);
+	}
 
 			return (
 				<>
