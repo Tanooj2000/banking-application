@@ -40,6 +40,10 @@ public class AccountService {
         return accountRepository.findByUserId(userId);
     }
 
+        public List<Account> getAccountsByBankName(String bankName) {
+            return accountRepository.findByBank(bankName);
+        }
+
     private Object convertPayloadToDto(Map<String, Object> payload, String country) {
         ObjectMapper mapper = new ObjectMapper();
         switch (country.toUpperCase()) {

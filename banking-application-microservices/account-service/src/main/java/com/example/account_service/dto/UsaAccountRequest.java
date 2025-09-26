@@ -1,5 +1,5 @@
 package com.example.account_service.dto;
-import lombok.Data;
+import lombok.*;
 import java.math.BigDecimal;
 
 
@@ -14,6 +14,7 @@ public class UsaAccountRequest {
     private String ssn;
     private String mobile;
     private String email;
+    private String bank;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String dob;
     private String gender;

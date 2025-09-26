@@ -30,7 +30,7 @@ public class Account {
     private String address;
     private BigDecimal deposit;
     private boolean consent;
-    //based on country either of these will be used
+    
     private String aadhaar;
     private String pan;
     private String mobile;

@@ -22,7 +22,7 @@ const AdminPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const accounts = await fetchAllAccounts();
+        const accounts = await fetchAllAccounts(admin.bankname);
         // Filter only pending applications if needed
         const pending = accounts.filter(acc => acc.status === 'pending');
         setPendingApplications(pending);

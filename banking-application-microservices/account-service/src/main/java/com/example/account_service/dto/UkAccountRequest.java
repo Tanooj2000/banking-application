@@ -12,6 +12,7 @@ public class UkAccountRequest {
     private String nin;
     private String mobile;
     private String email;
+    private String bank;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String dob;
     private String gender;

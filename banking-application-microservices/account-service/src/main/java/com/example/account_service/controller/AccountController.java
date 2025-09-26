@@ -10,14 +10,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, 
-             allowedHeaders = "*", 
-             methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(
+    origins = {"http://localhost:5173", "http://localhost:3000"},
+    allowedHeaders = "*",
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+)
 public class AccountController {
 
     @Autowired
     private AccountService accountService;
-
+    
     @PostMapping("/create/{country}")
     public ResponseEntity<String> createAccount(@PathVariable String country, @RequestBody Map<String, Object> payload) {
         try {
@@ -36,4 +38,13 @@ public class AccountController {
         }
         return ResponseEntity.ok(accounts);
     }
+
+        @GetMapping("/bank/{bankName}")
+        public ResponseEntity<List<Account>> getAccountsByBankName(@PathVariable String bankName) {
+            List<Account> accounts = accountService.getAccountsByBankName(bankName);
+            if (accounts.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(accounts);
+        }
 }
