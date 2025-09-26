@@ -26,6 +26,7 @@ public class UkAccountStrategy implements AccountCreationStrategy {
     account.setNin(req.getNin());
         account.setMobile(req.getMobile());
         account.setEmail(req.getEmail());
+        account.setBank(req.getBank());
         account.setDob(LocalDate.parse(req.getDob()));
         account.setGender(req.getGender());
         account.setOccupation(req.getOccupation());

@@ -23,7 +23,7 @@ public class User {
 
     @Column(unique = true, nullable = false, length = 10)
     private long phonenumber;
-
+   
     @Column(nullable = false)
     private String password;
 }

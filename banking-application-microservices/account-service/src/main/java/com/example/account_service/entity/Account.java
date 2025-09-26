@@ -2,11 +2,13 @@ package com.example.account_service.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "accounts")
@@ -37,6 +39,12 @@ public class Account {
     private String ssn;
     private String phone;
     private String nin;
+
+    @CreationTimestamp
+    @Column(name = "created_date", updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdDate;
+
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
     @Enumerated(EnumType.STRING)
