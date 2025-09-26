@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/bankAccountApi';
-import { updateUserDetails, changeUserPassword } from '../api/userApi';
+import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
 import './UserPage.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -10,9 +10,11 @@ import { FaUser, FaTimes } from 'react-icons/fa';
 const UserPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = location.state?.user || {};
+  const userId = location.state?.userId || location.state?.user?.id;
+  const [user, setUser] = useState({});
   const [bankAccounts, setBankAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState('All');
+  const [isUserLoading, setIsUserLoading] = useState(true);
   
   // Modal states
   const [showEditModal, setShowEditModal] = useState(false);
@@ -35,21 +37,35 @@ const UserPage = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (user.id) {
-      getUserBankAccounts(user.id)
-        .then(setBankAccounts)
-        .catch(() => {
+    const fetchUserData = async () => {
+      if (userId) {
+        setIsUserLoading(true);
+        try {
+          // Fetch user details
+          const userData = await getUserById(userId);
+          setUser(userData);
+          
+          // Initialize edit form with fetched user data
+          setEditFormData({
+            username: userData.username || '',
+            email: userData.email || '',
+            phonenumber: userData.phonenumber || ''
+          });
+          
+          // Fetch bank accounts
+          const accounts = await getUserBankAccounts(userId);
+          setBankAccounts(accounts);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
           setBankAccounts([]);
-        });
-    }
-    
-    // Initialize edit form with current user data
-    setEditFormData({
-      username: user.username || '',
-      email: user.email || '',
-      phonenumber: user.phonenumber || ''
-    });
-  }, [user.id, user.username, user.email, user.phonenumber]);
+        } finally {
+          setIsUserLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleCreateBankAccount = () => {
     navigate(`/browsebank`, { state: { userId: user.id } });
@@ -113,12 +129,9 @@ const UserPage = () => {
       const updatedUser = await updateUserDetails(user.id, editFormData);
       setMessage('User details updated successfully!');
       
-      // Update the user state with new data
-      const newUserState = { ...user, ...editFormData };
-      navigate('/user', { 
-        state: { user: newUserState },
-        replace: true 
-      });
+      // Fetch fresh user data from the API to ensure we have the latest details
+      const freshUserData = await getUserById(user.id);
+      setUser(freshUserData);
       
       setTimeout(() => {
         closeModals();
@@ -171,6 +184,21 @@ const UserPage = () => {
     if (statusFilter === 'All') return true;
     return account.status?.toLowerCase() === statusFilter.toLowerCase();
   });
+
+  // Show loading state while user data is being fetched
+  if (isUserLoading) {
+    return (
+      <>
+        <Header />
+        <div className="userpage-container">
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading user information...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -236,16 +264,27 @@ const UserPage = () => {
             </div>
           ) : (
             <div className="accounts-list">
-              {filteredAccounts.map((account) => (
-                <div key={account.id} className="account-container">
-                  <div className="account-info-row">
-                    <span className="account-info-item">{account.bank || 'N/A'}</span>
-                    <span className="account-info-item">{account.country || 'N/A'}</span>
-                    <span className="account-info-item">{account.status || 'N/A'}</span>
-                    <span className="account-info-item">{account.createdDate || 'N/A'}</span>
+              {/* Header Row */}
+              <div className="accounts-header-row">
+                <span className="account-header-item">Bank</span>
+                <span className="account-header-item">Country</span>
+                <span className="account-header-item">Status</span>
+                <span className="account-header-item">Created Date</span>
+              </div>
+              
+              {/* Scrollable Content */}
+              <div className="accounts-content">
+                {filteredAccounts.map((account) => (
+                  <div key={account.id} className="account-container">
+                    <div className="account-info-row">
+                      <span className="account-info-item">{account.bank || 'N/A'}</span>
+                      <span className="account-info-item">{account.country || 'N/A'}</span>
+                      <span className="account-info-item">{account.status || 'N/A'}</span>
+                      <span className="account-info-item">{account.createdDate || 'N/A'}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

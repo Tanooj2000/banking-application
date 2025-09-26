@@ -53,7 +53,7 @@ const SignIn = () => {
 					if (response.success) {
 						sessionStorage.setItem('userToken', 'user-token');
 						window.dispatchEvent(new Event('storage'));
-						navigate('/userpage', { state: { user: response.user } });
+						navigate('/userpage', { state: { userId: response.user.id } });
 					} else {
 						setErrors({ form: response.message });
 					}
