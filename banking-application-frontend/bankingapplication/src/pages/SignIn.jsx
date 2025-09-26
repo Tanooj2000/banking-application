@@ -1,6 +1,3 @@
-
-
-
 import React, { useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -44,10 +41,14 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					await signInAdmin(formData);
-					sessionStorage.setItem('userToken', 'admin-token');
-					window.dispatchEvent(new Event('storage'));
-					navigate('/adminpage');
+					const response = await signInAdmin(formData);
+					if (response.success) {
+						sessionStorage.setItem('userToken', 'admin-token');
+						window.dispatchEvent(new Event('storage'));
+						navigate('/adminpage', { state: { admin: response.admin } });
+					} else {
+						setErrors({ form: response.message });
+					}
 				} else {
 					const response = await signInUser(formData);
 					if (response.success) {

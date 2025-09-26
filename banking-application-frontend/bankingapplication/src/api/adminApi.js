@@ -1,4 +1,3 @@
-
 const BASE_URL = 'http://localhost:8083/api/admin/';
 export const signUpAdmin = async (adminData) => {
   const response = await fetch(`${BASE_URL}register`, {
@@ -27,5 +26,8 @@ export const signInAdmin = async (credentials) => {
     const errorMsg = await response.text();
     throw new Error(errorMsg || 'Failed to sign in admin');
   }
-  return response.json();
+  const data = await response.json();
+  console.log(data);
+  console.log(data.admin.email);
+  return data;
 };
