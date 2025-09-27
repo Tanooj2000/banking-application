@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useLocation } from 'react-router-dom';
 import './CreateAccount.css';
 
-import { createAccount } from '../api/bankAccountApi';
+import { createAccount, getUserBankAccounts } from '../api/bankAccountApi';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -66,6 +66,55 @@ const CreateAccount = () => {
   const fields = countryFields[country] || countryFields['India'];
 
   const [formStatus, setFormStatus] = useState({ loading: false, success: null, error: null });
+  const [existingAccountData, setExistingAccountData] = useState(null);
+  const [isLoadingAccountData, setIsLoadingAccountData] = useState(false);
+
+  // Define which fields should be pre-filled and disabled for existing bank account holders
+  const unchangeableFields = [
+    'fullName', 'dob', 'gender', 'aadhaar', 'pan', 'ssn', 'nin', 'address'
+  ];
+
+  // Fetch existing bank account data if userId is available
+  useEffect(() => {
+    const fetchBankAccountData = async () => {
+      if (!userId) return;
+      
+      setIsLoadingAccountData(true);
+      try {
+        const bankAccounts = await getUserBankAccounts(userId);
+        
+        // If user has existing bank accounts, use the first one for pre-filling
+        if (bankAccounts && bankAccounts.length > 0) {
+          const firstAccount = bankAccounts[0];
+          setExistingAccountData(firstAccount);
+          console.log('Existing bank account data loaded:', firstAccount);
+          
+          // Show alert about pre-filled data
+          alert(`✅ Your personal details have been pre-filled from your existing ${firstAccount.bank || 'bank'} account.`);
+        }
+      } catch (error) {
+        console.error('Failed to load bank account data:', error);
+        // Don't show error for this - user might be creating their first account
+      } finally {
+        setIsLoadingAccountData(false);
+      }
+    };
+
+    fetchBankAccountData();
+  }, [userId]);
+
+  // Helper function to check if field should be disabled
+  const isFieldDisabled = (fieldName) => {
+    return existingAccountData && unchangeableFields.includes(fieldName);
+  };
+
+  // Helper function to get pre-filled value from existing bank account
+  const getPreFilledValue = (fieldName) => {
+    if (!existingAccountData) return '';
+    
+    // Direct mapping - bank account data should have same field names as form
+    return existingAccountData[fieldName] || '';
+  };
 
   // Group fields by logical sections
   const groups = [
@@ -125,12 +174,25 @@ const CreateAccount = () => {
   return (
     <>
       <Header />
-      <h2 className="createaccount-title" style={{marginTop: 40}}>Application For Account Creation</h2>
+      <h2 className="createaccount-title" style={{marginTop: 40}}>
+        {existingAccountData ? 'Create Additional Bank Account' : 'Application For Account Creation'}
+      </h2>
       <div className="createaccount-info-line">
         Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong>
+        {existingAccountData && (
+          <span style={{ marginLeft: '20px', color: '#10b981', fontWeight: '500' }}>
+            ✓ Existing account holder - Personal details pre-filled from your previous account
+          </span>
+        )}
       </div>
-  <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit}>
-        {groups.map((group, idx) => {
+      
+      {isLoadingAccountData ? (
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+          <div>Loading your account information...</div>
+        </div>
+      ) : (
+        <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit}>
+          {groups.map((group, idx) => {
           const groupFields = getFieldsForGroup(group.names);
           if (groupFields.length === 0) return null;
           return (
@@ -139,10 +201,22 @@ const CreateAccount = () => {
               <div className="createaccount-form-grid">
                 {groupFields.map((field) => {
                   if (field.type === 'select') {
+                    const isDisabled = isFieldDisabled(field.name);
+                    const preFilledValue = getPreFilledValue(field.name);
                     return (
                       <div className="createaccount-form-group" key={field.name}>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        <select id={field.name} name={field.name} required={field.required}>
+                        <label htmlFor={field.name}>
+                          {field.label}
+                          {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                        </label>
+                        <select 
+                          id={field.name} 
+                          name={field.name} 
+                          required={field.required}
+                          disabled={isDisabled}
+                          defaultValue={preFilledValue}
+                          style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
+                        >
                           <option value="">Select</option>
                           {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
@@ -150,10 +224,23 @@ const CreateAccount = () => {
                     );
                   }
                   if (field.type === 'textarea') {
+                    const isDisabled = isFieldDisabled(field.name);
+                    const preFilledValue = getPreFilledValue(field.name);
                     return (
                       <div className="createaccount-form-group" key={field.name} style={{ gridColumn: '1 / span 2' }}>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        <textarea id={field.name} name={field.name} required={field.required} rows={3} />
+                        <label htmlFor={field.name}>
+                          {field.label}
+                          {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                        </label>
+                        <textarea 
+                          id={field.name} 
+                          name={field.name} 
+                          required={field.required} 
+                          rows={3}
+                          disabled={isDisabled}
+                          defaultValue={preFilledValue}
+                          style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
+                        />
                       </div>
                     );
                   }
@@ -165,14 +252,22 @@ const CreateAccount = () => {
                       </div>
                     );
                   }
+                  const isDisabled = isFieldDisabled(field.name);
+                  const preFilledValue = getPreFilledValue(field.name);
                   return (
                     <div className="createaccount-form-group" key={field.name}>
-                      <label htmlFor={field.name}>{field.label}</label>
+                      <label htmlFor={field.name}>
+                        {field.label}
+                        {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                      </label>
                       <input
                         type={field.type}
                         id={field.name}
                         name={field.name}
                         required={field.required}
+                        disabled={isDisabled}
+                        defaultValue={preFilledValue}
+                        style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
                       />
                     </div>
                   );
@@ -187,7 +282,8 @@ const CreateAccount = () => {
         </button>
         {formStatus.success && <div className="createaccount-success-msg">{formStatus.success}</div>}
         {formStatus.error && <div className="createaccount-error-msg">{formStatus.error}</div>}
-      </form>
+        </form>
+      )}
       <Footer />
     </>
   );

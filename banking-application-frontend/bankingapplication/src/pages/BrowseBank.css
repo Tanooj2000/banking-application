@@ -1,98 +1,413 @@
-body {
-  background: linear-gradient(135deg, #e3f0ff 0%, #f8fafc 60%, #dbeafe 100%);
-  min-height: 100vh;
-}
+/* Clean Professional Banking Interface */
 
 .userpage-bg-gradient {
   min-height: 100vh;
-  background: linear-gradient(135deg, #2b353f 0%, #f8fafc 60%, #dbeafe 100%);
+  background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
 }
-/* Create button for bank card */
-.userpage-create-btn {
-  display: block;
-  margin: 16px auto 0 auto;
-  padding: 6px 14px;
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  font-size: 1rem;
-  transition: background 0.2s;
-}
-.userpage-create-btn:hover {
-  background: #1251a3;
-}
-/* Removed outer container styles */
 
-.userpage-searchbar {
-  margin: 24px auto 32px auto;
+/* Header Section */
+.page-header {
+  text-align: center;
+  padding: 2rem 2rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 400;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Search Section */
+.search-section {
+  background: white;
+  margin: 1rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  width: auto;
+  max-width: calc(100vw - 2rem);
+  box-sizing: border-box;
+}
+
+.search-container {
   display: flex;
-  gap: 16px;
-  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  margin: 0;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.userpage-searchbar input,
-.userpage-searchbar select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.search-input-wrapper {
+  flex: 1;
+  position: relative;
+  min-width: 200px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 1rem;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.1rem;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+
+.filter-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 
+/* Banks Grid - Improved Compact Design */
 .userpage-bankgrid {
   margin-top: 24px;
+  padding: 1rem;
   display: flex;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .userpage-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
+  gap: 20px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
+  box-sizing: border-box;
 }
 
-/* No longer needed: .userpage-banklist ul */
-
+/* Bank Card - Clean & Compact */
 .userpage-bankcard {
-  padding: 18px 12px;
-  border: 1px solid #eee;
+  padding: 20px 16px;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  background: #fafbfc;
+  background: white;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 180px;
+  min-height: 200px;
   min-width: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
+
 .userpage-bankcard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
 }
 
-.userpage-bankcard img {
-  width: 64px;
-  height: 64px;
+/* Bank Logo */
+.bank-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.bank-logo {
+  width: 72px;
+  height: 72px;
   object-fit: contain;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  padding: 8px;
+  transition: all 0.2s ease;
 }
 
-.userpage-bankcard strong {
+.userpage-bankcard:hover .bank-logo {
+  border-color: #94a3b8;
+  background: white;
+}
+
+/* Bank Content */
+.bank-card-content {
+  text-align: center;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bank-name {
   font-size: 1.1rem;
-  color: #222;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+  line-height: 1.3;
 }
 
-.userpage-bankcard span {
-  font-size: 0.98rem;
-  color: #555;
+.bank-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.bank-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border: none;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.85rem;
+  color: #374151;
+  font-weight: 600;
+  text-align: right;
+}
+
+.bank-card-footer {
+  width: 100%;
+  margin-top: auto;
+}
+
+.create-account-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-account-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.create-account-btn.visible {
+  opacity: 1;
+}
+
+.btn-icon {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  font-weight: 600;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+  }
+  
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .search-section {
+    margin: 0.5rem;
+    padding: 1rem;
+    width: auto;
+    max-width: calc(100vw - 1rem);
+  }
+  
+  .search-container {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .search-input-wrapper {
+    min-width: 100%;
+  }
+  
+  .filter-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .filter-select {
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  .userpage-bankgrid {
+    padding: 0.5rem;
+  }
+  
+  .userpage-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .search-section {
+    margin: 0.25rem;
+    padding: 0.75rem;
+    width: auto;
+    max-width: calc(100vw - 0.5rem);
+  }
+  
+  .userpage-bankgrid {
+    padding: 0.25rem;
+  }
+  
+  .userpage-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .filter-select {
+    min-width: 80px;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Accessibility */
+.search-input:focus,
+.filter-select:focus,
+.create-account-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth animations */
+* {
+  scroll-behavior: smooth;
 }
