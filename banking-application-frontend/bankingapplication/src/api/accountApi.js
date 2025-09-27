@@ -10,8 +10,9 @@ export const fetchAllAccounts = async (bank) => {
       console.error('Failed to fetch accounts:', errorText);
       throw new Error('Failed to fetch accounts');
     }
-    console.log(await response.json());
-    return response.json();
+  const data = await response.json();
+  console.log(data);
+  return data;
   } catch (err) {
     console.error('Error in fetchAllAccounts:', err);
     throw err;
