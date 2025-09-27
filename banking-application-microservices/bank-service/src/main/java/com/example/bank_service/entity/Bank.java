@@ -14,8 +14,10 @@ public class Bank {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
     private String country;
     private String city;
+    private String bankName;
+    private String branch;
+    private String code;
 }
 

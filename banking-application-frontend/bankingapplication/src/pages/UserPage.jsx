@@ -10,7 +10,14 @@ import { FaUser, FaTimes } from 'react-icons/fa';
 const UserPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = location.state?.userId || location.state?.user?.id;
+  
+  // Get userId from navigation state or sessionStorage as fallback
+  const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');
+  
+  console.log('UserPage - userId from location.state:', location.state?.userId);
+  console.log('UserPage - userId from sessionStorage:', sessionStorage.getItem('userId'));
+  console.log('UserPage - final userId:', userId);
+  
   const [user, setUser] = useState({});
   const [bankAccounts, setBankAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState('All');
@@ -35,6 +42,23 @@ const UserPage = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isRefreshingAccounts, setIsRefreshingAccounts] = useState(false);
+
+  const fetchBankAccounts = async () => {
+    try {
+      const accounts = await getUserBankAccounts(userId);
+      setBankAccounts(accounts);
+    } catch (error) {
+      console.error('Error fetching bank accounts:', error);
+      setBankAccounts([]);
+    }
+  };
+
+  const handleRefreshAccounts = async () => {
+    setIsRefreshingAccounts(true);
+    await fetchBankAccounts();
+    setIsRefreshingAccounts(false);
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -53,19 +77,28 @@ const UserPage = () => {
           });
           
           // Fetch bank accounts
-          const accounts = await getUserBankAccounts(userId);
-          setBankAccounts(accounts);
+          await fetchBankAccounts();
         } catch (error) {
           console.error('Error fetching user data:', error);
           setBankAccounts([]);
         } finally {
           setIsUserLoading(false);
         }
+      } else {
+        // If no userId found, check if user is authenticated but redirect failed
+        const token = sessionStorage.getItem('userToken');
+        if (token) {
+          console.error('User is authenticated but userId is missing. This suggests a session issue.');
+          // Clear corrupted session and redirect
+          sessionStorage.clear();
+        }
+        console.warn('No userId found. Redirecting to sign in.');
+        navigate('/signin', { replace: true });
       }
     };
 
     fetchUserData();
-  }, [userId]);
+  }, [userId, navigate]);
 
   const handleCreateBankAccount = () => {
     navigate(`/browsebank`, { state: { userId: user.id } });
@@ -243,19 +276,29 @@ const UserPage = () => {
         <div className="accounts-container">
           <div className="accounts-header">
             <h2>Bank Accounts</h2>
-            <div className="status-filter">
-              <label htmlFor="statusFilter">Filter by Status:</label>
-              <select 
-                id="statusFilter"
-                value={statusFilter} 
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="filter-select"
+            <div className="accounts-controls">
+              <button 
+                className="refresh-button" 
+                onClick={handleRefreshAccounts}
+                disabled={isRefreshingAccounts}
+                title="Refresh account status"
               >
-                <option value="All">All</option>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+                {isRefreshingAccounts ? '🔄' : '↻'} {isRefreshingAccounts ? 'Refreshing...' : 'Refresh'}
+              </button>
+              <div className="status-filter">
+                <label htmlFor="statusFilter">Filter by Status:</label>
+                <select 
+                  id="statusFilter"
+                  value={statusFilter} 
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="All">All</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
             </div>
           </div>
           {filteredAccounts.length === 0 ? (

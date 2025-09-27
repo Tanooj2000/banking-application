@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from '../components/Footer';
 import './SignUp.css';
 import {signUpUser} from '../api/userApi';
@@ -14,6 +14,21 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  // Redirect if already signed in
+  useEffect(() => {
+    const token = sessionStorage.getItem('userToken');
+    const storedUserType = sessionStorage.getItem('userType');
+    
+    if (token && storedUserType) {
+      // User is already signed in, redirect to appropriate dashboard
+      if (storedUserType === 'admin') {
+        navigate('/adminpage', { replace: true });
+      } else {
+        navigate('/userpage', { replace: true });
+      }
+    }
+  }, [navigate]);
 
   // Validation functions
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
