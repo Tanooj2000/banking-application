@@ -36,32 +36,6 @@ const SignIn = () => {
 		}
 	}, [navigate]);
 
-	// Prevent browser back navigation to sign-in when authenticated
-	useEffect(() => {
-		const handlePopState = (event) => {
-			const token = sessionStorage.getItem('userToken');
-			const storedUserType = sessionStorage.getItem('userType');
-			
-			if (token && storedUserType) {
-				// User is authenticated, prevent staying on sign-in page
-				event.preventDefault();
-				if (storedUserType === 'admin') {
-					navigate('/adminpage', { replace: true });
-				} else {
-					navigate('/userpage', { replace: true });
-				}
-			}
-		};
-
-		// Listen for browser back/forward navigation
-		window.addEventListener('popstate', handlePopState);
-
-		// Cleanup
-		return () => {
-			window.removeEventListener('popstate', handlePopState);
-		};
-	}, [navigate]);
-
 	const validateForm = () => {
 		const newErrors = {};
 	if (!formData.usernameOrEmail) newErrors.usernameOrEmail = 'Username or Email is required';
