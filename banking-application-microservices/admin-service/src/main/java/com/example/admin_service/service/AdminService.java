@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.admin_service.dto.AdminLoginRequest;
 import com.example.admin_service.dto.AdminLoginResponse;
 import com.example.admin_service.dto.AdminRegisterRequest;
+import com.example.admin_service.dto.ChangePasswordRequest;
 import com.example.admin_service.entity.Admin;
 import com.example.admin_service.repository.AdminRepository;
 
@@ -60,6 +61,7 @@ public class AdminService {
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
             return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials", null));
         }
+        // Additional validation for not verified admin
         if (!admin.isVerifiedByRoot()) {
             return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin is not verified please wait for some time and try again", admin));
         }
@@ -80,6 +82,37 @@ public class AdminService {
         adminRepository.save(admin);
 
         return "Admin verified successfully.";
+    }
+
+    // Update admin details
+    public ResponseEntity<?> updateAdminDetails(Long id, AdminRegisterRequest request) {
+        Admin admin = adminRepository.findById(id).orElse(null);
+        if (admin == null) {
+            return ResponseEntity.badRequest().body("Admin not found");
+        }
+        // Update fields (except password and verification)
+        admin.setUsername(request.getUsername());
+        admin.setEmail(request.getEmail());
+        admin.setBankname(request.getBankname());
+        adminRepository.save(admin);
+        return ResponseEntity.ok("Admin details updated successfully");
+    }
+
+    // Update admin password (using ChangePasswordRequest)
+    public ResponseEntity<?> updateAdminPassword(Long id, ChangePasswordRequest request) {
+        Admin admin = adminRepository.findById(id).orElse(null);
+        if (admin == null) {
+            return ResponseEntity.badRequest().body("Admin not found");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), admin.getPassword())) {
+            return ResponseEntity.badRequest().body("Old password is incorrect");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), admin.getPassword())) {
+            return ResponseEntity.badRequest().body("New and old password cannot be same");
+        }
+        admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        adminRepository.save(admin);
+        return ResponseEntity.ok("Password updated successfully");
     }
 }
 

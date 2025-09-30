@@ -16,6 +16,25 @@ import java.util.Map;
     methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
 public class AccountController {
+    @PostMapping("/approve/{accountId}")
+    public ResponseEntity<String> approveAccount(@PathVariable Long accountId) {
+        try {
+            accountService.approveAccount(accountId);
+            return ResponseEntity.ok("Account approved");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reject/{accountId}")
+    public ResponseEntity<String> rejectAccount(@PathVariable Long accountId) {
+        try {
+            accountService.rejectAccount(accountId);
+            return ResponseEntity.ok("Account rejected");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @Autowired
     private AccountService accountService;
