@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import './SignIn.css';
 import welcomeImg from '../assets/bank-1.jpg'; // Use your preferred illustration or SVG
 import { FaUser, FaUserShield, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { AuthGuard } from '../utils/authGuard';
 
 const SignIn = () => {
 	const [formData, setFormData] = useState({ usernameOrEmail: '', password: '' });
@@ -14,6 +15,8 @@ const SignIn = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [userType, setUserType] = useState(null);
 	const [isRedirecting, setIsRedirecting] = useState(false); // Add redirecting state
+	const [successMsg, setSuccessMsg] = useState(""); // Success message state
+	const [progress, setProgress] = useState(0); // Progress bar state
 	const navigate = useNavigate();
 
 	// Redirect if already signed in
@@ -64,22 +67,61 @@ const SignIn = () => {
 				if (userType === 'admin') {
 					const response = await signInAdmin(formData);
 					if (response.success) {
-						sessionStorage.setItem('userToken', 'admin-token');
-						sessionStorage.setItem('userType', 'admin'); // Store user type
-						sessionStorage.setItem('adminId', response.admin.id); // Store admin ID
-						window.dispatchEvent(new Event('storage'));
-						navigate('/adminpage', { state: { admin: response.admin }, replace: true });
+						// Show success message and start progress
+						setSuccessMsg('admin:Admin login successful!');
+						setProgress(20);
+						
+						// Store session data
+						setTimeout(() => {
+							sessionStorage.setItem('userToken', 'admin-token');
+							sessionStorage.setItem('userType', 'admin');
+							sessionStorage.setItem('adminId', response.admin.id);
+							AuthGuard.setAdminData(response.admin);
+							setProgress(60);
+						}, 500);
+						
+						// Complete progress and redirect
+						setTimeout(() => {
+							setProgress(100);
+							window.dispatchEvent(new Event('storage'));
+						}, 1200);
+						
+						setTimeout(() => {
+							setSuccessMsg("");
+							setProgress(0);
+							setIsSubmitting(false);
+							navigate('/adminpage', { state: { admin: response.admin }, replace: true });
+						}, 2000);
 					} else {
 						setErrors({ form: response.message });
 					}
 				} else {
 					const response = await signInUser(formData);
 					if (response.success) {
-						sessionStorage.setItem('userToken', 'user-token');
-						sessionStorage.setItem('userType', 'user'); // Store user type
-						sessionStorage.setItem('userId', response.user.id); // Store userId for persistence
-						window.dispatchEvent(new Event('storage'));
-						navigate('/userpage', { state: { userId: response.user.id }, replace: true });
+						// Show success message and start progress
+						setSuccessMsg('user:User login successful!');
+						setProgress(20);
+						
+						// Store session data
+						setTimeout(() => {
+							sessionStorage.setItem('userToken', 'user-token');
+							sessionStorage.setItem('userType', 'user');
+							sessionStorage.setItem('userId', response.user.id);
+							setProgress(60);
+						}, 500);
+						
+						// Complete progress and redirect
+						setTimeout(() => {
+							setProgress(100);
+							window.dispatchEvent(new Event('storage'));
+						}, 1200);
+						
+						setTimeout(() => {
+							setSuccessMsg("");
+							setProgress(0);
+							setIsSubmitting(false);
+							navigate('/userpage', { state: { userId: response.user.id }, replace: true });
+						}, 2000);
 					} else {
 						setErrors({ form: response.message });
 					}
@@ -195,6 +237,57 @@ const SignIn = () => {
 							)}
 						</div>
 					</div>
+					
+					{/* Success Message Popup with Progress Bar */}
+					{successMsg && (
+						<div style={{
+							position: 'fixed',
+							top: 80,
+							right: 40,
+							background: successMsg.startsWith('admin:') ? '#43a047' : successMsg.startsWith('user:') ? '#1976d2' : '#43a047',
+							color: '#fff',
+							padding: '20px 32px',
+							borderRadius: 12,
+							fontWeight: 600,
+							fontSize: '1.1rem',
+							boxShadow: '0 4px 20px rgba(60,60,60,0.25)',
+							zIndex: 9999,
+							transition: 'opacity 0.4s',
+							opacity: 0.95,
+							minWidth: '280px'
+						}}>
+							<div style={{ marginBottom: '12px' }}>
+								{successMsg.replace(/^(admin:|user:)/, '')}
+							</div>
+							{/* Progress Bar */}
+							<div style={{
+								width: '100%',
+								height: '6px',
+								backgroundColor: 'rgba(255,255,255,0.3)',
+								borderRadius: '3px',
+								overflow: 'hidden'
+							}}>
+								<div style={{
+									width: `${progress}%`,
+									height: '100%',
+									backgroundColor: '#fff',
+									borderRadius: '3px',
+									transition: 'width 0.3s ease',
+									boxShadow: '0 0 8px rgba(255,255,255,0.5)'
+								}} />
+							</div>
+							<div style={{
+								fontSize: '0.9rem',
+								marginTop: '8px',
+								opacity: 0.9
+							}}>
+								{progress < 30 ? 'Authenticating...' : 
+								 progress < 70 ? 'Setting up session...' : 
+								 progress < 100 ? 'Preparing dashboard...' : 'Redirecting...'}
+							</div>
+						</div>
+					)}
+					
 					<Footer />
 				</>
 			);

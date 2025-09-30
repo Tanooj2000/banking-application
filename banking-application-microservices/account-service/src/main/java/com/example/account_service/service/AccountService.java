@@ -19,6 +19,27 @@ import java.util.Map;
 
 @Service
 public class AccountService {
+    public void approveAccount(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if (account.getStatus() != null && account.getStatus().name().equals("PENDING")) {
+            account.setStatus(com.example.account_service.entity.AccountStatus.APPROVED);
+            accountRepository.save(account);
+        } else {
+            throw new IllegalArgumentException("Account can only be approved from PENDING status");
+        }
+    }
+
+    public void rejectAccount(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if (account.getStatus() != null && account.getStatus().name().equals("PENDING")) {
+            account.setStatus(com.example.account_service.entity.AccountStatus.REJECTED);
+            accountRepository.save(account);
+        } else {
+            throw new IllegalArgumentException("Account can only be rejected from PENDING status");
+        }
+    }
 
     @Autowired
     private AccountStrategyFactory strategyFactory;

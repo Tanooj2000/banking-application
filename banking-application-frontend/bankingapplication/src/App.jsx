@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -9,7 +9,13 @@ import './App.css'
 import HomePage from './pages/HomePage.jsx'
 import AboutPage from './pages/AboutPage.jsx';
 import UserPage from './pages/UserPage.jsx';
+import { checkAuthOnPageLoad } from './utils/authGuard';
 function App() {
+  // Check authentication on app load
+  useEffect(() => {
+    checkAuthOnPageLoad();
+  }, []);
+
   return (
     <Router>
       <Routes>
