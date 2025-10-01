@@ -40,14 +40,43 @@
   z-index: 10;
 }
 
+/* Modern Logo Design */
 .nav__logo {
-  height: 3.2rem;
-  width: auto;
-  filter: drop-shadow(0 2px 8px white);
-  transition: transform 0.2s;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
 }
+
 .nav__logo:hover {
-  transform: scale(1.08) rotate(-2deg);
+  transform: scale(1.02);
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  font-size: 28px;
+  color: #ffffff;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.logo-wrapper:hover .logo-icon {
+  color: #e5e7eb;
+  transform: scale(1.05);
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .nav__links {

@@ -184,7 +184,7 @@ const SignIn = () => {
 						<div className="signin-card">
 							<div className="signin-card-left">
 								<div className="signup-promo-card">
-									<h1 className="signup-promo-title">Welcome to AllBanksOne</h1>
+									<h1 className="signup-promo-title">Welcome <br />To<br /> InterBankHub</h1>
 									<h3 className="signup-promo-sub">New here?</h3>
 									<p className="signup-promo-desc">Join us today and experience seamless, secure, and smart banking for everyone.</p>
 									<button className="signup-promo-btn" onClick={() => navigate('/signup')}>

@@ -145,13 +145,13 @@ const SignUp = () => {
             className="signup-icon-image"
           />
           <h1 className="signup-promo-title">Create Your Account</h1>
-          <p className="signup-promo-desc">Join AllBanksOne and experience seamless, secure, and smart banking for everyone.</p>
+          <p className="signup-promo-desc">Join InterBankHub and experience seamless, secure, and smart banking for everyone.</p>
           <button className="signup-promo-btn" onClick={() => navigate('/signin')}>
             Already have an account?
           </button>
         </div>
         <div className="signup-card-right">
-          <h1>New To...... AllBanksOne?</h1>
+          <h1>New <br /> To  InterBankHub?</h1>
           <h2 className="signup-title">Sign Up</h2>
           <div className="user-type-section">
             <p className="user-type-label">How do you want to sign up?</p>

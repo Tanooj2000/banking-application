@@ -69,8 +69,12 @@ const Header = () => {
 
   return (
     <nav className="nav">
-
-  <h1 className='nav__logo'><FaUniversity style={{width:'70px',height:'50px', marginRight: '10px', verticalAlign: 'middle' }} />AllBanksOne</h1>
+      <Link to="/" className="nav__logo">
+        <div className="logo-wrapper">
+          <FaUniversity className="logo-icon" />
+          <span className="logo-text">AllBanksOne</span>
+        </div>
+      </Link>
       
       <ul className="nav__links">
         {!isSignedIn ? (
