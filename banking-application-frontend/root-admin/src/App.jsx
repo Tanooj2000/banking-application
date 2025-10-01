@@ -1,17 +1,16 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import SignInPage from './SignInPage'
+import Dashboard from './Dashboard'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <h1>Hello World</h1>
-        </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<SignInPage />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   )
 }
 
