@@ -7,6 +7,7 @@ import { signUpAdmin } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUniversity, FaUserShield } from 'react-icons/fa';
 import Header from '../components/Header';
+import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, validateBankName, getErrorMessage } from '../utils/validation';
 
 const SignUp = () => {
   const [userType, setUserType] = useState('');
@@ -30,29 +31,62 @@ const SignUp = () => {
     }
   }, [navigate]);
 
-  // Validation functions
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validateMobile = (mobile) => /^[0-9]{10}$/.test(mobile);
-  const validatePassword = (password) => password.length >= 6;
-
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!validateEmail(formData.email)) newErrors.email = 'Please enter a valid email address';
-    if (userType === 'user') {
-      if (!formData.name) newErrors.name = 'Full name is required';
-      if (!formData.mobile) newErrors.mobile = 'Mobile number is required';
-      else if (!validateMobile(formData.mobile)) newErrors.mobile = 'Please enter a valid 10-digit mobile number';
-      if (!formData.password) newErrors.password = 'Password is required';
-      else if (!validatePassword(formData.password)) newErrors.password = 'Password must be at least 6 characters long';
-      if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
-      else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
-    } else if (userType === 'admin') {
-      if (!formData.bankName) newErrors.bankName = 'Bank name is required';
-      else if (formData.bankName.length < 2) newErrors.bankName = 'Bank name must be at least 2 characters long';
-      if (!formData.adminPassword) newErrors.adminPassword = 'Admin password is required';
-      else if (!validatePassword(formData.adminPassword)) newErrors.adminPassword = 'Admin password must be at least 6 characters long';
+    
+    // Email validation (Gmail only)
+    const emailValidation = validateGmail(formData.email);
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.message;
     }
+    
+    if (userType === 'user') {
+      // Name validation
+      const nameValidation = validateName(formData.name);
+      if (!nameValidation.isValid) {
+        newErrors.name = nameValidation.message;
+      }
+      
+      // Mobile validation
+      const mobileValidation = validateMobile(formData.mobile);
+      if (!mobileValidation.isValid) {
+        newErrors.mobile = mobileValidation.message;
+      }
+      
+      // Password validation
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.message;
+      }
+      
+      // Confirm password validation
+      const confirmPasswordValidation = validateConfirmPassword(formData.password, formData.confirmPassword);
+      if (!confirmPasswordValidation.isValid) {
+        newErrors.confirmPassword = confirmPasswordValidation.message;
+      }
+      
+    } else if (userType === 'admin') {
+      // Admin name validation
+      if (formData.name) {
+        const nameValidation = validateName(formData.name);
+        if (!nameValidation.isValid) {
+          newErrors.name = nameValidation.message;
+        }
+      }
+      
+      // Bank name validation
+      const bankNameValidation = validateBankName(formData.bankName);
+      if (!bankNameValidation.isValid) {
+        newErrors.bankName = bankNameValidation.message;
+      }
+      
+      // Admin password validation
+      const passwordValidation = validatePassword(formData.adminPassword);
+      if (!passwordValidation.isValid) {
+        newErrors.adminPassword = passwordValidation.message;
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -93,7 +127,7 @@ const SignUp = () => {
   navigate('/signin');
       } catch (error) {
         console.error('Submission error:', error);
-        alert(error.message); 
+        alert(getErrorMessage(error)); 
       }
     }
     setIsSubmitting(false);

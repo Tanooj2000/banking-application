@@ -2,6 +2,7 @@ package com.example.bank_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import com.example.bank_service.entity.Bank;
 import com.example.bank_service.service.BankService;
@@ -27,8 +28,8 @@ public class BankController {
     }
 
     @PostMapping("/add")
-    public Bank addBank(@RequestBody Bank bank) {
-        return bankService.addBank(bank);
+    public ResponseEntity<?> addBank(@RequestBody Bank bank) {
+        return bankService.addBankWithValidation(bank);
     }
 }
 

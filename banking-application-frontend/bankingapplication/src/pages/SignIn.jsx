@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { signInUser } from '../api/userApi';
@@ -8,6 +8,7 @@ import './SignIn.css';
 import welcomeImg from '../assets/bank-1.jpg'; // Use your preferred illustration or SVG
 import { FaUser, FaUserShield, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { AuthGuard } from '../utils/authGuard';
+import { getErrorMessage } from '../utils/validation';
 
 const SignIn = () => {
 	const [formData, setFormData] = useState({ usernameOrEmail: '', password: '' });
@@ -18,26 +19,38 @@ const SignIn = () => {
 	const [successMsg, setSuccessMsg] = useState(""); // Success message state
 	const [progress, setProgress] = useState(0); // Progress bar state
 	const navigate = useNavigate();
+	const firstInputRef = useRef(null); // Reference for auto-focus
 
 	// Redirect if already signed in
 	useEffect(() => {
 		const token = sessionStorage.getItem('userToken');
 		const storedUserType = sessionStorage.getItem('userType');
 		
-		console.log('SignIn useEffect - token:', token, 'userType:', storedUserType); // Debug log
+
 		
 		if (token && storedUserType) {
 			setIsRedirecting(true);
 			// User is already signed in, redirect to appropriate dashboard
 			if (storedUserType === 'admin') {
-				console.log('Redirecting to admin page'); // Debug log
+
 				navigate('/adminpage', { replace: true });
 			} else {
-				console.log('Redirecting to user page'); // Debug log
+
 				navigate('/userpage', { replace: true });
 			}
 		}
 	}, [navigate]);
+
+	// Auto-focus first input when user type is selected
+	useEffect(() => {
+		if (userType && firstInputRef.current) {
+			// Small delay to ensure modal is rendered
+			const timer = setTimeout(() => {
+				firstInputRef.current.focus();
+			}, 100);
+			return () => clearTimeout(timer);
+		}
+	}, [userType]);
 
 	const validateForm = () => {
 		const newErrors = {};
@@ -127,7 +140,7 @@ const SignIn = () => {
 					}
 				}
 			} catch (error) {
-				setErrors({ form: error.message });
+				setErrors({ form: getErrorMessage(error) });
 			}
 		}
 		setIsSubmitting(false);
@@ -202,6 +215,7 @@ const SignIn = () => {
 										<h2>Sign In as {userType === 'admin' ? 'Admin' : 'User'}</h2>
 										<div className="input-group">
 											<input
+												ref={firstInputRef}
 												type="text"
 												name="usernameOrEmail"
 												placeholder="Username or Email"

@@ -57,23 +57,13 @@ const Header = () => {
   }, [location]);
 
   const handleLogout = () => {
-    // Use global logout function for admin users
     if (userType === 'admin' || sessionStorage.getItem('adminData')) {
       AuthGuard.logout();
-      // Update local state immediately
-      setIsSignedIn(false);
-      setUserType(null);
     } else {
-      // Regular user logout
-      sessionStorage.removeItem('userToken');
-      sessionStorage.removeItem('userType');
-      sessionStorage.removeItem('userId');
-      sessionStorage.removeItem('adminId');
-      setIsSignedIn(false);
-      setUserType(null);
-      navigate('/');
+      AuthGuard.logoutUser();
     }
-    // For cross-tab sync
+    setIsSignedIn(false);
+    setUserType(null);
     window.dispatchEvent(new Event('storage'));
   };
 

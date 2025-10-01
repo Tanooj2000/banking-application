@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping({"/api/accounts", "/accounts"})
 @CrossOrigin(
     origins = {"http://localhost:5173", "http://localhost:3000"},
     allowedHeaders = "*",

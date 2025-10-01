@@ -11,7 +11,7 @@ export const fetchAllAccounts = async (bank) => {
       throw new Error('Failed to fetch accounts');
     }
   const data = await response.json();
-  console.log(data);
+
   return data;
   } catch (err) {
     console.error('Error in fetchAllAccounts:', err);
@@ -24,7 +24,7 @@ export const approveAccount = async (accountId) => {
     const response = await fetch(`${BASE_URL}approve/${accountId}`, {
       method: 'POST',
     });
-    console.log('Approve response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Failed to approve account:', errorText);
@@ -36,7 +36,7 @@ export const approveAccount = async (accountId) => {
       return await response.json();
     } else {
       const text = await response.text();
-      console.log('Approve response text:', text);
+
       return { success: true, message: text };
     }
   } catch (err) {
@@ -50,7 +50,7 @@ export const rejectAccount = async (accountId) => {
     const response = await fetch(`${BASE_URL}reject/${accountId}`, {
       method: 'POST',
     });
-    console.log('Reject response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Failed to reject account:', errorText);
@@ -62,7 +62,7 @@ export const rejectAccount = async (accountId) => {
       return await response.json();
     } else {
       const text = await response.text();
-      console.log('Reject response text:', text);
+
       return { success: true, message: text };
     }
   } catch (err) {

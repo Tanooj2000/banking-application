@@ -4,7 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Enforce no-cache to reduce chance of BFCache / cached admin page after logout -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Referrer-Policy" content="no-referrer" />
     <title>Vite + React</title>
+    <script>
+      // Early inline hardening BEFORE React loads
+      (function() {
+        try {
+          // Apply no-cache headers as early as possible (defense in depth)
+          var meta1 = document.querySelector('meta[http-equiv="Cache-Control"]');
+          var meta2 = document.querySelector('meta[http-equiv="Pragma"]');
+          var meta3 = document.querySelector('meta[http-equiv="Expires"]');
+          if(meta1) meta1.setAttribute('content','no-store, no-cache, must-revalidate, max-age=0');
+          if(meta2) meta2.setAttribute('content','no-cache');
+          if(meta3) meta3.setAttribute('content','0');
+
+          var path = window.location.pathname.toLowerCase();
+          var adminLoggedOut = sessionStorage.getItem('loggedOut') === 'true';
+          var userLoggedOut = sessionStorage.getItem('userLoggedOut') === 'true';
+          if ((adminLoggedOut && /\/admin/.test(path)) || (userLoggedOut && /\/user/.test(path))) {
+            document.documentElement.style.visibility = 'hidden';
+            window.location.replace('/');
+            return;
+          }
+        } catch (e) {
+          // Silent fail is fine – React layer will still guard
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

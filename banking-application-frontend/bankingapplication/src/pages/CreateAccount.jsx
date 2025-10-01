@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import './CreateAccount.css';
 
 import { createAccount, getUserBankAccounts } from '../api/bankAccountApi';
+import { validateGmail, validateFullName, validateMobile, getErrorMessage } from '../utils/validation';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -87,7 +88,7 @@ const CreateAccount = () => {
         if (bankAccounts && bankAccounts.length > 0) {
           const firstAccount = bankAccounts[0];
           setExistingAccountData(firstAccount);
-          console.log('Existing bank account data loaded:', firstAccount);
+
           
           // Show alert about pre-filled data
           alert(`✅ Your personal details have been pre-filled from your existing ${firstAccount.bank || 'bank'} account.`);
@@ -162,12 +163,44 @@ const CreateAccount = () => {
         data[field.name] = form[field.name]?.value || '';
       }
     });
+
+    // Validate critical fields before submission
     try {
+      // Validate full name field
+      if (data.fullName) {
+        const nameValidation = validateFullName(data.fullName);
+        if (!nameValidation.isValid) {
+          throw new Error(nameValidation.message);
+        }
+      }
+
+      // Validate email field
+      if (data.email) {
+        const emailValidation = validateGmail(data.email);
+        if (!emailValidation.isValid) {
+          throw new Error(emailValidation.message);
+        }
+      }
+
+      // Validate mobile/phone number
+      if (data.mobile) {
+        const mobileValidation = validateMobile(data.mobile);
+        if (!mobileValidation.isValid) {
+          throw new Error(mobileValidation.message);
+        }
+      }
+      if (data.phone) {
+        const phoneValidation = validateMobile(data.phone);
+        if (!phoneValidation.isValid) {
+          throw new Error(phoneValidation.message);
+        }
+      }
+
       await createAccount(data, country);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
     } catch (err) {
-      setFormStatus({ loading: false, success: null, error: err?.response?.data?.message || 'Failed to create account.' });
+      setFormStatus({ loading: false, success: null, error: getErrorMessage(err) });
     }
   };
 
