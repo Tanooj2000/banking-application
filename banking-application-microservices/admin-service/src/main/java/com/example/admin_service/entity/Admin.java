@@ -20,6 +20,7 @@ public class Admin {
     @Column(unique = true, nullable = false)
     private String email;
     private String bankname;
+    private String country;
     private String password;
     private boolean verifiedByRoot;
 }

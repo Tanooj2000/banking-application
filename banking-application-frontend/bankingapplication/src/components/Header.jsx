@@ -82,7 +82,7 @@ const Header = () => {
       <Link to="/" className="nav__logo">
         <div className="logo-wrapper">
           <FaUniversity className="logo-icon" />
-          <span className="logo-text">AllBanksOne</span>
+          <span className="logo-text">InterBankHub</span>
         </div>
       </Link>
       
@@ -98,7 +98,7 @@ const Header = () => {
           <>
             <li className="nav__item"><Link className="nav__link" to="/">Home</Link></li>
             {userType === 'admin' ? (
-              <li className="nav__item"><Link className="nav__link" to="/adminpage">Admin Dashboard</Link></li>
+              <li className="nav__item"><Link className="nav__link" to="/adminpage">My Dashboard</Link></li>
             ) : (
               <li className="nav__item"><Link className="nav__link" to="/userpage">My Dashboard</Link></li>
             )}

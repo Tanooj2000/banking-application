@@ -7,6 +7,7 @@ public class AdminRegisterRequest {
     private String username;
     private String email;
     private String bankname;
+    private String country;
     private String password;
 }
 

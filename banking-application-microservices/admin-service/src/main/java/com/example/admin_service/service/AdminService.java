@@ -38,6 +38,7 @@ public class AdminService {
         admin.setUsername(request.getUsername());
         admin.setEmail(request.getEmail());
         admin.setBankname(request.getBankname());
+        admin.setCountry(request.getCountry());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
         admin.setVerifiedByRoot(false); // initially not verified
         adminRepository.save(admin);

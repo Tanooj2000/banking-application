@@ -12,11 +12,280 @@
   font-size: 1.3rem;
   color: #3949ab;
   pointer-events: none;
+  z-index: 2;
 }
 .form-input {
   padding-left: 40px !important;
   height: 10px !important;
   font-size: 1rem !important;
+}
+
+/* Searchable Bank Dropdown Styles */
+.bank-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.bank-option {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bank-option:hover {
+  background-color: #f8f9fa;
+}
+
+.bank-option:last-child {
+  border-bottom: none;
+}
+
+.bank-option-icon {
+  margin-right: 10px;
+  color: #3949ab;
+  font-size: 14px;
+}
+
+.bank-option.no-results {
+  color: #666;
+  cursor: default;
+  font-style: italic;
+}
+
+.bank-option.no-results:hover {
+  background-color: transparent;
+}
+
+/* Add Bank Prompt Styles */
+.add-bank-prompt {
+  background: #f8f9fa;
+  border-top: 2px solid #e9ecef;
+  padding: 15px;
+}
+
+.add-bank-message {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.add-bank-icon {
+  margin-right: 8px;
+  color: #28a745;
+}
+
+.add-bank-btn {
+  display: flex;
+  align-items: center;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  gap: 6px;
+}
+
+.add-bank-btn:hover {
+  background: #218838;
+}
+
+.add-bank-btn:active {
+  transform: translateY(1px);
+}
+
+/* React Select Wrapper Styles */
+.react-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #3949ab;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.react-select-container {
+  width: 100%;
+}
+
+/* Custom react-select styles */
+.react-select__control {
+  min-height: 48px !important;
+  border-radius: 6px !important;
+}
+
+.react-select__value-container {
+  padding-left: 32px !important;
+}
+
+.react-select__placeholder {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.react-select__single-value {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.react-select__menu {
+  border-radius: 6px !important;
+  overflow: hidden !important;
+}
+
+.react-select__option {
+  cursor: pointer !important;
+}
+
+.react-select__option--is-focused {
+  background-color: #f8f9fa !important;
+}
+
+.react-select__option--is-selected {
+  background-color: #3949ab !important;
+}
+
+/* React Select Control Styles */
+.react-select__control {
+  min-height: 48px !important;
+  padding-left: 26px !important;
+  border-radius: 6px !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.react-select__control--is-focused {
+  border-color: #007bff !important;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1) !important;
+}
+
+.react-select__control--is-disabled {
+  background-color: #f5f5f5 !important;
+  cursor: not-allowed !important;
+}
+
+.react-select__control:hover {
+  border-color: #007bff !important;
+}
+
+/* React Select Input and Placeholder Styles */
+.react-select__placeholder {
+  color: #999 !important;
+  font-size: 14px !important;
+}
+
+.react-select__placeholder--disabled {
+  color: #666 !important;
+}
+
+.react-select__single-value {
+  font-size: 14px !important;
+  color: #333 !important;
+}
+
+/* React Select Menu Styles */
+.react-select__menu {
+  z-index: 1000 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.react-select__option {
+  background-color: white !important;
+  color: #333 !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  padding: 12px 15px !important;
+}
+
+.react-select__option:hover {
+  background-color: #f8f9fa !important;
+}
+
+.react-select__option--is-selected:hover {
+  background-color: #3949ab !important;
+}
+
+/* React Select Messages */
+.react-select__no-options-message {
+  font-size: 14px !important;
+  color: #666 !important;
+  font-style: italic !important;
+}
+
+.react-select__loading-message {
+  font-size: 14px !important;
+  color: #666 !important;
+}
+
+/* Error state for react-select */
+.react-select--error .react-select__control {
+  border-color: #dc3545 !important;
+}
+
+.react-select--error .react-select__control:hover {
+  border-color: #dc3545 !important;
+}
+
+.react-select--error .react-select__control--is-focused {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+}
+
+/* Default border styles */
+.react-select__control {
+  border: 2px solid #e0e0e0 !important;
+}
+
+.react-select__control--is-focused {
+  border: 2px solid #007bff !important;
+}
+
+.react-select__control:hover {
+  border: 2px solid #007bff !important;
+}
+
+/* Scrollbar styling for dropdown */
+.bank-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bank-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.bank-dropdown::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.bank-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 /* Professional SignUp background */
 .signup-bg-gradient {
