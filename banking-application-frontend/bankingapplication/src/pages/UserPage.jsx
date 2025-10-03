@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/bankAccountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
@@ -6,17 +7,22 @@ import './UserPage.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaUser, FaTimes } from 'react-icons/fa';
+import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 
 const UserPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // EARLY: Prevent viewing if user logged out (back button) - show overlay then redirect
+  if (typeof window !== 'undefined' && (sessionStorage.getItem('userLoggedOut') === 'true')) {
+    setTimeout(() => { try { window.location.replace('/'); } catch(_) {} }, 0);
+    return <BlockedOverlay />;
+  }
+
   // Get userId from navigation state or sessionStorage as fallback
   const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');
   
-  console.log('UserPage - userId from location.state:', location.state?.userId);
-  console.log('UserPage - userId from sessionStorage:', sessionStorage.getItem('userId'));
-  console.log('UserPage - final userId:', userId);
+
   
   const [user, setUser] = useState({});
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -159,6 +165,24 @@ const UserPage = () => {
     setMessage('');
 
     try {
+      // Validate form data using new validation functions
+      const usernameValidation = validateName(editFormData.username);
+      if (!usernameValidation.isValid) {
+        throw new Error(usernameValidation.message);
+      }
+
+      const emailValidation = validateGmail(editFormData.email);
+      if (!emailValidation.isValid) {
+        throw new Error(emailValidation.message);
+      }
+
+      if (editFormData.phonenumber) {
+        const phoneValidation = validateMobile(editFormData.phonenumber);
+        if (!phoneValidation.isValid) {
+          throw new Error(phoneValidation.message);
+        }
+      }
+
       const updatedUser = await updateUserDetails(user.id, editFormData);
       setMessage('User details updated successfully!');
       
@@ -170,7 +194,7 @@ const UserPage = () => {
         closeModals();
       }, 2000);
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
+      setMessage(`Error: ${getErrorMessage(error)}`);
     } finally {
       setIsLoading(false);
     }
@@ -181,14 +205,29 @@ const UserPage = () => {
     setIsLoading(true);
     setMessage('');
 
-    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
-      setMessage('Error: New passwords do not match');
+    // Validate using new validation functions
+    if (!passwordFormData.currentPassword) {
+      setMessage('Current password is required');
       setIsLoading(false);
       return;
     }
 
-    if (passwordFormData.newPassword.length < 6) {
-      setMessage('Error: Password must be at least 6 characters long');
+    const newPasswordValidation = validatePassword(passwordFormData.newPassword);
+    if (!newPasswordValidation.isValid) {
+      setMessage(`Error: ${newPasswordValidation.message}`);
+      setIsLoading(false);
+      return;
+    }
+
+    const confirmPasswordValidation = validateConfirmPassword(passwordFormData.newPassword, passwordFormData.confirmPassword);
+    if (!confirmPasswordValidation.isValid) {
+      setMessage(`Error: ${confirmPasswordValidation.message}`);
+      setIsLoading(false);
+      return;
+    }
+
+    if (passwordFormData.currentPassword === passwordFormData.newPassword) {
+      setMessage('Error: New password must be different from current password');
       setIsLoading(false);
       return;
     }
@@ -206,7 +245,7 @@ const UserPage = () => {
         closeModals();
       }, 2000);
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
+      setMessage(`Error: ${getErrorMessage(error)}`);
     } finally {
       setIsLoading(false);
     }

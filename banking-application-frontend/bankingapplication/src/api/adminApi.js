@@ -1,3 +1,5 @@
+import { getErrorMessage } from '../utils/validation';
+
 const BASE_URL = 'http://localhost:8083/api/admin/';
 export const signUpAdmin = async (adminData) => {
   const response = await fetch(`${BASE_URL}register`, {
@@ -27,8 +29,7 @@ export const signInAdmin = async (credentials) => {
     throw new Error(errorMsg || 'Failed to sign in admin');
   }
   const data = await response.json();
-  console.log(data);
-  console.log(data.admin.email);
+
   return data;
 };
 
@@ -48,7 +49,9 @@ export const getAdminById = async (adminId) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      // Use getErrorMessage to extract clean message from JSON response
+      const cleanErrorMessage = getErrorMessage(errorText);
+      throw new Error(cleanErrorMessage);
     }
 
     const adminData = await response.json();
@@ -98,7 +101,9 @@ export const updateAdminDetails = async (adminId, updateData) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Admin update failed with status:', response.status, 'Error:', errorText);
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      // Use getErrorMessage to extract clean message from JSON response
+      const cleanErrorMessage = getErrorMessage(errorText);
+      throw new Error(cleanErrorMessage);
     }
 
     const updatedAdmin = await response.json();
@@ -152,7 +157,9 @@ export const changeAdminPassword = async (adminId, passwordData) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Password change failed with status:', response.status, 'Error:', errorText);
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      // Use getErrorMessage to extract clean message from JSON response
+      const cleanErrorMessage = getErrorMessage(errorText);
+      throw new Error(cleanErrorMessage);
     }
 
     // Handle both JSON and text responses from backend
@@ -172,39 +179,6 @@ export const changeAdminPassword = async (adminId, passwordData) => {
   } catch (error) {
     console.error('Error changing admin password:', error);
     throw new Error(`Failed to change password: ${error.message}`);
-  }
-};
-
-/**
- * Verify admin password
- * @param {string} adminId - The admin ID
- * @param {string} password - The password to verify
- * @returns {Promise<boolean>} Whether password is correct
- */
-export const verifyAdminPassword = async (adminId, password) => {
-  try {
-    console.log('Verifying password for admin ID:', adminId);
-    
-    const response = await fetch(`${BASE_URL}${adminId}/verify-password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ password })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Password verification failed with status:', response.status, 'Error:', errorText);
-      return false;
-    }
-
-    const result = await response.json();
-    console.log('Password verification result:', result);
-    return result.valid || false;
-  } catch (error) {
-    console.error('Error verifying admin password:', error);
-    return false;
   }
 };
 
@@ -241,7 +215,9 @@ export const updateAdminDetailsSimple = async (adminId, updateData) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      // Use getErrorMessage to extract clean message from JSON response
+      const cleanErrorMessage = getErrorMessage(errorText);
+      throw new Error(cleanErrorMessage);
     }
 
     // Handle both JSON and text responses

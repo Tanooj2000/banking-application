@@ -7,8 +7,8 @@ import { signUpAdmin } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUniversity, FaUserShield, FaGlobe, FaPlus, FaSearch } from 'react-icons/fa';
 import Header from '../components/Header';
+import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, validateBankName, getErrorMessage } from '../utils/validation';
 import CreatableSelect from 'react-select/creatable';
-
 const SignUp = () => {
   const [userType, setUserType] = useState('');
   const [formData, setFormData] = useState({});
@@ -73,11 +73,6 @@ const SignUp = () => {
     }
   }, [navigate]);
 
-  // Validation functions
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validateMobile = (mobile) => /^[0-9]{10}$/.test(mobile);
-  const validatePassword = (password) => password.length >= 6;
-
   const validateForm = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = 'Email is required';
@@ -97,6 +92,54 @@ const SignUp = () => {
       if (!formData.adminPassword) newErrors.adminPassword = 'Admin password is required';
       else if (!validatePassword(formData.adminPassword)) newErrors.adminPassword = 'Admin password must be at least 6 characters long';
     }
+    
+    if (userType === 'user') {
+      // Name validation
+      const nameValidation = validateName(formData.name);
+      if (!nameValidation.isValid) {
+        newErrors.name = nameValidation.message;
+      }
+      
+      // Mobile validation
+      const mobileValidation = validateMobile(formData.mobile);
+      if (!mobileValidation.isValid) {
+        newErrors.mobile = mobileValidation.message;
+      }
+      
+      // Password validation
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.message;
+      }
+      
+      // Confirm password validation
+      const confirmPasswordValidation = validateConfirmPassword(formData.password, formData.confirmPassword);
+      if (!confirmPasswordValidation.isValid) {
+        newErrors.confirmPassword = confirmPasswordValidation.message;
+      }
+      
+    } else if (userType === 'admin') {
+      // Admin name validation
+      if (formData.name) {
+        const nameValidation = validateName(formData.name);
+        if (!nameValidation.isValid) {
+          newErrors.name = nameValidation.message;
+        }
+      }
+      
+      // Bank name validation
+      const bankNameValidation = validateBankName(formData.bankName);
+      if (!bankNameValidation.isValid) {
+        newErrors.bankName = bankNameValidation.message;
+      }
+      
+      // Admin password validation
+      const passwordValidation = validatePassword(formData.adminPassword);
+      if (!passwordValidation.isValid) {
+        newErrors.adminPassword = passwordValidation.message;
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -172,7 +215,7 @@ const SignUp = () => {
   navigate('/signin');
       } catch (error) {
         console.error('Submission error:', error);
-        alert(error.message); 
+        alert(getErrorMessage(error)); 
       }
     }
     setIsSubmitting(false);

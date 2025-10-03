@@ -174,24 +174,27 @@ animation: fadeFlash 3.5s ease-in-out forwards;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(14, 42, 70, 0.18);
+  background: rgba(14, 42, 70, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .signin-modal-form {
   background: #d8d2d2;
   border-radius: 1.2rem;
   box-shadow: 0 8px 40px #23252622;
   padding: 2.2rem 2.5rem 2rem 2.5rem;
-  min-width: 320px;
+  min-width: 380px;
   max-width: 95vw;
   display: flex;
   flex-direction: column;
   gap: 18px;
   position: relative;
   animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
+  box-sizing: border-box;
 }
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(40px) scale(0.98); }
@@ -216,6 +219,72 @@ animation: fadeFlash 3.5s ease-in-out forwards;
   z-index: 2;
 }
 
+/* Input group styling for modal */
+.signin-modal-form .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Form input styling for modal */
+.signin-modal-form .form-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  background: white;
+  min-height: 48px;
+}
+
+.signin-modal-form .form-input:focus {
+  outline: none;
+  border-color: #3949ab;
+  box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.1);
+}
+
+.signin-modal-form .form-input.error {
+  border-color: #e53e3e;
+}
+
+.signin-modal-form .error-message {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Submit button styling for modal */
+.signin-modal-form .submit-button {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: #3949ab;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
+  min-height: 48px;
+}
+
+.signin-modal-form .submit-button:hover {
+  background: #303f9f;
+}
+
+.signin-modal-form .submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.signin-modal-form .submit-button.loading {
+  background: #ccc;
+}
+
 @media (max-width: 1000px) {
   .signin-card {
     flex-direction: column;
@@ -227,6 +296,26 @@ animation: fadeFlash 3.5s ease-in-out forwards;
     width: 100%;
     min-width: 0;
     padding: 1.2rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .signin-modal-form {
+    min-width: 280px;
+    padding: 1.5rem 1.25rem;
+    margin: 1rem;
+  }
+  
+  .signin-modal-form .form-input {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+  
+  .signin-modal-form .submit-button {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    min-height: 44px;
   }
 }
 

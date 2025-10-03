@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { fetchAllAccounts, approveAccount, rejectAccount } from '../api/accountApi';
+import { fetchAllAccounts } from '../api/accountApi';
 import { updateAdminDetails, changeAdminPassword, getAdminById, updateAdminDetailsSimple } from '../api/adminApi';
 import { AuthGuard } from '../utils/authGuard';
+import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
+import './AdminPage.css';
 
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Early abort: if loggedOut flag present, immediately navigate away (prevents flash on back)
+  if (typeof window !== 'undefined' && sessionStorage.getItem('loggedOut') === 'true') {
+    // Show a neutral overlay while redirecting to avoid white flash
+    setTimeout(() => { try { window.location.replace('/'); } catch(_) {} }, 0);
+    return <BlockedOverlay />;
+  }
 
   // Access admin object using AuthGuard
   const [admin, setAdmin] = useState(() => {
@@ -76,6 +86,18 @@ const AdminPage = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  
+  // Branch creation states
+  const [showBranchModal, setShowBranchModal] = useState(false);
+  const [branchFormData, setBranchFormData] = useState({
+    country: '',
+    city: '',
+    bankName: admin.bankname || '',
+    branch: '',
+    code: ''
+  });
+  const [isBranchLoading, setIsBranchLoading] = useState(false);
+  const [branchMessage, setBranchMessage] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +124,7 @@ const AdminPage = () => {
   const updateAccountStatus = (id, newStatus) => {
     setAccounts(prev => {
       const newAccounts = prev.map(a => a.id === id ? { ...a, status: newStatus } : a);
-      console.log('Updated accounts:', newAccounts); // Debug log
+
       return newAccounts;
     });
   };
@@ -129,13 +151,15 @@ const AdminPage = () => {
     setMessage('');
     
     try {
-      // Validate form data
-      if (!editFormData.username || !editFormData.email) {
-        throw new Error('Username and email are required');
+      // Validate form data using new validation functions
+      const usernameValidation = validateName(editFormData.username);
+      if (!usernameValidation.isValid) {
+        throw new Error(usernameValidation.message);
       }
 
-      if (!editFormData.email.includes('@')) {
-        throw new Error('Please enter a valid email address');
+      const emailValidation = validateGmail(editFormData.email);
+      if (!emailValidation.isValid) {
+        throw new Error(emailValidation.message);
       }
 
       // Find the correct admin ID field
@@ -145,7 +169,7 @@ const AdminPage = () => {
       for (const field of possibleIdFields) {
         if (admin[field] && admin[field] !== 'undefined') {
           actualAdminId = admin[field];
-          console.log(`Using admin ID from field "${field}":`, actualAdminId);
+
           break;
         }
       }
@@ -158,13 +182,13 @@ const AdminPage = () => {
       
       try {
         // Try simple approach first
-        console.log('Trying simple update approach with admin ID:', actualAdminId);
+
         updatedAdmin = await updateAdminDetailsSimple(actualAdminId, {
           username: editFormData.username,
           email: editFormData.email
         });
       } catch (simpleError) {
-        console.log('Simple approach failed, trying complex approach...', simpleError.message);
+
         
         try {
           // Try complex approach with multiple endpoints
@@ -176,7 +200,7 @@ const AdminPage = () => {
           console.error('Both approaches failed:', complexError.message);
           
           // If both fail, show user a helpful message
-          setMessage(`Update failed: ${complexError.message}`);
+          setMessage(`Update failed: ${getErrorMessage(complexError)}`);
           return;
         }
       }
@@ -197,31 +221,28 @@ const AdminPage = () => {
       }, 1500);
     } catch (error) {
       console.error('Error updating admin details:', error);
-      setMessage(`Error: ${error.message}`);
+      setMessage(`Error: ${getErrorMessage(error)}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleUpdateAdminPassword = async () => {
-    // Validation
+    // Validation using new validation functions
     if (!passwordFormData.currentPassword) {
       setMessage('Current password is required!');
       return;
     }
 
-    if (!passwordFormData.newPassword) {
-      setMessage('New password is required!');
+    const newPasswordValidation = validatePassword(passwordFormData.newPassword);
+    if (!newPasswordValidation.isValid) {
+      setMessage(newPasswordValidation.message);
       return;
     }
 
-    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
-      setMessage('New passwords do not match!');
-      return;
-    }
-
-    if (passwordFormData.newPassword.length < 6) {
-      setMessage('Password must be at least 6 characters long!');
+    const confirmPasswordValidation = validateConfirmPassword(passwordFormData.newPassword, passwordFormData.confirmPassword);
+    if (!confirmPasswordValidation.isValid) {
+      setMessage(confirmPasswordValidation.message);
       return;
     }
 
@@ -241,7 +262,7 @@ const AdminPage = () => {
       for (const field of possibleIdFields) {
         if (admin[field] && admin[field] !== 'undefined') {
           actualAdminId = admin[field];
-          console.log(`Using admin ID from field "${field}" for password change:`, actualAdminId);
+
           break;
         }
       }
@@ -271,7 +292,7 @@ const AdminPage = () => {
       }, 1500);
     } catch (error) {
       console.error('Error updating password:', error);
-      setMessage(`Error: ${error.message}`);
+      setMessage(`Error: ${getErrorMessage(error)}`);
     } finally {
       setIsLoading(false);
     }
@@ -296,18 +317,77 @@ const AdminPage = () => {
     setShowPasswordModal(true);
   };
 
+  // Branch creation functions
+  const handleBranchFormChange = (e) => {
+    const { name, value } = e.target;
+    setBranchFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateBranch = async () => {
+    setIsBranchLoading(true);
+    setBranchMessage('');
+    
+    try {
+      // Validation
+      if (!branchFormData.country || !branchFormData.city || !branchFormData.branch || !branchFormData.code) {
+        throw new Error('All fields are required');
+      }
+
+      if (branchFormData.code.length < 3) {
+        throw new Error('Branch code must be at least 3 characters long');
+      }
+
+      // API call to create branch
+      const response = await fetch('http://localhost:8082/api/banks/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(branchFormData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to create branch');
+      }
+
+      const result = await response.json();
+
+      setBranchMessage('Branch created successfully!');
+      setBranchFormData({
+        country: '',
+        city: '',
+        bankName: admin.bankname || '',
+        branch: '',
+        code: ''
+      });
+      
+      setTimeout(() => {
+        setShowBranchModal(false);
+        setBranchMessage('');
+      }, 1500);
+    } catch (error) {
+      console.error('Error creating branch:', error);
+      setBranchMessage(`Error: ${getErrorMessage(error)}`);
+    } finally {
+      setIsBranchLoading(false);
+    }
+  };
+
+  const openBranchModal = () => {
+    setBranchFormData({
+      country: '',
+      city: '',
+      bankName: admin.bankname || '',
+      branch: '',
+      code: ''
+    });
+    setBranchMessage('');
+    setShowBranchModal(true);
+  };
+
   // Debug function to test API connectivity and admin data
   const testApiConnection = async () => {
-    console.log('=== ADMIN DEBUG INFO ===');
-    console.log('Admin data:', admin);
-    console.log('Admin keys:', Object.keys(admin));
-    console.log('AdminId value:', admin.adminId);
-    console.log('AdminId type:', typeof admin.adminId);
-    console.log('Admin id (lowercase):', admin.id);
-    console.log('Admin ID (uppercase):', admin.ID);
-    console.log('Admin _id:', admin._id);
-    console.log('========================');
-    
     // Try to determine the correct admin ID field
     const possibleIdFields = ['adminId', 'id', 'ID', '_id', 'admin_id'];
     let actualAdminId = null;
@@ -315,7 +395,6 @@ const AdminPage = () => {
     for (const field of possibleIdFields) {
       if (admin[field] && admin[field] !== 'undefined') {
         actualAdminId = admin[field];
-        console.log(`Found admin ID in field "${field}":`, actualAdminId);
         break;
       }
     }
@@ -333,12 +412,9 @@ const AdminPage = () => {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      console.log('API test response status:', response.status);
-      const text = await response.text();
-      console.log('API test response:', text);
+      await response.text();
     } catch (error) {
       console.error('API connection test failed:', error);
-      console.log('Make sure your Spring Boot backend is running on port 8083');
     }
   };
 
@@ -352,10 +428,20 @@ const AdminPage = () => {
   // Define approve and reject functions inline
   const approveAccount = async (accountId) => {
     try {
-      await fetch(`http://localhost:8080/account/${accountId}/approve`, {
-        method: 'PUT',
+      const url = `http://localhost:8085/accounts/approve/${accountId}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to approve account:', errorText);
+        throw new Error(`Failed to approve account: ${response.status} - ${errorText}`);
+      }
+      
+      return await response.text();
     } catch (error) {
       console.error('Error approving account:', error);
       throw error;
@@ -364,10 +450,20 @@ const AdminPage = () => {
 
   const rejectAccount = async (accountId) => {
     try {
-      await fetch(`http://localhost:8080/account/${accountId}/reject`, {
-        method: 'PUT',
+      const url = `http://localhost:8085/accounts/reject/${accountId}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to reject account:', errorText);
+        throw new Error(`Failed to reject account: ${response.status} - ${errorText}`);
+      }
+      
+      return await response.text();
     } catch (error) {
       console.error('Error rejecting account:', error);
       throw error;
@@ -377,244 +473,70 @@ const AdminPage = () => {
   return (
     <>
       <Header />
-      <div style={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        width: '100%',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        padding: '20px',
-        boxSizing: 'border-box'
-      }}>
-        <div style={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          flex: '1',
-          overflow: 'hidden'
-        }}>
-          {/* Admin Info Card - Using UserPage styling */}
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '20px',
-            padding: '20px',
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e8ecef',
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr auto',
-            alignItems: 'center',
-            gap: '2rem',
-            position: 'relative',
-            overflow: 'hidden',
-            flex: 'none',
-            marginBottom: '20px'
-          }}>
+      <div className="admin-page-container">
+        <div className="admin-content">
+          {/* Admin Info Card */}
+          <div className="admin-profile-section">
             {/* Gradient top border */}
-            <div style={{
-              content: '',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)'
-            }}></div>
+            <div className="gradient-border"></div>
             
             {/* Admin Profile Section */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '1.5rem'
-            }}>
-              <div style={{
-                width: '120px',
-                height: '120px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '64px',
-                marginTop: '-8.8px'
-              }}>
+            <div className="admin-profile">
+              <div className="admin-avatar">
                 {admin.icon || '👨‍💼'}
               </div>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                justifyContent: 'center',
-                minHeight: '120px'
-              }}>
-                <h1 style={{
-                  fontSize: '2rem',
-                  fontWeight: '700',
-                  margin: '0',
-                  color: '#2c3e50',
-                  letterSpacing: '-0.5px'
-                }}>
+              <div className="admin-info">
+                <h1 className="admin-name">
                   {admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}
                 </h1>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: '#7f8c8d',
-                  margin: '0',
-                  fontWeight: '500',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
+                <p className="admin-role">
                   Bank Administrator
                 </p>
               </div>
             </div>
             
             {/* Admin Details Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1.5rem',
-              marginTop: '1rem'
-            }}>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                padding: '1rem',
-                background: 'rgba(255, 255, 255, 0.7)',
-                borderRadius: '12px',
-                border: '1px solid rgba(102, 126, 234, 0.1)'
-              }}>
-                <span style={{
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  color: '#667eea',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>Bank Name</span>
-                <span style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#2c3e50',
-                  wordWrap: 'break-word',
-                  minHeight: '1.5rem',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>{admin.bankname || 'N/A'}</span>
+            <div className="admin-details-grid">
+              <div className="admin-detail-card">
+                <span className="detail-label">Bank Name</span>
+                <span className="detail-value">{admin.bankname || 'N/A'}</span>
               </div>
               
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                padding: '1rem',
-                background: 'rgba(255, 255, 255, 0.7)',
-                borderRadius: '12px',
-                border: '1px solid rgba(102, 126, 234, 0.1)'
-              }}>
-                <span style={{
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  color: '#667eea',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>Email</span>
-                <span style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#2c3e50',
-                  wordWrap: 'break-word',
-                  minHeight: '1.5rem',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}>{admin.email ? admin.email.charAt(0).toUpperCase() + admin.email.slice(1) : 'N/A'}</span>
+              <div className="admin-detail-card">
+                <span className="detail-label">Email</span>
+                <span className="detail-value">{admin.email ? admin.email.charAt(0).toUpperCase() + admin.email.slice(1) : 'N/A'}</span>
               </div>
               
               {/* Edit Actions */}
-              <div style={{
-                gridColumn: '1 / -1',
-                display: 'flex',
-                gap: '1rem',
-                marginTop: '0.5rem',
-                justifyContent: 'center'
-              }}>
-                <button
-                  onClick={openEditModal}
-                  style={{
-                    background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 2px 8px rgba(52, 152, 219, 0.3)',
-                    flex: '1',
-                    maxWidth: '150px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-1px)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(52, 152, 219, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 2px 8px rgba(52, 152, 219, 0.3)';
-                  }}
-                >
+              <div className="admin-actions">
+                <button onClick={openEditModal} className="action-btn edit-btn">
                   Edit Details
                 </button>
                 
-                <button
-                  onClick={openPasswordModal}
-                  style={{
-                    background: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 2px 8px rgba(230, 126, 34, 0.3)',
-                    flex: '1',
-                    maxWidth: '150px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-1px)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(230, 126, 34, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 2px 8px rgba(230, 126, 34, 0.3)';
-                  }}
-                >
+                <button onClick={openPasswordModal} className="action-btn password-btn">
                   Reset Password
+                </button>
+
+                <button onClick={openBranchModal} className="action-btn branch-btn">
+                  <span>+ Add New Branch</span>
                 </button>
               </div>
             </div>
           </div>
           {/* Applications Container */}
-          <div style={{ 
-            background: '#ffffff',
-            borderRadius: '20px',
-            padding: '32px',
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e8ecef',
-            flex: '1',
-            overflow: 'auto',
-            minHeight: '0'
-          }}>
+          <div className="applications-container">
             {/* Dynamic header based on filter */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div className="applications-header">
               <h2>
                 {statusFilter === 'Pending' ? 'Pending Applications' : statusFilter === 'Approved' ? 'Approved Applications' : statusFilter === 'Rejected' ? 'Rejected Applications' : 'Applications'}
               </h2>
-              <div>
+              <div className="filter-section">
                 <label htmlFor="statusFilter">Filter by Status: </label>
                 <select
                   id="statusFilter"
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
-                  style={{ marginLeft: 8, padding: '4px 8px', borderRadius: 4 }}
+                  className="status-filter"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Approved">Approved</option>
@@ -626,7 +548,7 @@ const AdminPage = () => {
             {loading ? (
               <div>Loading applications...</div>
             ) : error ? (
-              <div style={{ color: 'red' }}>{error}</div>
+              <div className="error-message">{error}</div>
             ) : (() => {
               // Filter accounts based on status
               // Filter is case-sensitive and matches backend status exactly
@@ -638,38 +560,34 @@ const AdminPage = () => {
               return filteredAccounts.length === 0 ? (
                 <div>No {statusFilter.toLowerCase()} applications.</div>
               ) : (
-                <table key={`${statusFilter}-${accounts.length}`} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table key={`${statusFilter}-${accounts.length}`} className="applications-table">
                   <thead>
-                    <tr style={{ background: '#f0f0f0' }}>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}>Applicant</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}>Country</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}>Email</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}>Status</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}>Action</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left' }}></th>
+                    <tr className="table-header">
+                      <th>Applicant</th>
+                      <th>Country</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredAccounts.map(app => (
-                      <tr key={app.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '8px 12px' }}>{app.applicant || app.fullName}</td>
-                        <td style={{ padding: '8px 12px' }}>{app.country || app.location || '-'}</td>
-                        <td style={{ padding: '8px 12px' }}>{app.email}</td>
-                        <td style={{
-                          padding: '8px 12px',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                          color: app.status?.toLowerCase() === 'pending' ? '#d99a00' : app.status?.toLowerCase() === 'approved' ? '#2e7d32' : '#d32f2f',
-                          textAlign: 'left',
-                          opacity: processingId === app.id ? 0.5 : 1,
-                          transition: 'opacity 0.3s'
-                        }}>{app.status}</td>
-                        <td style={{ padding: '8px 12px' }}>
+                      <tr key={app.id} className="table-row">
+                        <td>{app.applicant || app.fullName}</td>
+                        <td>{app.country || app.location || '-'}</td>
+                        <td>{app.email}</td>
+                        <td className={`status-cell ${app.status?.toLowerCase() === 'pending' ? 'status-pending' : app.status?.toLowerCase() === 'approved' ? 'status-approved' : 'status-rejected'}`}
+                            style={{
+                              opacity: processingId === app.id ? 0.5 : 1,
+                              transition: 'opacity 0.3s'
+                            }}>{app.status}</td>
+                        <td>
                           {app.status?.toLowerCase() === 'pending' ? (
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div className="action-buttons">
                               <button
-                                style={{ background: '#2e7d32', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', cursor: processingId ? 'not-allowed' : 'pointer', opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
+                                className="approve-btn"
+                                style={{ opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
                                 disabled={!!processingId}
                                 onClick={async () => {
                                   if (window.confirm('Are you sure you want to approve this account?')) {
@@ -691,7 +609,8 @@ const AdminPage = () => {
                                 {processingId === app.id ? 'Approving...' : 'Approve'}
                               </button>
                               <button
-                                style={{ background: '#d32f2f', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', cursor: processingId ? 'not-allowed' : 'pointer', opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
+                                className="reject-btn"
+                                style={{ opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
                                 disabled={!!processingId}
                                 onClick={async () => {
                                   if (window.confirm('Are you sure you want to reject this account?')) {
@@ -715,25 +634,10 @@ const AdminPage = () => {
                             </div>
                           ) : null}
                         </td>
-                        <td style={{ padding: '8px 12px' }}>
+                        <td>
                           <button
                             title="View more"
-                            style={{ 
-                              background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', 
-                              border: 'none', 
-                              cursor: 'pointer', 
-                              color: '#1976d2',
-                              padding: '6px 8px',
-                              borderRadius: '50%',
-                              width: '32px',
-                              height: '32px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'all 0.2s ease',
-                              fontSize: '20px',
-                              boxShadow: '0 2px 4px rgba(25, 118, 210, 0.2)'
-                            }}
+                            className="view-more-btn"
                             onMouseEnter={(e) => {
                               e.target.style.background = 'linear-gradient(135deg, #bbdefb 0%, #90caf9 100%)';
                               e.target.style.transform = 'scale(1.05)';
@@ -909,50 +813,13 @@ const AdminPage = () => {
         
         {/* Edit Admin Details Modal */}
         {showEditModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10000
-          }}>
-            <div style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => setShowEditModal(false)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#666',
-                  padding: '4px 8px'
-                }}
-              >
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <button onClick={() => setShowEditModal(false)} className="modal-close-btn">
                 ✕
               </button>
               
-              <h2 style={{ 
-                marginBottom: '24px', 
-                color: '#1976d2',
-                borderBottom: '2px solid #e3f2fd',
-                paddingBottom: '12px'
-              }}>
+              <h2 className="modal-title">
                 Edit Admin Details
               </h2>
               
@@ -1261,6 +1128,273 @@ const AdminPage = () => {
                     }}
                   >
                     {isLoading ? 'Updating...' : 'Update Password'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add New Branch Modal */}
+        {showBranchModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000
+          }}>
+            <div style={{
+              backgroundColor: '#fff',
+              borderRadius: '12px',
+              padding: '32px',
+              maxWidth: '500px',
+              width: '90%',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+              position: 'relative'
+            }}>
+              <button
+                onClick={() => setShowBranchModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#999',
+                  lineHeight: '1'
+                }}
+              >
+                ×
+              </button>
+              
+              <h2 style={{ 
+                marginTop: '0',
+                marginBottom: '24px',
+                fontSize: '24px',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                Add New Branch
+              </h2>
+
+              {branchMessage && (
+                <div style={{
+                  position: 'fixed',
+                  top: '20px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: branchMessage.includes('Error') ? '#f44336' : '#43a047',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  zIndex: 10001,
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  {branchMessage}
+                </div>
+              )}
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleCreateBranch();
+              }}>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333'
+                  }}>
+                    Country *
+                  </label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={branchFormData.country}
+                    onChange={handleBranchFormChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      transition: 'border-color 0.3s',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    placeholder="Enter country name"
+                    required
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333'
+                  }}>
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={branchFormData.city}
+                    onChange={handleBranchFormChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      transition: 'border-color 0.3s',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    placeholder="Enter city name"
+                    required
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333'
+                  }}>
+                    Bank Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    value={branchFormData.bankName}
+                    onChange={handleBranchFormChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      transition: 'border-color 0.3s',
+                      outline: 'none',
+                      backgroundColor: '#f9f9f9'
+                    }}
+                    placeholder="Bank name"
+                    readOnly
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333'
+                  }}>
+                    Branch Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="branch"
+                    value={branchFormData.branch}
+                    onChange={handleBranchFormChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      transition: 'border-color 0.3s',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    placeholder="Enter branch name"
+                    required
+                  />
+                </div>
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ 
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#333'
+                  }}>
+                    Branch Code *
+                  </label>
+                  <input
+                    type="text"
+                    name="code"
+                    value={branchFormData.code}
+                    onChange={handleBranchFormChange}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      transition: 'border-color 0.3s',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
+                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    placeholder="Enter branch code (min 3 characters)"
+                    required
+                  />
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowBranchModal(false)}
+                    style={{
+                      background: '#f5f5f5',
+                      color: '#666',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '12px 24px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={isBranchLoading}
+                    style={{
+                      background: isBranchLoading ? '#ccc' : 'linear-gradient(135deg, #27ae60 0%, #229954 100%)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '12px 24px',
+                      cursor: isBranchLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    {isBranchLoading ? 'Creating...' : 'Create Branch'}
                   </button>
                 </div>
               </form>

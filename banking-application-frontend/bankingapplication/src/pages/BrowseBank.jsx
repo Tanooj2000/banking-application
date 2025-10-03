@@ -26,7 +26,7 @@ function getBankImage(bankName) {
     .replace(/\-+/g, '-')           // Replace multiple hyphens with single hyphen
     .replace(/^-+|-+$/g, '');       // Remove leading/trailing hyphens
   
-  console.log(`Loading image for bank: "${bankName}" -> "${fileName}.webp"`); // Debug log
+
   
   try {
     return new URL(`../assets/banks/${fileName}.webp`, import.meta.url).href;
