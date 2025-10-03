@@ -730,6 +730,16 @@
   text-align: center;
   color: #666;
   font-size: 18px;
+  border: 2px dashed #ccc;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.no-applications-icon {
+  font-size: 48px;
+  color: #e74c3c;
+  margin-bottom: 10px;
 }
 
 .no-applications h2 {
@@ -812,8 +822,11 @@
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 20px;
-  color: rgb(8, 8, 8);
   text-align: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Form layout inside modals */
@@ -831,7 +844,7 @@
 
 /* Label styling for form fields */
 .form-label {
-  font-size: 1.2rem; /* Increased from 1rem to 1.2rem */
+   font-size: 1.2rem !important; /* Increased from 1rem to 1.2rem */
   font-weight: 600;
   margin-bottom: 5px;
   color: #555;
@@ -840,8 +853,8 @@
 /* Input field styling */
 .form-input {
   width: 100%;
-  padding: 12px; /* Increased padding for larger input box */
-  font-size: 1.1rem; /* Increased font size for input text */
+  padding: 15px !important; /* Increased padding for larger input box */
+  font-size: 1.1rem !important; /* Increased font size for input text */
   border: 1px solid #ccc;
   border-radius: 8px;
   transition: border-color 0.3s;
@@ -879,7 +892,7 @@
 
 /* Hover effect for cancel button */
 .form-btn.cancel:hover {
-  background: #bd0d0d;
+  background: #ff0000;
 }
 
 /* Submit button styling */
@@ -985,4 +998,11 @@
     width: 100%;
     text-align: center;
   }
+}
+
+/* Styles for required field indicator */
+.required {
+  color: #ff0000; /* Red color to indicate required */
+  font-weight: bold; /* Make it bold for emphasis */
+  margin-left: 4px; /* Add some spacing */
 }

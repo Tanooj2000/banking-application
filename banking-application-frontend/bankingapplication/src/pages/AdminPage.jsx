@@ -114,7 +114,7 @@ const AdminPage = () => {
         const fetchedAccounts = await fetchAllAccounts(admin.bankname);
         setAccounts(fetchedAccounts);
       } catch (err) {
-        setError(err.message || 'Failed to fetch accounts');
+        setAccounts([]); // Set accounts to an empty array instead of showing an error
       } finally {
         setLoading(false);
       }
@@ -471,6 +471,7 @@ const AdminPage = () => {
               );
               return filteredAccounts.length === 0 ? (
                 <div className="no-applications">
+                  <div className="no-applications-icon">🚫</div>
                   <h2>No {statusFilter} Applications</h2>
                   <p>There are currently no {statusFilter.toLowerCase()} applications to review.</p>
                 </div>
@@ -808,20 +809,21 @@ const AdminPage = () => {
                 handleCreateBranch();
               }} className="modal-form">
                 <div className="form-group">
-                  <label className="form-label">Country *</label>
+                  <label className="form-label">Country <span className="required">*</span></label>
                   <input
                     type="text"
                     name="country"
-                    value={branchFormData.country}
-                    onChange={handleBranchFormChange}
-                    className="form-input"
+                    value={admin.country || ''}
+                    className="form-input readonly"
                     placeholder="Enter country name"
                     required
+                    style={{ pointerEvents: 'none' }}
+                    readOnly
                   />
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">City *</label>
+                  <label className="form-label">City <span className="required">*</span></label>
                   <input
                     type="text"
                     name="city"
@@ -834,20 +836,20 @@ const AdminPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Bank Name *</label>
+                  <label className="form-label">Bank Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="bankName"
-                    value={branchFormData.bankName}
-                    onChange={handleBranchFormChange}
+                    value={admin.bankname || ''}
                     className="form-input readonly"
                     placeholder="Bank name"
                     readOnly
+                    style={{ pointerEvents: 'none' }}
                   />
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">Branch Name *</label>
+                  <label className="form-label">Branch Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="branch"
@@ -860,7 +862,7 @@ const AdminPage = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label className="form-label">Branch Code *</label>
+                  <label className="form-label">Branch Code <span className="required">*</span></label>
                   <input
                     type="text"
                     name="code"
