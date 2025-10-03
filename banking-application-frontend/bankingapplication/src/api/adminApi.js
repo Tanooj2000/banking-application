@@ -1,6 +1,7 @@
 import { getErrorMessage } from '../utils/validation';
 
 const BASE_URL = 'http://localhost:8083/api/admin/';
+
 export const signUpAdmin = async (adminData) => {
   const response = await fetch(`${BASE_URL}register`, {
     method: 'POST',
@@ -10,12 +11,12 @@ export const signUpAdmin = async (adminData) => {
     body: JSON.stringify(adminData),
   });
   if (!response.ok) {
-    // Always read error as text, since backend sends plain string
     const errorMsg = await response.text();
     throw new Error(errorMsg || 'Failed to sign up user');
   }
   return response.text();
 };
+
 export const signInAdmin = async (credentials) => {
   const response = await fetch(`${BASE_URL}login`, {
     method: 'POST',
@@ -86,8 +87,7 @@ export const updateAdminDetails = async (adminId, updateData) => {
     
     console.log('Using numeric admin ID:', numericAdminId);
     
-    // Based on backend logs, try the correct endpoint pattern
-    const response = await fetch(`http://localhost:8083/api/admin/${numericAdminId}`, {
+    const response = await fetch(`${BASE_URL}${numericAdminId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ export const changeAdminPassword = async (adminId, passwordData) => {
     
     console.log('Password change request body:', requestBody);
     
-    const response = await fetch(`http://localhost:8083/api/admin/${numericAdminId}/password`, {
+    const response = await fetch(`${BASE_URL}${numericAdminId}/password`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ export const updateAdminDetailsSimple = async (adminId, updateData) => {
     }
     
     // Try PUT method instead of POST (based on backend logs)
-    const response = await fetch(`http://localhost:8083/api/admin/${numericAdminId}`, {
+    const response = await fetch(`${BASE_URL}${numericAdminId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -235,6 +235,21 @@ export const updateAdminDetailsSimple = async (adminId, updateData) => {
     console.error('Error in simple admin update:', error);
     throw error;
   }
+};
+
+/**
+ * Test API connection
+ * @returns {Promise<string>} Success message
+ */
+export const testApiConnection = async () => {
+  const response = await fetch(`${BASE_URL}test`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error('API connection test failed');
+  }
+  return await response.text();
 };
 
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.admin_service.dto.AdminLoginRequest;
 import com.example.admin_service.dto.AdminLoginResponse;
 import com.example.admin_service.dto.AdminRegisterRequest;
+import com.example.admin_service.dto.ApplicationActionRequest;
 import com.example.admin_service.dto.ChangePasswordRequest;
 import com.example.admin_service.service.AdminService;
 
@@ -47,6 +48,34 @@ public class AdminController {
             @PathVariable Long id,
             @RequestBody ChangePasswordRequest request) {
         return adminService.updateAdminPassword(id, request);
+    }
+
+    // Get all applications that are not verified by root-admin
+    @GetMapping("/applications/pending")
+    public ResponseEntity<java.util.List<com.example.admin_service.entity.Admin>> getUnverifiedApplications() {
+        return adminService.getUnverifiedApplications();
+    }
+
+    // Approve admin application
+    @PostMapping("/applications/{adminId}/approve")
+    public ResponseEntity<String> approveApplication(
+            @PathVariable Long adminId,
+            @RequestBody ApplicationActionRequest request) {
+        return adminService.approveApplication(adminId, request);
+    }
+
+    // Reject admin application
+    @PostMapping("/applications/{adminId}/reject")
+    public ResponseEntity<String> rejectApplication(
+            @PathVariable Long adminId,
+            @RequestBody ApplicationActionRequest request) {
+        return adminService.rejectApplication(adminId, request);
+    }
+
+    // Check application status
+    @GetMapping("/application-status")
+    public ResponseEntity<?> checkApplicationStatus(@RequestParam String usernameOrEmail) {
+        return adminService.checkApplicationStatus(usernameOrEmail);
     }
 }
 

@@ -76,7 +76,12 @@ const SignUp = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.email) newErrors.email = 'Email is required';
-    else if (!validateEmail(formData.email)) newErrors.email = 'Please enter a valid email address';
+    else {
+  const emailValidation = validateGmail(formData.email);
+  if (!emailValidation.isValid) {
+    newErrors.email = emailValidation.message;
+  }
+}
     if (userType === 'user') {
       if (!formData.name) newErrors.name = 'Full name is required';
       if (!formData.mobile) newErrors.mobile = 'Mobile number is required';

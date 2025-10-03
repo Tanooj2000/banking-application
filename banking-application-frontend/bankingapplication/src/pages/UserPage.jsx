@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getUserBankAccounts } from '../api/bankAccountApi';
+import { getUserBankAccounts } from '../api/accountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
 import './UserPage.css';
 import Header from '../components/Header';

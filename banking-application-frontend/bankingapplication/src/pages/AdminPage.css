@@ -704,154 +704,6 @@
   margin-bottom: 12px;
 }
 
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
-
-.modal-container {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-.modal-close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #999;
-  line-height: 1;
-}
-
-.modal-close-btn:hover {
-  color: #333;
-}
-
-.modal-title {
-  margin-top: 0;
-  margin-bottom: 24px;
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-}
-
-.modal-form {
-  width: 100%;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-}
-
-.form-input {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: #3498db;
-}
-
-.form-input.readonly {
-  background-color: #f9f9f9;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
-}
-
-.form-btn {
-  border: none;
-  border-radius: 6px;
-  padding: 12px 24px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.form-btn.cancel {
-  background: #f5f5f5;
-  color: #666;
-}
-
-.form-btn.cancel:hover {
-  background: #e9ecef;
-}
-
-.form-btn.submit {
-  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
-  color: #fff;
-}
-
-.form-btn.submit:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
-}
-
-.form-btn.submit:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Success/Error messages */
-.message-popup {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10001;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
-}
-
-.message-popup.success {
-  background-color: #43a047;
-}
-
-.message-popup.error {
-  background-color: #f44336;
-}
-
 /* Success message after approval/rejection */
 .success-message {
   position: fixed;
@@ -866,6 +718,212 @@
   z-index: 10001;
   font-size: 14px;
   font-weight: 500;
+}
+
+/* Styles for no applications layout */
+.no-applications {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+}
+
+.no-applications h2 {
+  font-size: 24px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.no-applications p {
+  font-size: 16px;
+  color: #7f8c8d;
+}
+
+/* Updated styles for status field with !important */
+.modal-grid-item.status {
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+}
+
+.modal-grid-item.status.pending {
+  color: #d99a00 !important;
+}
+
+.modal-grid-item.status.approved {
+  color: #2e7d32 !important;
+}
+
+.modal-grid-item.status.rejected {
+  color: #d32f2f !important;
+}
+
+/* Modal container styling */
+/* Modern and professional styles for modals */
+
+/* Overlay for modals to create a dimmed background effect */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Container for modal content with a clean and modern design */
+.modal-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Close button for modals */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
+}
+
+/* Hover effect for close button */
+.modal-close-btn:hover {
+  color: #ff0000;
+}
+
+/* Title styling for modals */
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: rgb(8, 8, 8);
+  text-align: center;
+}
+
+/* Form layout inside modals */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Grouping for form elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label styling for form fields */
+.form-label {
+  font-size: 1.2rem; /* Increased from 1rem to 1.2rem */
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+/* Input field styling */
+.form-input {
+  width: 100%;
+  padding: 12px; /* Increased padding for larger input box */
+  font-size: 1.1rem; /* Increased font size for input text */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+  color: #2d3748;
+}
+
+/* Focus effect for input fields */
+.form-input:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+/* Actions section for form buttons */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* General button styling */
+.form-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Cancel button styling */
+.form-btn.cancel {
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* Hover effect for cancel button */
+.form-btn.cancel:hover {
+  background: #bd0d0d;
+}
+
+/* Submit button styling */
+.form-btn.submit {
+  background: #667eea;
+  color: #fff;
+}
+
+/* Hover effect for submit button */
+.form-btn.submit:hover {
+  background: #556cd6;
+}
+
+/* Styling for success and error messages */
+.success-message {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Error message styling */
+.success-message.error {
+  background: #ffe6e6;
+  color: #ff0000;
+}
+
+/* Success message styling */
+.success-message:not(.error) {
+  background: #e6ffe6;
+  color: #008000;
+}
+
+/* Animation for modal appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Responsive design */
@@ -904,8 +962,7 @@
   }
   
   .modal-container {
-    margin: 20px;
-    width: calc(100% - 40px);
+    width: 90%;
   }
 }
 
