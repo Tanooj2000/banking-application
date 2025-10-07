@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/accountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
@@ -8,21 +7,15 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaUser, FaTimes } from 'react-icons/fa';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
+import { useAuth } from '../context/AuthContext';
 
 const UserPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // EARLY: Prevent viewing if user logged out (back button) - show overlay then redirect
-  if (typeof window !== 'undefined' && (sessionStorage.getItem('userLoggedOut') === 'true')) {
-    setTimeout(() => { try { window.location.replace('/'); } catch(_) {} }, 0);
-    return <BlockedOverlay />;
-  }
+  const { isAuthenticated } = useAuth();
 
   // Get userId from navigation state or sessionStorage as fallback
   const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');
-  
-
   
   const [user, setUser] = useState({});
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -94,17 +87,21 @@ const UserPage = () => {
         // If no userId found, check if user is authenticated but redirect failed
         const token = sessionStorage.getItem('userToken');
         if (token) {
-          console.error('User is authenticated but userId is missing. This suggests a session issue.');
+          
           // Clear corrupted session and redirect
           sessionStorage.clear();
         }
-        console.warn('No userId found. Redirecting to sign in.');
+        
         navigate('/signin', { replace: true });
       }
     };
 
+    if (!isAuthenticated) {
+      navigate('/signin', { replace: true });
+    }
+
     fetchUserData();
-  }, [userId, navigate]);
+  }, [userId, navigate, isAuthenticated]);
 
   const handleCreateBankAccount = () => {
     navigate(`/browsebank`, { state: { userId: user.id } });

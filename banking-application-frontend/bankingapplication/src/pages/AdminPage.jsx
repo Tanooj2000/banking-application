@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
@@ -10,11 +9,13 @@ import { AuthGuard } from '../utils/authGuard';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
 import './AdminPage.css';
 import { createBranch } from '../api/bankApi';
+import { useAuth } from '../context/AuthContext';
 
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   // Early abort: if loggedOut flag present, immediately navigate away (prevents flash on back)
   if (typeof window !== 'undefined' && sessionStorage.getItem('loggedOut') === 'true') {
@@ -92,7 +93,7 @@ const AdminPage = () => {
   // Branch creation states
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchFormData, setBranchFormData] = useState({
-    country: '',
+    country: admin.country || 'India', // Default to 'India' if admin.country is empty
     city: '',
     bankName: admin.bankname || '',
     branch: '',
@@ -330,6 +331,8 @@ const AdminPage = () => {
     setBranchMessage('');
 
     try {
+      console.log('Admin object:', admin);
+      console.log('Branch form data:', branchFormData);
       // Validation
       if (!branchFormData.country || !branchFormData.city || !branchFormData.branch || !branchFormData.code) {
         throw new Error('All fields are required');
@@ -339,12 +342,13 @@ const AdminPage = () => {
         throw new Error('Branch code must be at least 3 characters long');
       }
 
+
       // Call the API to create branch
       const result = await createBranch(branchFormData);
 
       setBranchMessage('Branch created successfully!');
       setBranchFormData({
-        country: '',
+        country: admin.country || '', // Default to 'India' if admin.country is empty
         city: '',
         bankName: admin.bankname || '',
         branch: '',
@@ -365,7 +369,7 @@ const AdminPage = () => {
 
   const openBranchModal = () => {
     setBranchFormData({
-      country: '',
+      country: admin.country || 'India', // Default to 'India' if admin.country is empty
       city: '',
       bankName: admin.bankname || '',
       branch: '',
@@ -381,6 +385,12 @@ const AdminPage = () => {
       testApiConnection();
     }
   }, [admin.adminId]);
+
+  // Redirect to sign-in if not authenticated
+  if (!isAuthenticated) {
+    navigate('/signin', { replace: true });
+    return null;
+  }
 
   return (
     <>

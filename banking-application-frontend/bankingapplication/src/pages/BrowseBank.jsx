@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './BrowseBank.css';
 import { getAvailableCountries, fetchBanks } from '../api/bankApi';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
 // Import default bank image for fallback
 import defaultBankImg from '../assets/bank-icon.jpg';
@@ -48,6 +48,14 @@ const BrowseBank = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const userId = location.state?.userId || sessionStorage.getItem('userId');
+
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/signin', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const cities = getUniqueCities(banks);
 

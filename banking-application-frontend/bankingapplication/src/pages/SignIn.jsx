@@ -109,8 +109,12 @@ const SignIn = () => {
 						setErrors({ form: response.message });
 					}
 				} else {
+					
 					const response = await signInUser(formData);
+
+
 					if (response.success) {
+						console.log('Sign-in successful, user ID:', response.user.id);
 						// Show success message and start progress
 						setSuccessMsg('user:User login successful!');
 						setProgress(20);
@@ -140,6 +144,7 @@ const SignIn = () => {
 					}
 				}
 			} catch (error) {
+				console.error('Error during sign-in:', error);
 				setErrors({ form: getErrorMessage(error) });
 			}
 		}

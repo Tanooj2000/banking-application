@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { checkAuthOnPageLoad, AuthGuard } from './utils/authGuard'
+import { AuthProvider } from './context/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const Root = () => {
   useEffect(() => {
@@ -23,9 +25,13 @@ const Root = () => {
   }, []);
 
   return (
-    <StrictMode>
-      <App />
-    </StrictMode>
+    <ErrorBoundary>
+      <AuthProvider>
+        <StrictMode>
+          <App />
+        </StrictMode>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 
