@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
@@ -55,27 +56,15 @@ const Header = () => {
     };
   }, [location]);
 
-  const logToLocalStorage = (message, data) => {
-    const logs = JSON.parse(localStorage.getItem('debugLogs')) || [];
-    logs.push({ message, data, timestamp: new Date().toISOString() });
-    localStorage.setItem('debugLogs', JSON.stringify(logs));
-  };
-
   const handleLogout = () => {
-
     if (userType === 'admin' || sessionStorage.getItem('adminData')) {
       AuthGuard.logout();
     } else {
       AuthGuard.logoutUser();
     }
-
-    // Ensure state is reset properly
     setIsSignedIn(false);
     setUserType(null);
-
-    // Dispatch storage event
     window.dispatchEvent(new Event('storage'));
-   
   };
 
   return (

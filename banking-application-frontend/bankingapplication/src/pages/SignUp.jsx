@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Footer from '../components/Footer';
 import './SignUp.css';
@@ -259,7 +260,7 @@ const SignUp = () => {
                     setFormData({});
                   }}
                 />
-                <FaUser  />
+                <FaUser style={{ marginRight: '6px', color: '#3949ab' }} />
                 User
               </label>
               <label className="radio-option">
@@ -273,7 +274,7 @@ const SignUp = () => {
                     setFormData({});
                   }}
                 />
-                <FaUserShield  />
+                <FaUserShield style={{ marginRight: '6px', color: '#3949ab' }} />
                 Admin
               </label>
             </div>
@@ -285,7 +286,7 @@ const SignUp = () => {
                   <div className="input-group">
                     <label htmlFor="name">User Name</label>
                     <div className="input-icon-wrapper">
-                      <FaUser className="input-icon"  />
+                      <FaUser className="input-icon" />
                       <input
                         type="text"
                         id="name"
@@ -294,7 +295,7 @@ const SignUp = () => {
                         placeholder="Enter your full name"
                         value={formData.name || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.name && <span className="error-message">{errors.name}</span>}
@@ -311,7 +312,7 @@ const SignUp = () => {
                         placeholder="Enter your email"
                         value={formData.email || ''}
                         onChange={handleChange}
-                       
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.email && <span className="error-message">{errors.email}</span>}
@@ -325,10 +326,10 @@ const SignUp = () => {
                         id="mobile"
                         name="mobile"
                         className={`form-input${errors.mobile ? ' error' : ''}`}
-                        placeholder="Enter mobile number"
+                        placeholder="Enter your mobile number"
                         value={formData.mobile || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.mobile && <span className="error-message">{errors.mobile}</span>}
@@ -345,7 +346,7 @@ const SignUp = () => {
                         placeholder="Enter your password"
                         value={formData.password || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.password && <span className="error-message">{errors.password}</span>}
@@ -362,7 +363,7 @@ const SignUp = () => {
                         placeholder="Confirm your password"
                         value={formData.confirmPassword || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
@@ -382,7 +383,7 @@ const SignUp = () => {
                         placeholder="Enter your username"
                         value={formData.name || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.name && <span className="error-message">{errors.name}</span>}
@@ -474,7 +475,7 @@ const SignUp = () => {
                         placeholder="Enter your email"
                         value={formData.email || ''}
                         onChange={handleChange}
-                        
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.email && <span className="error-message">{errors.email}</span>}
@@ -491,7 +492,7 @@ const SignUp = () => {
                         placeholder="Enter admin password"
                         value={formData.adminPassword || ''}
                         onChange={handleChange}
-                       
+                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
                       />
                     </div>
                     {errors.adminPassword && <span className="error-message">{errors.adminPassword}</span>}

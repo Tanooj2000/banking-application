@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
+import './CreateAccount.css';
 
 import { createAccount, getUserBankAccounts } from '../api/accountApi';
 import { validateGmail, validateFullName, validateMobile, getErrorMessage } from '../utils/validation';
-
-import './CreateAccount.css';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -63,9 +61,6 @@ const countryFields = {
 const CreateAccount = () => {
   const query = useQuery();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-
   const userId = location.state?.userId;
   const bankName = query.get('bank');
   const country = query.get('country') || 'India';
@@ -208,13 +203,6 @@ const CreateAccount = () => {
       setFormStatus({ loading: false, success: null, error: getErrorMessage(err) });
     }
   };
-
-  // Redirect to sign-in if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/signin', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   return (
     <>
