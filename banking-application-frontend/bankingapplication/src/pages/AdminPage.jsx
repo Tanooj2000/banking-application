@@ -3,11 +3,13 @@ import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
-import { fetchAllAccounts } from '../api/accountApi';
+import { fetchAllAccounts, approveAccount, rejectAccount } from '../api/accountApi';
+import { testApiConnection } from '../api/adminApi';
 import { updateAdminDetails, changeAdminPassword, getAdminById, updateAdminDetailsSimple } from '../api/adminApi';
 import { AuthGuard } from '../utils/authGuard';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
 import './AdminPage.css';
+import { createBranch } from '../api/bankApi';
 
 
 const AdminPage = () => {
@@ -112,7 +114,7 @@ const AdminPage = () => {
         const fetchedAccounts = await fetchAllAccounts(admin.bankname);
         setAccounts(fetchedAccounts);
       } catch (err) {
-        setError(err.message || 'Failed to fetch accounts');
+        setAccounts([]); // Set accounts to an empty array instead of showing an error
       } finally {
         setLoading(false);
       }
@@ -326,7 +328,7 @@ const AdminPage = () => {
   const handleCreateBranch = async () => {
     setIsBranchLoading(true);
     setBranchMessage('');
-    
+
     try {
       // Validation
       if (!branchFormData.country || !branchFormData.city || !branchFormData.branch || !branchFormData.code) {
@@ -337,21 +339,8 @@ const AdminPage = () => {
         throw new Error('Branch code must be at least 3 characters long');
       }
 
-      // API call to create branch
-      const response = await fetch('http://localhost:8082/api/banks/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(branchFormData)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Failed to create branch');
-      }
-
-      const result = await response.json();
+      // Call the API to create branch
+      const result = await createBranch(branchFormData);
 
       setBranchMessage('Branch created successfully!');
       setBranchFormData({
@@ -361,7 +350,7 @@ const AdminPage = () => {
         branch: '',
         code: ''
       });
-      
+
       setTimeout(() => {
         setShowBranchModal(false);
         setBranchMessage('');
@@ -376,7 +365,7 @@ const AdminPage = () => {
 
   const openBranchModal = () => {
     setBranchFormData({
-      country: '',
+      country: admin.country || '',
       city: '',
       bankName: admin.bankname || '',
       branch: '',
@@ -386,89 +375,12 @@ const AdminPage = () => {
     setShowBranchModal(true);
   };
 
-  // Debug function to test API connectivity and admin data
-  const testApiConnection = async () => {
-    // Try to determine the correct admin ID field
-    const possibleIdFields = ['adminId', 'id', 'ID', '_id', 'admin_id'];
-    let actualAdminId = null;
-    
-    for (const field of possibleIdFields) {
-      if (admin[field] && admin[field] !== 'undefined') {
-        actualAdminId = admin[field];
-        break;
-      }
-    }
-    
-    if (!actualAdminId) {
-      console.error('No valid admin ID found in admin data!');
-      setMessage('Error: Admin ID not found. Please try logging out and logging back in.');
-      return;
-    }
-    
-    try {
-      // Test basic connectivity
-      const response = await fetch('http://localhost:8083/api/admin/test', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      await response.text();
-    } catch (error) {
-      console.error('API connection test failed:', error);
-    }
-  };
-
   // Call test on component mount (optional - remove in production)
   useEffect(() => {
     if (admin.adminId) {
       testApiConnection();
     }
   }, [admin.adminId]);
-
-  // Define approve and reject functions inline
-  const approveAccount = async (accountId) => {
-    try {
-      const url = `http://localhost:8085/accounts/approve/${accountId}`;
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to approve account:', errorText);
-        throw new Error(`Failed to approve account: ${response.status} - ${errorText}`);
-      }
-      
-      return await response.text();
-    } catch (error) {
-      console.error('Error approving account:', error);
-      throw error;
-    }
-  };
-
-  const rejectAccount = async (accountId) => {
-    try {
-      const url = `http://localhost:8085/accounts/reject/${accountId}`;
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to reject account:', errorText);
-        throw new Error(`Failed to reject account: ${response.status} - ${errorText}`);
-      }
-      
-      return await response.text();
-    } catch (error) {
-      console.error('Error rejecting account:', error);
-      throw error;
-    }
-  };
 
   return (
     <>
@@ -558,7 +470,11 @@ const AdminPage = () => {
                   : (acc.status || '').toLowerCase() === statusFilter.toLowerCase()
               );
               return filteredAccounts.length === 0 ? (
-                <div>No {statusFilter.toLowerCase()} applications.</div>
+                <div className="no-applications">
+                  <div className="no-applications-icon">🚫</div>
+                  <h2>No {statusFilter} Applications</h2>
+                  <p>There are currently no {statusFilter.toLowerCase()} applications to review.</p>
+                </div>
               ) : (
                 <table key={`${statusFilter}-${accounts.length}`} className="applications-table">
                   <thead>
@@ -658,21 +574,7 @@ const AdminPage = () => {
               );
             })()}
             {successMsg && (
-              <div style={{
-                position: 'fixed',
-                top: 80,
-                right: 40,
-                background: successMsg.startsWith('approved:') ? '#43a047' : successMsg.startsWith('rejected:') ? '#d32f2f' : '#43a047',
-                color: '#fff',
-                padding: '16px 32px',
-                borderRadius: 8,
-                fontWeight: 600,
-                fontSize: '1.1rem',
-                boxShadow: '0 2px 12px rgba(60,60,60,0.18)',
-                zIndex: 9999,
-                transition: 'opacity 0.4s',
-                opacity: 0.95
-              }}>
+              <div className={`success-message ${successMsg.startsWith('rejected:') ? 'error' : ''}`}>
                 {successMsg.replace(/^(approved:|rejected:)/, '')}
               </div>
             )}
@@ -681,130 +583,87 @@ const AdminPage = () => {
         
         {/* Modal for Account Details */}
         {selectedAccount && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10000
-          }}>
-            <div style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              padding: '32px',
-              maxWidth: '600px',
-              width: '90%',
-              maxHeight: '80%',
-              overflowY: 'auto',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-              position: 'relative'
-            }}>
+          <div className="modal-overlay">
+            <div className="modal-container">
               <button
                 onClick={() => setSelectedAccount(null)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#666',
-                  padding: '4px 8px'
-                }}
+                className="modal-close-btn"
               >
                 ✕
               </button>
               
-              <h2 style={{ 
-                marginBottom: '24px', 
-                color: '#1976d2',
-                borderBottom: '2px solid #e3f2fd',
-                paddingBottom: '12px'
-              }}>
+              <h2 className="modal-title">
                 Account Details
               </h2>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '14px' }}>
+              <div className="modal-grid">
                 <div>
-                  <strong style={{ color: '#333' }}>Account ID:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.id || 'N/A'}</div>
+                  <strong>Account ID:</strong>
+                  <div className="modal-grid-item">{selectedAccount.id || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Full Name:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.fullName || selectedAccount.applicant || 'N/A'}</div>
+                  <strong>Full Name:</strong>
+                  <div className="modal-grid-item">{selectedAccount.fullName || selectedAccount.applicant || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Email:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.email || 'N/A'}</div>
+                  <strong>Email:</strong>
+                  <div className="modal-grid-item">{selectedAccount.email || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Phone:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.mobile || selectedAccount.phoneNumber || 'N/A'}</div>
+                  <strong>Phone:</strong>
+                  <div className="modal-grid-item">{selectedAccount.mobile || selectedAccount.phoneNumber || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Country:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.country || selectedAccount.location || 'N/A'}</div>
+                  <strong>Country:</strong>
+                  <div className="modal-grid-item">{selectedAccount.country || selectedAccount.location || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Bank:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.bank || selectedAccount.bankName || 'N/A'}</div>
+                  <strong>Bank:</strong>
+                  <div className="modal-grid-item">{selectedAccount.bank || selectedAccount.bankName || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Account Type:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.accountType || 'N/A'}</div>
+                  <strong>Account Type:</strong>
+                  <div className="modal-grid-item">{selectedAccount.accountType || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Status:</strong>
-                  <div style={{ 
-                    marginTop: '4px', 
-                    color: selectedAccount.status?.toLowerCase() === 'pending' ? '#d99a00' : selectedAccount.status?.toLowerCase() === 'approved' ? '#2e7d32' : '#d32f2f',
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase'
-                  }}>
+                  <strong>Status:</strong>
+                  <div className={`modal-grid-item status ${selectedAccount.status?.toLowerCase()}`}>
                     {selectedAccount.status || 'N/A'}
                   </div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Date Applied:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.dateApplied || selectedAccount.createdDate || 'N/A'}</div>
+                  <strong>Date Applied:</strong>
+                  <div className="modal-grid-item">{selectedAccount.dateApplied || selectedAccount.createdDate || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Address:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.address || 'N/A'}</div>
+                  <strong>Address:</strong>
+                  <div className="modal-grid-item">{selectedAccount.address || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Date of Birth:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.dateOfBirth || selectedAccount.dob || 'N/A'}</div>
+                  <strong>Date of Birth:</strong>
+                  <div className="modal-grid-item">{selectedAccount.dateOfBirth || selectedAccount.dob || 'N/A'}</div>
                 </div>
                 
                 <div>
-                  <strong style={{ color: '#333' }}>Initial Deposit:</strong>
-                  <div style={{ marginTop: '4px', color: '#666' }}>{selectedAccount.initialDeposit || selectedAccount.deposit || 'N/A'}</div>
+                  <strong>Initial Deposit:</strong>
+                  <div className="modal-grid-item">{selectedAccount.initialDeposit || selectedAccount.deposit || 'N/A'}</div>
                 </div>
               </div>
               
               {selectedAccount.notes && (
-                <div style={{ marginTop: '20px' }}>
-                  <strong style={{ color: '#333' }}>Notes:</strong>
-                  <div style={{ marginTop: '8px', color: '#666', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '6px' }}>
-                    {selectedAccount.notes}
-                  </div>
+                <div className="modal-notes">
+                  <strong>Notes:</strong>
+                  <div className="modal-notes-content">{selectedAccount.notes}</div>
                 </div>
               )}
             </div>
@@ -815,133 +674,51 @@ const AdminPage = () => {
         {showEditModal && (
           <div className="modal-overlay">
             <div className="modal-container">
-              <button onClick={() => setShowEditModal(false)} className="modal-close-btn">
-                ✕
-              </button>
-              
-              <h2 className="modal-title">
-                Edit Admin Details
-              </h2>
-              
+              <button onClick={() => setShowEditModal(false)} className="modal-close-btn">✕</button>
+              <h2 className="modal-title">Edit Admin Details</h2>
               {message && (
-                <div style={{
-                  padding: '12px',
-                  marginBottom: '16px',
-                  borderRadius: '6px',
-                  background: message.includes('Error') ? '#ffebee' : '#e8f5e8',
-                  color: message.includes('Error') ? '#d32f2f' : '#2e7d32',
-                  border: `1px solid ${message.includes('Error') ? '#ffcdd2' : '#c8e6c9'}`
-                }}>
+                <div className={`success-message ${message.includes('Error') ? 'error' : ''}`}>
                   {message}
                 </div>
               )}
-              
-              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdminDetails(); }} style={{ width: '100%' }}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Username: <span style={{ color: '#d32f2f' }}>*</span>
-                  </label>
+              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdminDetails(); }} className="modal-form">
+                <div className="form-group">
+                  <label className="form-label">Username: <span className="required">*</span></label>
                   <input
                     type="text"
                     name="username"
                     value={editFormData.username}
                     onChange={handleEditFormChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${!editFormData.username && message.includes('required') ? '#d32f2f' : '#e0e0e0'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#1976d2'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter your username"
                   />
                 </div>
-                
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Email: <span style={{ color: '#d32f2f' }}>*</span>
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Email: <span className="required">*</span></label>
                   <input
                     type="email"
                     name="email"
                     value={editFormData.email}
                     onChange={handleEditFormChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${(!editFormData.email || !editFormData.email.includes('@')) && message.includes('email') ? '#d32f2f' : '#e0e0e0'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#1976d2'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter your email address"
                   />
                 </div>
-                
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#999' }}>
-                    Bank Name:
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Bank Name:</label>
                   <input
                     type="text"
                     value={admin.bankname || ''}
                     disabled
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #f0f0f0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      backgroundColor: '#f9f9f9',
-                      color: '#999',
-                      cursor: 'not-allowed'
-                    }}
+                    className="form-input readonly"
                   />
-                  <small style={{ color: '#999', fontSize: '12px' }}>Bank name cannot be changed</small>
+                  <small className="disabled-note">Bank name cannot be changed</small>
                 </div>
-                
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
-                    style={{
-                      background: '#f5f5f5',
-                      color: '#666',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    style={{
-                      background: isLoading ? '#ccc' : 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                <div className="form-actions">
+                  <button type="button" onClick={() => setShowEditModal(false)} className="form-btn cancel">Cancel</button>
+                  <button type="submit" disabled={isLoading} className="form-btn submit">
                     {isLoading ? 'Updating...' : 'Update Details'}
                   </button>
                 </div>
@@ -952,96 +729,30 @@ const AdminPage = () => {
         
         {/* Reset Password Modal */}
         {showPasswordModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10000
-          }}>
-            <div style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#666',
-                  padding: '4px 8px'
-                }}
-              >
-                ✕
-              </button>
-              
-              <h2 style={{ 
-                marginBottom: '24px', 
-                color: '#388e3c',
-                borderBottom: '2px solid #e8f5e8',
-                paddingBottom: '12px'
-              }}>
-                Reset Password
-              </h2>
-              
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <button onClick={() => setShowPasswordModal(false)} className="modal-close-btn">✕</button>
+              <h2 className="modal-title">Reset Password</h2>
               {message && (
-                <div style={{
-                  padding: '12px',
-                  marginBottom: '16px',
-                  borderRadius: '6px',
-                  background: message.includes('Error') ? '#ffebee' : '#e8f5e8',
-                  color: message.includes('Error') ? '#d32f2f' : '#2e7d32',
-                  border: `1px solid ${message.includes('Error') ? '#ffcdd2' : '#c8e6c9'}`
-                }}>
+                <div className={`success-message ${message.includes('Error') ? 'error' : ''}`}>
                   {message}
                 </div>
               )}
-              
-              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdminPassword(); }} style={{ width: '100%' }}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Current Password: <span style={{ color: '#d32f2f' }}>*</span>
-                  </label>
+              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdminPassword(); }} className="modal-form">
+                <div className="form-group">
+                  <label className="form-label">Current Password: <span className="required">*</span></label>
                   <input
                     type="password"
                     name="currentPassword"
                     value={passwordFormData.currentPassword}
                     onChange={handlePasswordFormChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${!passwordFormData.currentPassword && message.includes('Current password') ? '#d32f2f' : '#e0e0e0'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#388e3c'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter your current password"
                   />
                 </div>
-                
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    New Password: <span style={{ color: '#d32f2f' }}>*</span>
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">New Password: <span className="required">*</span></label>
                   <input
                     type="password"
                     name="newPassword"
@@ -1049,84 +760,31 @@ const AdminPage = () => {
                     onChange={handlePasswordFormChange}
                     required
                     minLength="6"
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${(passwordFormData.newPassword && passwordFormData.newPassword.length < 6) || (!passwordFormData.newPassword && message.includes('New password')) ? '#d32f2f' : '#e0e0e0'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#388e3c'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter new password (min 6 characters)"
                   />
                   {passwordFormData.newPassword && passwordFormData.newPassword.length < 6 && (
-                    <small style={{ color: '#d32f2f', fontSize: '12px' }}>Password must be at least 6 characters long</small>
+                    <small className="disabled-note">Password must be at least 6 characters long</small>
                   )}
                 </div>
-                
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
-                    Confirm New Password: <span style={{ color: '#d32f2f' }}>*</span>
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Confirm New Password: <span className="required">*</span></label>
                   <input
                     type="password"
                     name="confirmPassword"
                     value={passwordFormData.confirmPassword}
                     onChange={handlePasswordFormChange}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${(passwordFormData.confirmPassword && passwordFormData.newPassword !== passwordFormData.confirmPassword) ? '#d32f2f' : '#e0e0e0'}`,
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      transition: 'border-color 0.2s ease'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#388e3c'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Confirm your new password"
                   />
                   {passwordFormData.confirmPassword && passwordFormData.newPassword !== passwordFormData.confirmPassword && (
-                    <small style={{ color: '#d32f2f', fontSize: '12px' }}>Passwords do not match</small>
+                    <small className="disabled-note">Passwords do not match</small>
                   )}
                 </div>
-                
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordModal(false)}
-                    style={{
-                      background: '#f5f5f5',
-                      color: '#666',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    style={{
-                      background: isLoading ? '#ccc' : 'linear-gradient(135deg, #388e3c 0%, #2e7d32 100%)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                <div className="form-actions">
+                  <button type="button" onClick={() => setShowPasswordModal(false)} className="form-btn cancel">Cancel</button>
+                  <button type="submit" disabled={isLoading} className="form-btn submit">
                     {isLoading ? 'Updating...' : 'Update Password'}
                   </button>
                 </div>
@@ -1137,263 +795,88 @@ const AdminPage = () => {
 
         {/* Add New Branch Modal */}
         {showBranchModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10000
-          }}>
-            <div style={{
-              backgroundColor: '#fff',
-              borderRadius: '12px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => setShowBranchModal(false)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#999',
-                  lineHeight: '1'
-                }}
-              >
-                ×
-              </button>
-              
-              <h2 style={{ 
-                marginTop: '0',
-                marginBottom: '24px',
-                fontSize: '24px',
-                fontWeight: '600',
-                color: '#333'
-              }}>
-                Add New Branch
-              </h2>
-
+          <div className="modal-overlay">
+            <div className="modal-container">
+              <button onClick={() => setShowBranchModal(false)} className="modal-close-btn">×</button>
+              <h2 className="modal-title">Add New Branch</h2>
               {branchMessage && (
-                <div style={{
-                  position: 'fixed',
-                  top: '20px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  backgroundColor: branchMessage.includes('Error') ? '#f44336' : '#43a047',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  zIndex: 10001,
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}>
+                <div className={`success-message ${branchMessage.includes('Error') ? 'error' : ''}`}>
                   {branchMessage}
                 </div>
               )}
-              
               <form onSubmit={(e) => {
                 e.preventDefault();
                 handleCreateBranch();
-              }}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#333'
-                  }}>
-                    Country *
-                  </label>
+              }} className="modal-form">
+                <div className="form-group">
+                  <label className="form-label">Country <span className="required">*</span></label>
                   <input
                     type="text"
                     name="country"
-                    value={branchFormData.country}
-                    onChange={handleBranchFormChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e0e0e0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      transition: 'border-color 0.3s',
-                      outline: 'none'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    value={admin.country || ''}
+                    className="form-input readonly"
                     placeholder="Enter country name"
                     required
+                    style={{ pointerEvents: 'none' }}
+                    readOnly
                   />
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#333'
-                  }}>
-                    City *
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">City <span className="required">*</span></label>
                   <input
                     type="text"
                     name="city"
                     value={branchFormData.city}
                     onChange={handleBranchFormChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e0e0e0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      transition: 'border-color 0.3s',
-                      outline: 'none'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter city name"
                     required
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#333'
-                  }}>
-                    Bank Name *
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Bank Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="bankName"
-                    value={branchFormData.bankName}
-                    onChange={handleBranchFormChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e0e0e0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      transition: 'border-color 0.3s',
-                      outline: 'none',
-                      backgroundColor: '#f9f9f9'
-                    }}
+                    value={admin.bankname || ''}
+                    className="form-input readonly"
                     placeholder="Bank name"
                     readOnly
+                    style={{ pointerEvents: 'none' }}
                   />
                 </div>
                 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#333'
-                  }}>
-                    Branch Name *
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Branch Name <span className="required">*</span></label>
                   <input
                     type="text"
                     name="branch"
                     value={branchFormData.branch}
                     onChange={handleBranchFormChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e0e0e0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      transition: 'border-color 0.3s',
-                      outline: 'none'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter branch name"
                     required
                   />
                 </div>
                 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ 
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: '#333'
-                  }}>
-                    Branch Code *
-                  </label>
+                <div className="form-group">
+                  <label className="form-label">Branch Code <span className="required">*</span></label>
                   <input
                     type="text"
                     name="code"
                     value={branchFormData.code}
                     onChange={handleBranchFormChange}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '2px solid #e0e0e0',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      transition: 'border-color 0.3s',
-                      outline: 'none'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3498db'}
-                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                    className="form-input"
                     placeholder="Enter branch code (min 3 characters)"
                     required
                   />
                 </div>
                 
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowBranchModal(false)}
-                    style={{
-                      background: '#f5f5f5',
-                      color: '#666',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    disabled={isBranchLoading}
-                    style={{
-                      background: isBranchLoading ? '#ccc' : 'linear-gradient(135deg, #27ae60 0%, #229954 100%)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '12px 24px',
-                      cursor: isBranchLoading ? 'not-allowed' : 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                <div className="form-actions">
+                  <button type="button" onClick={() => setShowBranchModal(false)} className="form-btn cancel">Cancel</button>
+                  <button type="submit" disabled={isBranchLoading} className="form-btn submit">
                     {isBranchLoading ? 'Creating...' : 'Create Branch'}
                   </button>
                 </div>

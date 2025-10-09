@@ -7,7 +7,7 @@ import { getAvailableCountries, fetchBanks } from '../api/bankApi';
 import Footer from '../components/Footer';
 
 // Import default bank image for fallback
-import defaultBankImg from '../assets/Banklogo.png';
+import defaultBankImg from '../assets/bank-icon.jpg';
 
 const getUniqueCities = (banks) => [
   ...new Set(banks.map((bank) => bank.city)),

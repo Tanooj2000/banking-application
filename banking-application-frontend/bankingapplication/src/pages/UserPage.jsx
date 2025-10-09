@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // Removed BlockedOverlay import as user page no longer hard-blocks after logout
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getUserBankAccounts } from '../api/bankAccountApi';
+import { getUserBankAccounts } from '../api/accountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
 import './UserPage.css';
 import Header from '../components/Header';

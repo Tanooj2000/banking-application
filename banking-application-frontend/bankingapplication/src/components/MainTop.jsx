@@ -12,7 +12,7 @@ const MainTop = () => {
   return (
     <div className="main-top">
       <div className="main-top-left">
-        <div className="main-top-welcome">{greeting}! Welcome to AllBanksOne</div>
+        <div className="main-top-welcome">{greeting}! Welcome to InterBankHub</div>
         <div className="main-top-sub">We make your banking easy and safety</div>
         <div className="main-top-keywords">
           <span className="keyword-box">EASY</span>

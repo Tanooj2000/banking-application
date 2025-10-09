@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import { useLocation } from 'react-router-dom';
 import './CreateAccount.css';
 
-import { createAccount, getUserBankAccounts } from '../api/bankAccountApi';
+import { createAccount, getUserBankAccounts } from '../api/accountApi';
 import { validateGmail, validateFullName, validateMobile, getErrorMessage } from '../utils/validation';
 
 function useQuery() {

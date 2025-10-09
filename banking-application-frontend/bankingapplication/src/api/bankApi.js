@@ -70,3 +70,22 @@ export const fetchBankById = async (bankId) => {
     throw error;
   }
 };
+
+// Bank-related API functions
+
+export const createBranch = async (branchData) => {
+  const response = await fetch(`${BASE_URL}/banks/add`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(branchData),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to create branch');
+  }
+
+  return await response.json();
+};
