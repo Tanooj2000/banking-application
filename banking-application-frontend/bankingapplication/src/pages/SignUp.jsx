@@ -295,7 +295,7 @@ const SignUp = () => {
                         placeholder="Enter your full name"
                         value={formData.name || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.name && <span className="error-message">{errors.name}</span>}
@@ -312,7 +312,7 @@ const SignUp = () => {
                         placeholder="Enter your email"
                         value={formData.email || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.email && <span className="error-message">{errors.email}</span>}
@@ -329,7 +329,7 @@ const SignUp = () => {
                         placeholder="Enter your mobile number"
                         value={formData.mobile || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.mobile && <span className="error-message">{errors.mobile}</span>}
@@ -346,7 +346,7 @@ const SignUp = () => {
                         placeholder="Enter your password"
                         value={formData.password || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.password && <span className="error-message">{errors.password}</span>}
@@ -363,7 +363,7 @@ const SignUp = () => {
                         placeholder="Confirm your password"
                         value={formData.confirmPassword || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
@@ -383,7 +383,7 @@ const SignUp = () => {
                         placeholder="Enter your username"
                         value={formData.name || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.name && <span className="error-message">{errors.name}</span>}
@@ -475,7 +475,7 @@ const SignUp = () => {
                         placeholder="Enter your email"
                         value={formData.email || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.email && <span className="error-message">{errors.email}</span>}
@@ -492,7 +492,7 @@ const SignUp = () => {
                         placeholder="Enter admin password"
                         value={formData.adminPassword || ''}
                         onChange={handleChange}
-                        style={{ fontSize: '1.1rem', height: '48px', paddingLeft: '40px' }}
+                        
                       />
                     </div>
                     {errors.adminPassword && <span className="error-message">{errors.adminPassword}</span>}

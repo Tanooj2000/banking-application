@@ -365,7 +365,7 @@ const AdminPage = () => {
 
   const openBranchModal = () => {
     setBranchFormData({
-      country: '',
+      country: admin.country || '',
       city: '',
       bankName: admin.bankname || '',
       branch: '',

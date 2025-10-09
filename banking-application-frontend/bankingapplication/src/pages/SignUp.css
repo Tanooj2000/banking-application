@@ -6,18 +6,13 @@
 }
 .input-icon {
   position: absolute;
-  left: 12px;
+  left: 5px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.3rem;
   color: #3949ab;
   pointer-events: none;
   z-index: 2;
-}
-.form-input {
-  padding-left: 40px !important;
-  height: 10px !important;
-  font-size: 1rem !important;
 }
 
 /* Searchable Bank Dropdown Styles */
@@ -477,6 +472,9 @@
   flex-direction: column;
   gap: 5px;
 }
+.input-group .form-input {
+  padding-left: 30px !important; /* Increased specificity to ensure this rule is applied */
+}
 
 .form-input {
   padding: 12px 15px;
@@ -485,9 +483,12 @@
   font-size: 14px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   outline: none;
+  padding-left: 70px !important; 
+  height: 10px !important;
 }
 
 .form-input:focus {
+  border: 2px solid;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
@@ -500,6 +501,7 @@
 .form-input::placeholder {
   color: #999;
   font-style: italic;
+  padding-left: 10px;
 }
 
 .error-message {
