@@ -24,8 +24,7 @@
 
           var path = window.location.pathname.toLowerCase();
           var adminLoggedOut = sessionStorage.getItem('loggedOut') === 'true';
-          var userLoggedOut = sessionStorage.getItem('userLoggedOut') === 'true';
-          if ((adminLoggedOut && /\/admin/.test(path)) || (userLoggedOut && /\/user/.test(path))) {
+          if (adminLoggedOut && /\/admin/.test(path)) {
             document.documentElement.style.visibility = 'hidden';
             window.location.replace('/');
             return;

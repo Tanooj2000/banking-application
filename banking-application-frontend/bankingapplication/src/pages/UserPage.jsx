@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import BlockedOverlay from '../components/BlockedOverlay';
+// Removed BlockedOverlay import as user page no longer hard-blocks after logout
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/bankAccountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
@@ -13,11 +13,7 @@ const UserPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // EARLY: Prevent viewing if user logged out (back button) - show overlay then redirect
-  if (typeof window !== 'undefined' && (sessionStorage.getItem('userLoggedOut') === 'true')) {
-    setTimeout(() => { try { window.location.replace('/'); } catch(_) {} }, 0);
-    return <BlockedOverlay />;
-  }
+  // User blocking after logout has been relaxed per request; allow normal access after re-login
 
   // Get userId from navigation state or sessionStorage as fallback
   const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');

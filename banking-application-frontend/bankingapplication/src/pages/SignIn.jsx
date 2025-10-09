@@ -117,6 +117,8 @@ const SignIn = () => {
 						
 						// Store session data
 						setTimeout(() => {
+							// Clear any stale logout flags then set session
+							sessionStorage.removeItem('userLoggedOut');
 							sessionStorage.setItem('userToken', 'user-token');
 							sessionStorage.setItem('userType', 'user');
 							sessionStorage.setItem('userId', response.user.id);

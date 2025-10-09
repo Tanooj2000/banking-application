@@ -65,9 +65,9 @@ export const AuthGuard = {
   // Harden user logout similarly to admin (separate to avoid over-clearing if needed later)
   logoutUser: () => {
     try {
-      sessionStorage.setItem('userLoggedOut', 'true');
-      ['userToken','userType','userId'].forEach(k=>sessionStorage.removeItem(k));
-      ['userToken','userType','userId'].forEach(k=>localStorage.removeItem(k));
+      // Do not set a persistent userLoggedOut flag so re-login is seamless
+      ['userToken','userType','userId','userLoggedOut'].forEach(k=>sessionStorage.removeItem(k));
+      ['userToken','userType','userId','userLoggedOut'].forEach(k=>localStorage.removeItem(k));
       AuthGuard.applyNoCacheHeaders();
       if (history.pushState) {
         history.pushState(null, '', '/');
