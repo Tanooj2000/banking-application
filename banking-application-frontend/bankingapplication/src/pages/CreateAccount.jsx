@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useLocation } from 'react-router-dom';
-import './CreateAccount.css';
 
 import { createAccount, getUserBankAccounts } from '../api/accountApi';
 import { validateGmail, validateFullName, validateMobile, getErrorMessage } from '../utils/validation';
+
+import './CreateAccount.css';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -61,8 +62,12 @@ const countryFields = {
 const CreateAccount = () => {
   const query = useQuery();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+
   const userId = location.state?.userId;
   const bankName = query.get('bank');
+  const branch = query.get('branch');
   const country = query.get('country') || 'India';
   const fields = countryFields[country] || countryFields['India'];
 
@@ -91,7 +96,7 @@ const CreateAccount = () => {
 
           
           // Show alert about pre-filled data
-          alert(`✅ Your personal details have been pre-filled from your existing ${firstAccount.bank || 'bank'} account.`);
+         
         }
       } catch (error) {
         console.error('Failed to load bank account data:', error);
@@ -149,6 +154,7 @@ const CreateAccount = () => {
     const data = {};
   // Add bank info
   data.bank = bankName || '';
+  data.branch = branch || '';
   // Set status to PENDING
   data.status = 'PENDING';
   // Add userId if available
@@ -199,10 +205,21 @@ const CreateAccount = () => {
       await createAccount(data, country);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
+      setTimeout(() => {
+
+      },2000
+    );
+      navigate('/userpage');
     } catch (err) {
-      setFormStatus({ loading: false, success: null, error: getErrorMessage(err) });
+      const errorMessage = err.message || 'An unexpected error occurred';
+      setFormStatus({ loading: false, success: null, error: errorMessage });
     }
   };
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    // Removed isAuthenticated check as it is undefined
+  }, [navigate]);
 
   return (
     <>

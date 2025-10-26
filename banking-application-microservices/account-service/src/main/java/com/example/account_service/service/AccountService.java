@@ -47,15 +47,29 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public void createAccount(String country, Map<String, Object> payload) {
-        AccountCreationStrategy strategy = strategyFactory.getStrategy(country);
-        if (strategy == null) {
-            throw new IllegalArgumentException("Unsupported country: " + country);
-        }
-
-        Object dto = convertPayloadToDto(payload, country);
-        strategy.createAccount(dto);
+   public void createAccount(String country, Map<String, Object> payload) {
+    AccountCreationStrategy strategy = strategyFactory.getStrategy(country);
+    if (strategy == null) {
+        throw new IllegalArgumentException("Unsupported country: " + country);
     }
+
+    // Extract userId and bank from the payload for validation
+    Long userId = ((Number) payload.get("userId")).longValue(); // Properly convert userId to Long
+    String bank = (String) payload.get("bank");
+
+
+    // Check if an account already exists for the user in the same bank
+   boolean accountExistsInBankAndBranch = accountRepository.findByUserId(userId).stream()
+        .anyMatch(account -> account.getBank().equalsIgnoreCase(bank) &&
+                             account.getBranch().equalsIgnoreCase((String) payload.get("branch")));
+
+if (accountExistsInBankAndBranch) {
+    throw new IllegalArgumentException("User already has an account in the bank: " + bank + " and branch: " + payload.get("branch"));
+}
+
+    Object dto = convertPayloadToDto(payload, country);
+    strategy.createAccount(dto);
+}
 
     public List<Account> getAccountsByUserId(Long userId) {
         return accountRepository.findByUserId(userId);

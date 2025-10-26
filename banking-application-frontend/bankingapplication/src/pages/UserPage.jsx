@@ -6,7 +6,7 @@ import { updateUserDetails, changeUserPassword, getUserById } from '../api/userA
 import './UserPage.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { FaUser, FaTimes } from 'react-icons/fa';
+import { FaUser, FaTimes, FaEye } from 'react-icons/fa';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 
 const UserPage = () => {
@@ -28,7 +28,8 @@ const UserPage = () => {
   // Modal states
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
   // Form states
   const [editFormData, setEditFormData] = useState({
     username: user.username || '',
@@ -117,6 +118,11 @@ const UserPage = () => {
     setShowEditModal(true);
   };
 
+  const handleViewDetails = (account) => {
+    setSelectedAccount(account);
+    setShowViewModal(true);
+  };
+
   const handleChangePassword = () => {
     // Clear password form when modal opens
     setPasswordFormData({
@@ -129,6 +135,7 @@ const UserPage = () => {
   };
 
   const closeModals = () => {
+    setShowViewModal(false);
     setShowEditModal(false);
     setShowPasswordModal(false);
     setMessage('');
@@ -338,6 +345,7 @@ const UserPage = () => {
           </div>
           {filteredAccounts.length === 0 ? (
             <div className="no-accounts">
+              <div className="no-accounts-icon">🚫</div>
               {statusFilter === 'All' ? 'No accounts found.' : `No ${statusFilter.toLowerCase()} accounts found.`}
             </div>
           ) : (
@@ -346,6 +354,7 @@ const UserPage = () => {
               <div className="accounts-header-row">
                 <span className="account-header-item">Bank</span>
                 <span className="account-header-item">Country</span>
+                <span className="account-header-item">Branch</span>
                 <span className="account-header-item">Status</span>
                 <span className="account-header-item">Created Date</span>
               </div>
@@ -357,8 +366,10 @@ const UserPage = () => {
                     <div className="account-info-row">
                       <span className="account-info-item">{account.bank || 'N/A'}</span>
                       <span className="account-info-item">{account.country || 'N/A'}</span>
+                      <span className="account-info-item">{account.branch || 'N/A'}</span>
                       <span className="account-info-item">{account.status || 'N/A'}</span>
                       <span className="account-info-item">{account.createdDate || 'N/A'}</span>
+                      <span className="account-info-item"><FaEye size="2em" onClick={() => handleViewDetails(account)}/></span>
                     </div>
                   </div>
                 ))}
@@ -367,7 +378,20 @@ const UserPage = () => {
           )}
         </div>
       </div>
-      
+      {/* View Details Modal */}
+      {showViewModal && (
+        <div className="modal-backdrop" onClick={closeModals}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Application Details</h3>
+              <button className="modal-close" onClick={closeModals}>
+                <FaTimes />
+              </button>
+            </div>
+           
+          </div>
+        </div>
+      )}
       {/* Edit Details Modal */}
       {showEditModal && (
         <div className="modal-backdrop" onClick={closeModals}>

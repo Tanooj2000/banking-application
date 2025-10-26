@@ -597,10 +597,6 @@ const AdminPage = () => {
               </h2>
               
               <div className="modal-grid">
-                <div>
-                  <strong>Account ID:</strong>
-                  <div className="modal-grid-item">{selectedAccount.id || 'N/A'}</div>
-                </div>
                 
                 <div>
                   <strong>Full Name:</strong>

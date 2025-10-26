@@ -25,6 +25,7 @@ public class Account {
     private String fullName;
     private String email;
     private String bank;
+    private String branch;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private String gender;
@@ -39,7 +40,7 @@ public class Account {
     private String ssn;
     private String phone;
     private String nin;
-
+    
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

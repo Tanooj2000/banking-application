@@ -21,6 +21,7 @@ export const signUpUser = async (userData) => {
 };
 
 export const signInUser = async (credentials) => {
+  console.log('Signing in user with credentials:');
   const response = await fetch(`${BASE_URL}login`, {
     method: 'POST',
     headers: {

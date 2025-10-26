@@ -1,6 +1,6 @@
 // src/api/accountApi.js
 import axios from 'axios';
-const BASE_URL = 'http://localhost:8085/api/accounts/';
+const BASE_URL = 'http://localhost:8085/api/accounts';
 
 export const getUserBankAccounts = async (userId) => {
   const response = await fetch(`${BASE_URL}/user/${userId}`);
@@ -36,10 +36,11 @@ export const createAccount = async (data, country = 'India') => {
     console.log('Account creation successful:', response.data);
     return response.data;
   } catch (error) {
+    const errorText = error.response?.data?.message || error.message;
+    if (error.response?.status === 400 ) {
+      throw new Error('User already has an account in the bank');
+    }
     console.error('Error creating account:', error);
-    console.error('Error response:', error.response?.data);
-    console.error('Error status:', error.response?.status);
-    console.error('Error headers:', error.response?.headers);
     throw error;
   }
 };
@@ -48,10 +49,14 @@ export const createAccount = async (data, country = 'India') => {
 
 export const fetchAllAccounts = async (bank) => {
   try {
-    const response = await fetch(`${BASE_URL}bank/${bank}`);
+    console.log(bank);
+    const response = await fetch(`${BASE_URL}/bank/${bank}`);
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Failed to fetch accounts:', errorText);
+
+      // Check for specific error message
+
       throw new Error('Failed to fetch accounts');
     }
 
@@ -71,7 +76,7 @@ export const fetchAllAccounts = async (bank) => {
 
 export const approveAccount = async (accountId) => {
   try {
-    const response = await fetch(`${BASE_URL}approve/${accountId}`, {
+    const response = await fetch(`${BASE_URL}/approve/${accountId}`, {
       method: 'POST',
     });
 
@@ -97,7 +102,7 @@ export const approveAccount = async (accountId) => {
 
 export const rejectAccount = async (accountId) => {
   try {
-    const response = await fetch(`${BASE_URL}reject/${accountId}`, {
+    const response = await fetch(`${BASE_URL}/reject/${accountId}`, {
       method: 'POST',
     });
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -90,8 +89,8 @@ const BrowseBank = () => {
     return matchesSearch && matchesCity;
   });
 
-  const handleCreate = (bankName) => {
-    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}`, {
+  const handleCreate = (bankName, branch) => {
+    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}`, {
       state: { userId: userId }
     });
   };
@@ -197,7 +196,7 @@ const BrowseBank = () => {
                 <div className="bank-card-footer">
                   <button
                     className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''}`}
-                    onClick={() => handleCreate(bank.bankName)}
+                    onClick={() => handleCreate(bank.bankName, bank.branch)}
                   >
                     <span className="btn-icon">+</span>
                     Create Account

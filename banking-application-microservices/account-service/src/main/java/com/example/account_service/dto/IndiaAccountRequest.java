@@ -14,6 +14,7 @@ public class IndiaAccountRequest {
     private String mobile;
     private String email;
     private String bank;
+    private String branch;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private String dob;
     private String gender;
