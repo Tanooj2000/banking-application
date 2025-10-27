@@ -21,11 +21,13 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
+    private String accountNumber;
     private String country;
     private String fullName;
     private String email;
     private String bank;
     private String branch;
+    private String ifscCode;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private String gender;

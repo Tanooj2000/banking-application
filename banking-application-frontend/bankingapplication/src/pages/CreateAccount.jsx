@@ -69,6 +69,7 @@ const CreateAccount = () => {
   const bankName = query.get('bank');
   const branch = query.get('branch');
   const country = query.get('country') || 'India';
+  const code = query.get('code') || '';
   const fields = countryFields[country] || countryFields['India'];
 
   const [formStatus, setFormStatus] = useState({ loading: false, success: null, error: null });
@@ -156,6 +157,8 @@ const CreateAccount = () => {
   data.bank = bankName || '';
   data.branch = branch || '';
   // Set status to PENDING
+  data.accountNumber = '';
+  data.ifscCode = code;
   data.status = 'PENDING';
   // Add userId if available
   if (userId) {
@@ -228,10 +231,10 @@ const CreateAccount = () => {
         {existingAccountData ? 'Create Additional Bank Account' : 'Application For Account Creation'}
       </h2>
       <div className="createaccount-info-line">
-        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong>
+        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong> &nbsp; | &nbsp; IFSC Code: <strong>{code}</strong>
         {existingAccountData && (
           <span style={{ marginLeft: '20px', color: '#10b981', fontWeight: '500' }}>
-            ✓ Existing account holder - Personal details pre-filled from your previous account
+            ✓ Existing account holder - Personal details were pre-filled 
           </span>
         )}
       </div>

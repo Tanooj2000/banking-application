@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 public class IndiaAccountRequest {
     private Long userId;
+    private String accountNumber;
+    private String ifscCode;
     private String fullName;
     private String aadhaar;
     private String pan;

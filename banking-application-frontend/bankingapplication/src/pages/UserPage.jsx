@@ -357,6 +357,7 @@ const UserPage = () => {
                 <span className="account-header-item">Branch</span>
                 <span className="account-header-item">Status</span>
                 <span className="account-header-item">Created Date</span>
+                <span className="account-header-item">View</span>
               </div>
               
               {/* Scrollable Content */}
@@ -388,7 +389,91 @@ const UserPage = () => {
                 <FaTimes />
               </button>
             </div>
-           
+    <div className="modal-content">
+        <div className="detail-item">
+            <span className="detail-label">Full Name</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.fullName || 'N/A'}</span>
+          </div>
+          {selectedAccount.status === 'APPROVED' && (
+    <div className="detail-item">
+      <span className="detail-label">Account Number</span>
+      <span className="detail-colon">:</span>
+      <span className="detail-value">{selectedAccount.accountNumber || 'N/A'}</span>
+    </div>
+  )}
+          <div className="detail-item">
+            <span className="detail-label">Gender</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.gender || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Date of Birth</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.dob || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Mobile</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.mobile || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Email</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.email || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Address</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.address || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Bank</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.bank || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Branch</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.branch || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Ifsc Code</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.ifscCode || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Account Type</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.accountType || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Deposit</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.deposit || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Status</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.status || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Aadhaar</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.aadhaar || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">PAN</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.pan || 'N/A'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Occupation</span>
+            <span className="detail-colon">:</span>
+            <span className="detail-value">{selectedAccount.occupation || 'N/A'}</span>
+          </div>
+          
+      </div>
           </div>
         </div>
       )}

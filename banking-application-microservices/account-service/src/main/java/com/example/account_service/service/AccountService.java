@@ -24,11 +24,17 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
         if (account.getStatus() != null && account.getStatus().name().equals("PENDING")) {
             account.setStatus(com.example.account_service.entity.AccountStatus.APPROVED);
+            String accountNumber = generateRandomAccountNumber();
+            account.setAccountNumber(accountNumber);
             accountRepository.save(account);
         } else {
             throw new IllegalArgumentException("Account can only be approved from PENDING status");
         }
     }
+    private String generateRandomAccountNumber() {
+    long randomNum = (long) (Math.random() * 1_000_000_000_000L); // Generate a random number up to 12 digits
+    return String.format("%012d", randomNum); // Ensure it's 12 digits with leading zeros if necessary
+}
 
     public void rejectAccount(Long accountId) {
         Account account = accountRepository.findById(accountId)
@@ -52,19 +58,20 @@ public class AccountService {
     if (strategy == null) {
         throw new IllegalArgumentException("Unsupported country: " + country);
     }
-
+    System.out.println("Creating account for country: " + country);
     // Extract userId and bank from the payload for validation
     Long userId = ((Number) payload.get("userId")).longValue(); // Properly convert userId to Long
     String bank = (String) payload.get("bank");
+    String branch = (String) payload.get("branch");
+    System.out.println("Bank: " + bank);
+    System.out.println("Branch: " + branch);
 
 
-    // Check if an account already exists for the user in the same bank
-   boolean accountExistsInBankAndBranch = accountRepository.findByUserId(userId).stream()
-        .anyMatch(account -> account.getBank().equalsIgnoreCase(bank) &&
-                             account.getBranch().equalsIgnoreCase((String) payload.get("branch")));
-
+    // Check if an account already exists for the user in the same bank and branch
+ boolean accountExistsInBankAndBranch = accountRepository.existsByUserIdAndBankAndBranch(userId, bank, branch);
+ 
 if (accountExistsInBankAndBranch) {
-    throw new IllegalArgumentException("User already has an account in the bank: " + bank + " and branch: " + payload.get("branch"));
+    throw new IllegalArgumentException("User already has an account in the bank: " + bank + " and branch: " + branch);
 }
 
     Object dto = convertPayloadToDto(payload, country);

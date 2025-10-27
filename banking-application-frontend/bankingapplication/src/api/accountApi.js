@@ -36,12 +36,10 @@ export const createAccount = async (data, country = 'India') => {
     console.log('Account creation successful:', response.data);
     return response.data;
   } catch (error) {
-    const errorText = error.response?.data?.message || error.message;
-    if (error.response?.status === 400 ) {
-      throw new Error('User already has an account in the bank');
-    }
-    console.error('Error creating account:', error);
-    throw error;
+    
+    const errorText = error.response?.data || error.message;
+    console.error('Error creating account Please Try Again :', errorText);
+    throw new Error(errorText);
   }
 };
 

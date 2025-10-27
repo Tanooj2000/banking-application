@@ -20,6 +20,8 @@ public class IndiaAccountStrategy implements AccountCreationStrategy {
         IndiaAccountRequest req = (IndiaAccountRequest) request;
         System.out.println("Creating account for India: " + req);
         Account account = new Account();
+        account.setAccountNumber(req.getAccountNumber());
+        account.setIfscCode(req.getIfscCode());
         account.setUserId(req.getUserId());
         account.setCountry("IN");
         account.setFullName(req.getFullName());

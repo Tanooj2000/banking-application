@@ -89,8 +89,9 @@ const BrowseBank = () => {
     return matchesSearch && matchesCity;
   });
 
-  const handleCreate = (bankName, branch) => {
-    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}`, {
+  const handleCreate = (bankName, branch, code) => {
+    
+    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`, {
       state: { userId: userId }
     });
   };
@@ -196,7 +197,7 @@ const BrowseBank = () => {
                 <div className="bank-card-footer">
                   <button
                     className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''}`}
-                    onClick={() => handleCreate(bank.bankName, bank.branch)}
+                    onClick={() => handleCreate(bank.bankName, bank.branch, bank.code)}
                   >
                     <span className="btn-icon">+</span>
                     Create Account

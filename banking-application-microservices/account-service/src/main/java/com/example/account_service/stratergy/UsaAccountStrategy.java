@@ -20,6 +20,7 @@ public class UsaAccountStrategy implements AccountCreationStrategy {
         UsaAccountRequest req = (UsaAccountRequest) request;
 
         Account account = new Account();
+        account.setAccountNumber(req.getAccountNumber());
         account.setUserId(req.getUserId());
         account.setCountry("US");
         account.setFullName(req.getFullName());

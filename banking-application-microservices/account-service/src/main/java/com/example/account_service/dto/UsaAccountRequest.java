@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Data
 public class UsaAccountRequest {
     private Long userId;
+    private String accountNumber;
     private String fullName;
     private String ssn;
     private String mobile;

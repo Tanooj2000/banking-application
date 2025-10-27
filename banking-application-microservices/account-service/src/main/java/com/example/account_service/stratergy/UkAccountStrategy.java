@@ -20,10 +20,11 @@ public class UkAccountStrategy implements AccountCreationStrategy {
         UkAccountRequest req = (UkAccountRequest) request;
 
         Account account = new Account();
+        account.setAccountNumber(req.getAccountNumber());
         account.setUserId(req.getUserId());
         account.setCountry("UK");
         account.setFullName(req.getFullName());
-    account.setNin(req.getNin());
+        account.setNin(req.getNin());
         account.setMobile(req.getMobile());
         account.setEmail(req.getEmail());
         account.setBank(req.getBank());

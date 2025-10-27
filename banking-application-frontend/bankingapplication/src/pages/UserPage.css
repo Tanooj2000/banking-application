@@ -211,7 +211,7 @@
   border-radius: 16px;
   padding: 0;
   width: 90%;
-  max-width: 500px;
+  max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -262,7 +262,7 @@
 }
 
 .modal-close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: red;
 }
 
 .modal-form {
@@ -508,7 +508,7 @@
 .no-accounts {
   text-align: center;
   padding: 3rem;
-  color: #7f8c8d;
+  color: #7f8c8c;
   font-size: 1.1rem;
   background: #ecf0f1;
   border-radius: 12px;
@@ -591,9 +591,7 @@
   text-align: left;
 }
 
-.account-header-item:last-child {
-  text-align: right;
-}
+
 
 .account-info-row {
   display: flex;
@@ -617,7 +615,7 @@
   flex: 1;
   text-align: center;
   font-weight: 500;
-  color: #374151; /* Neutral gray for text */
+  color: #090a0a; /* Neutral gray for text */
   font-size: 14px;
 }
 
@@ -625,9 +623,7 @@
   text-align: left;
 }
 
-.account-info-item:last-child {
-  text-align: right;
-}
+
 .no-accounts {
   display: flex;
   flex-direction: column;
@@ -647,4 +643,59 @@
   font-size: 48px;
   color: #e74c3c;
   margin-bottom: 10px;
+}
+.modal-content {
+  
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  width: 30%;
+  text-align: left;
+}
+
+.detail-value {
+  font-weight: 400;
+  color: #222;
+  width: 65%;
+  text-align: left;
+  word-break: break-word;
+}
+.detail-colon {
+  width: 10px;
+  text-align: center;
+}
+
+
+/* Responsive for smaller screens */
+@media (max-width: 600px) {
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-label,
+  .detail-value {
+    width: 100%;
+    text-align: left;
+  }
+
+  .detail-value {
+    margin-top: 6px;
+  }
 }
