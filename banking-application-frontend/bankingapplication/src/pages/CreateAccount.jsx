@@ -216,6 +216,7 @@ const CreateAccount = () => {
     } catch (err) {
       const errorMessage = err.message || 'An unexpected error occurred';
       setFormStatus({ loading: false, success: null, error: errorMessage });
+      navigate('/userpage');
     }
   };
 
