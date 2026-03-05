@@ -1,17 +1,3 @@
-#root {
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden !important;
-}
-
-
-
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden !important;
-  margin: 0;
-  padding: 0;
-}
-
+/* App.css — intentionally minimal.
+   All resets, tokens, and base styles live in index.css. */
 

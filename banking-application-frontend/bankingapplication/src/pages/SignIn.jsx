@@ -154,25 +154,9 @@ const SignIn = () => {
 			<>
 				<Header />
 				<div className="signin-bg-gradient">
-					<div className="signin-card">
-						<div style={{
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							height: '200px',
-							flexDirection: 'column',
-							gap: '1rem'
-						}}>
-							<div style={{
-								width: '50px',
-								height: '50px',
-								border: '4px solid #f3f3f3',
-								borderTop: '4px solid #667eea',
-								borderRadius: '50%',
-								animation: 'spin 1s linear infinite'
-							}}></div>
-							<p>Redirecting to dashboard...</p>
-						</div>
+					<div className="signin-redirect-state">
+						<span className="signin-redirect-spinner" />
+						<p className="signin-redirect-label">Redirecting to dashboard…</p>
 					</div>
 				</div>
 			</>
@@ -206,9 +190,7 @@ const SignIn = () => {
 											<FaUserShield className="signin-btn-icon" /> Sign in as Admin <FaArrowRight className="signin-btn-arrow" />
 										</button>
 									</div>
-								) : null}
-							</div>
-							{userType && (
+								) : (
 								<div className="signin-modal-overlay">
 									<form onSubmit={handleSubmit} className="signin-modal-form">
 										<button type="button" className="signin-modal-back" onClick={() => setUserType(null)}>
@@ -253,54 +235,18 @@ const SignIn = () => {
 							)}
 						</div>
 					</div>
-					
-					{/* Success Message Popup with Progress Bar */}
-					{successMsg && (
-						<div style={{
-							position: 'fixed',
-							top: 80,
-							right: 40,
-							background: successMsg.startsWith('admin:') ? '#43a047' : successMsg.startsWith('user:') ? '#1976d2' : '#43a047',
-							color: '#fff',
-							padding: '20px 32px',
-							borderRadius: 12,
-							fontWeight: 600,
-							fontSize: '1.1rem',
-							boxShadow: '0 4px 20px rgba(60,60,60,0.25)',
-							zIndex: 9999,
-							transition: 'opacity 0.4s',
-							opacity: 0.95,
-							minWidth: '280px'
-						}}>
-							<div style={{ marginBottom: '12px' }}>
-								{successMsg.replace(/^(admin:|user:)/, '')}
-							</div>
-							{/* Progress Bar */}
-							<div style={{
-								width: '100%',
-								height: '6px',
-								backgroundColor: 'rgba(255,255,255,0.3)',
-								borderRadius: '3px',
-								overflow: 'hidden'
-							}}>
-								<div style={{
-									width: `${progress}%`,
-									height: '100%',
-									backgroundColor: '#fff',
-									borderRadius: '3px',
-									transition: 'width 0.3s ease',
-									boxShadow: '0 0 8px rgba(255,255,255,0.5)'
-								}} />
-							</div>
-							<div style={{
-								fontSize: '0.9rem',
-								marginTop: '8px',
-								opacity: 0.9
-							}}>
-								{progress < 30 ? 'Authenticating...' : 
-								 progress < 70 ? 'Setting up session...' : 
-								 progress < 100 ? 'Preparing dashboard...' : 'Redirecting...'}
-							</div>
+			</div>
+
+{/* Success / Progress Toast */}
+			{successMsg && (
+				<div className="signin-toast">
+					<p className="signin-toast__msg">{successMsg.replace(/^(admin:|user:)/, '')}</p>
+					<div className="signin-toast__bar">
+						<div className="signin-toast__fill" style={{ width: `${progress}%` }} />
+					</div>
+					<p className="signin-toast__phase">
+						{progress < 30 ? 'Authenticating…' : progress < 70 ? 'Setting up session…' : progress < 100 ? 'Preparing dashboard…' : 'Redirecting…'}
+					</p>
 						</div>
 					)}
 					

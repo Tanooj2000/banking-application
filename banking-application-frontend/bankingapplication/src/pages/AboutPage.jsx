@@ -7,37 +7,92 @@ const AboutPage = () => {
   return (
     <>
       <Header />
-      <div className="about-bg-gradient">
-        <div className="about-container">
-          <div className="about-hero">
-            <h1 className="about-title">About InterBankHub</h1>
-            <p className="about-subtitle">Your One-Stop Solution for Modern Banking</p>
-          </div>
-          <div className="about-content">
-            <div className="about-section">
-              <h2>Who We Are</h2>
-              <p>
-                AllBanksOne is a next-generation digital banking platform designed to bring all your banking needs under one roof. We connect users with multiple banks, offering seamless account management, secure transactions, and a unified experience for both individuals and administrators.
-              </p>
-            </div>
-            <div className="about-section">
-              <h2>Our Mission</h2>
-              <p>
-                To empower users and banks with innovative technology, making banking simpler, safer, and more accessible for everyone. We believe in transparency, security, and customer-centric solutions.
-              </p>
-            </div>
-            <div className="about-section">
-              <h2>Why Choose Us?</h2>
-              <ul>
-                <li>Unified dashboard for all your accounts</li>
-                <li>Advanced security and privacy controls</li>
-                <li>Modern, intuitive user experience</li>
-                <li>24/7 support and guidance</li>
-                <li>Trusted by leading banks and thousands of users</li>
-              </ul>
-            </div>
-          </div>
+      <div className="about-page">
+
+        {/* ── Hero ── */}
+        <section className="about-hero">
+          <p className="about-eyebrow">INTERBANKHUB</p>
+          <h1 className="about-hero-title">
+            Banking infrastructure<br />built for <em>everyone.</em>
+          </h1>
+          <p className="about-hero-sub">
+            One platform. Every account. Absolute confidence.
+          </p>
+        </section>
+
+        {/* ── Divider ── */}
+        <div className="about-rule" />
+
+        {/* ── Main content ── */}
+        <div className="about-grid">
+
+          <article className="about-card">
+            <p className="about-card-label">WHO WE ARE</p>
+            <h2 className="about-card-heading">A new standard<br />for digital banking</h2>
+            <p className="about-card-body">
+              InterBankHub is a next-generation digital banking platform designed
+              to bring all your banking needs under one roof. We connect users with
+              multiple banks, offering seamless account management, secure transactions,
+              and a unified experience for both individuals and administrators.
+            </p>
+          </article>
+
+          <article className="about-card">
+            <p className="about-card-label">OUR MISSION</p>
+            <h2 className="about-card-heading">Simpler. Safer.<br /><em>Smarter.</em></h2>
+            <p className="about-card-body">
+              To empower users and banks with innovative technology, making banking
+              simpler, safer, and more accessible for everyone. We believe in
+              transparency, security, and customer-centric solutions that respect
+              your time and your trust.
+            </p>
+          </article>
+
         </div>
+
+        {/* ── Why choose us ── */}
+        <section className="about-features">
+          <p className="about-eyebrow">WHY CHOOSE US</p>
+          <h2 className="about-features-heading">Five <em>reasons</em> to trust us</h2>
+          <ul className="about-feature-list">
+            <li className="about-feature-item">
+              <span className="about-feature-num">01</span>
+              <div>
+                <strong>Unified dashboard</strong>
+                <p>Manage every account you hold across any connected bank in one place.</p>
+              </div>
+            </li>
+            <li className="about-feature-item">
+              <span className="about-feature-num">02</span>
+              <div>
+                <strong>Advanced security</strong>
+                <p>Role-based access control, session management, and privacy-first design.</p>
+              </div>
+            </li>
+            <li className="about-feature-item">
+              <span className="about-feature-num">03</span>
+              <div>
+                <strong>Intuitive experience</strong>
+                <p>Designed to be clear and efficient — from first login to every transaction.</p>
+              </div>
+            </li>
+            <li className="about-feature-item">
+              <span className="about-feature-num">04</span>
+              <div>
+                <strong>24 / 7 support</strong>
+                <p>Round-the-clock guidance so you're never left without an answer.</p>
+              </div>
+            </li>
+            <li className="about-feature-item">
+              <span className="about-feature-num">05</span>
+              <div>
+                <strong>Trusted by leading banks</strong>
+                <p>Deployed across institutions that demand the highest operational standards.</p>
+              </div>
+            </li>
+          </ul>
+        </section>
+
       </div>
       <Footer />
     </>
@@ -45,3 +100,4 @@ const AboutPage = () => {
 };
 
 export default AboutPage;
+
