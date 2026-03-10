@@ -2,6 +2,36 @@
 
 const BASE_URL = 'http://localhost:8082/api';
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return headers;
+};
+
+// Helper function to handle auth errors
+const handleAuthError = async (response) => {
+  if (response.status === 401 || response.status === 403) {
+    // Token expired or invalid - clear stored data and redirect to login
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('userType');
+    window.dispatchEvent(new Event('storage'));
+    
+    // Optional: redirect to login if not already there
+    if (!window.location.pathname.includes('/signin')) {
+      window.location.href = '/signin';
+    }
+  }
+};
+
 // Fixed countries - no need for API call
 export const getAvailableCountries = () => {
   return ['India', 'USA', 'UK'];
@@ -19,12 +49,11 @@ export const fetchBanks = async (country) => {
     
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
+      await handleAuthError(response);
       throw new Error(`Failed to fetch banks (Status: ${response.status})`);
     }
 
@@ -48,25 +77,17 @@ export const fetchBankById = async (bankId) => {
   try {
     const response = await fetch(`${BASE_URL}/banks/${bankId}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
-
+    
     if (!response.ok) {
+      await handleAuthError(response);
       throw new Error(`Failed to fetch bank details (Status: ${response.status})`);
     }
-
-    const data = await response.json();
-    console.log('Fetch bank by ID response:', data);
     
-    if (data.success) {
-      return data.bank;
-    } else {
-      throw new Error(data.message || 'Failed to fetch bank details');
-    }
+    return response.json();
   } catch (error) {
-    console.error('Error fetching bank by ID:', error);
+    console.error('Error fetching bank:', error);
     throw error;
   }
 };
@@ -76,13 +97,12 @@ export const fetchBankById = async (bankId) => {
 export const createBranch = async (branchData) => {
   const response = await fetch(`${BASE_URL}/banks/add`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(branchData),
   });
 
   if (!response.ok) {
+    await handleAuthError(response);
     const errorText = await response.text();
     throw new Error(errorText || 'Failed to create branch');
   }

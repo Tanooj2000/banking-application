@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUniversity, FaUserShield, FaGlobe, FaPlus, FaSearch } from 'react-icons/fa';
 import Header from '../components/Header';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, validateBankName, getErrorMessage } from '../utils/validation';
+import { AuthGuard } from '../utils/authGuard';
 import CreatableSelect from 'react-select/creatable';
 const SignUp = () => {
   const [userType, setUserType] = useState('');
@@ -60,12 +61,19 @@ const SignUp = () => {
 
   // Redirect if already signed in
   useEffect(() => {
-    const token = sessionStorage.getItem('userToken');
-    const storedUserType = sessionStorage.getItem('userType');
+    // Check JWT-based authentication
+    const token = localStorage.getItem('authToken');
+    const storedUserType = localStorage.getItem('userType');
+    const adminData = sessionStorage.getItem('adminData');
     
-    if (token && storedUserType) {
+    // Check JWT-based authentication for users
+    const isUserAuth = token && storedUserType === 'user';
+    // Check legacy admin authentication
+    const isAdminAuth = storedUserType === 'admin' && adminData && AuthGuard.isAdminAuthenticated();
+    
+    if (isUserAuth || isAdminAuth) {
       // User is already signed in, redirect to appropriate dashboard
-      if (storedUserType === 'admin') {
+      if (isAdminAuth) {
         navigate('/adminpage', { replace: true });
       } else {
         navigate('/userpage', { replace: true });
@@ -322,7 +330,7 @@ const SignUp = () => {
                     <div className="input-icon-wrapper">
                       <FaPhone className="input-icon" />
                       <input
-                        type="text"
+                        type="tel"
                         id="mobile"
                         name="mobile"
                         className={`form-input${errors.mobile ? ' error' : ''}`}

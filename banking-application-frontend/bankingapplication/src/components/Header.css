@@ -1,140 +1,247 @@
-/* Modern Logout Button Style */
-.nav__link--btn {
-  background: linear-gradient(90deg, #3949ab 0%, #232526 100%);
-  color: #fff;
-  border: none;
-  border-radius: 1.2rem;
-  padding: 0.6rem 2rem;
-  font-size: 1.08rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 2px 12px #23252622;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s;
-  outline: none;
-  margin-left: 0.7rem;
-  display: inline-block;
-}
-.nav__link--btn:hover, .nav__link--btn:focus {
-  background: linear-gradient(90deg, #232526 0%, #3949ab 100%);
-  color: #fff;
-  box-shadow: 0 4px 24px #3949ab33;
-  transform: translateY(-2px) scale(1.04);
-}
-.nav__link--btn:active {
-  background: #232526;
-  color: #fff;
-  transform: scale(0.98);
+/* Apple-Inspired Floating Navigation Bar */
+:root {
+  --apple-nav-height: 60px;
+  --apple-nav-bg-default: rgba(0, 0, 0, 0.9);
+  --apple-nav-bg-scrolled: rgba(0, 0, 0, 0.1);
+  --apple-nav-border: rgba(255, 255, 255, 0.1);
+  --apple-text-primary: #ffffff;
+  --apple-text-secondary: #a1a1a6;
+  --apple-blue: #007AFF;
+  --apple-blue-hover: #0051D5;
+  --apple-radius: 18px;
+  --apple-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modern dark theme navigation bar */
-.nav {
-  background: linear-gradient(90deg, #4a4848 0%, #090909 100%);
-  color: #fff;
+.apple-nav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 1100px;
+  background: var(--apple-nav-bg-default);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--apple-nav-border);
+  border-radius: 25px;
+  height: var(--apple-nav-height);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: var(--apple-transition);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.apple-nav.scrolled {
+  background: var(--apple-nav-bg-scrolled);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 2.5rem;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
-  min-height: 70px;
-  position: relative;
-  z-index: 10;
+  height: 100%;
+  padding: 0 30px;
 }
 
-/* Modern Logo Design */
-.nav__logo {
+/* Logo Styling */
+.nav-logo {
   text-decoration: none;
-  color: inherit;
-  transition: transform 0.3s ease;
+  color: var(--apple-text-primary);
+  transition: var(--apple-transition);
+  display: flex;
+  align-items: center;
 }
 
-.nav__logo:hover {
-  transform: scale(1.02);
+.nav-logo:hover {
+  opacity: 0.8;
 }
 
 .logo-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
+  gap: 8px;
 }
 
 .logo-icon {
-  font-size: 28px;
-  color: #ffffff;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-}
-
-.logo-wrapper:hover .logo-icon {
-  color: #e5e7eb;
-  transform: scale(1.05);
+  font-size: 22px;
+  color: var(--apple-blue);
+  transition: var(--apple-transition);
 }
 
 .logo-text {
-  font-size: 24px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+  letter-spacing: -0.022em;
+  line-height: 1.1;
 }
 
-.nav__links {
+/* Navigation Links */
+.nav-links {
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 2.2rem;
+  gap: 0;
   margin: 0;
   padding: 0;
 }
 
-.nav__item {
+.nav-item {
   position: relative;
 }
 
-.nav__link {
-  color: #fff;
+.nav-link {
+  color: var(--apple-text-primary);
   text-decoration: none;
-  font-size: 1.13rem;
+  font-size: 15px;
   font-weight: 500;
-  padding: 0.5rem 1.1rem;
-  border-radius: 0.7rem;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-  letter-spacing: 0.02em;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-.nav__link:hover, .nav__link:focus {
-  background: #222b3a;
-  color: #90caf9;
-  box-shadow: 0 2px 12px #1e293b33;
-}
-
-.nav__link--btn, .nav__link.nav__link--btn {
-  background: #3949ab;
-  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  transition: var(--apple-transition);
+  letter-spacing: -0.016em;
+  line-height: 1.42857;
   border: none;
+  background: transparent;
   cursor: pointer;
-  font-weight: 600;
-  padding: 0.5rem 1.2rem;
-  border-radius: 0.7rem;
-  margin-left: 0.7rem;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-}
-.nav__link--btn:hover, .nav__link.nav__link--btn:hover {
-  background: #222b3a;
-  color: #90caf9;
+  font-family: inherit;
+  display: block;
+  white-space: nowrap;
 }
 
-@media (max-width: 700px) {
-  .nav {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0.7rem 1rem;
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--apple-text-primary);
+  transform: translateY(-1px);
+}
+
+.nav-link:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Primary Button (Sign Up) */
+.nav-link-primary {
+  background: var(--apple-blue);
+  color: white;
+  border-radius: var(--apple-radius);
+  font-weight: 600;
+  margin-left: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 10px rgba(0, 122, 255, 0.3);
+}
+
+.nav-link-primary:hover {
+  background: var(--apple-blue-hover);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+}
+
+/* Logout Button */
+.nav-logout-btn {
+  color: var(--apple-text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--apple-radius);
+  padding: 8px 16px;
+  margin-left: 12px;
+  transition: var(--apple-transition);
+}
+
+.nav-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--apple-text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --apple-nav-bg: rgba(29, 29, 31, 0.85);
+    --apple-nav-border: rgba(255, 255, 255, 0.1);
+    --apple-text-primary: #f5f5f7;
+    --apple-text-secondary: #a1a1a6;
   }
-  .nav__links {
-    gap: 1.1rem;
+  
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
   }
-  .nav__logo img {
-    height: 2.2rem;
+  
+  .nav-link:active {
+    background: rgba(255, 255, 255, 0.12);
   }
+  
+  .nav-logout-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .nav-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .apple-nav {
+    width: 95%;
+    top: 15px;
+  }
+  
+  .nav-container {
+    padding: 0 20px;
+  }
+  
+  .nav-links {
+    gap: 0;
+  }
+  
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+  
+  .logo-text {
+    font-size: 16px;
+  }
+  
+  .logo-icon {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-links {
+    display: none;
+  }
+  
+  /* Add mobile menu button if needed in future */
+  .mobile-menu-btn {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--apple-text-primary);
+    font-size: 18px;
+    cursor: pointer;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+.nav-link:focus {
+  outline: 2px solid var(--apple-blue);
+  outline-offset: 2px;
+}
+
+.nav-link:focus:not(:focus-visible) {
+  outline: none;
 }

@@ -25,6 +25,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final SessionService sessionService;
 
     public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -58,12 +60,33 @@ public class UserService {
             }
         }
         if (user == null) {
-            return ResponseEntity.badRequest().body(new LoginResponse(false, "User not found", null));
+            return ResponseEntity.badRequest().body(
+                new LoginResponse(false, "User not found", null, null, null));
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity.badRequest().body(new LoginResponse(false, "Invalid credentials", null));
+            return ResponseEntity.badRequest().body(
+                new LoginResponse(false, "Invalid credentials", null, null, null));
         }
-        return ResponseEntity.ok(new LoginResponse(true, "Login successful.", user));
+        
+        // Generate JWT token
+        String jwtToken = jwtService.generateToken(user.getUsername(), user.getId());
+        long expirationTime = jwtService.getExpirationTime();
+        
+        // Create user DTO without password
+        LoginResponse.UserDto userDto = new LoginResponse.UserDto(
+            user.getId(),
+            user.getUsername(), 
+            user.getEmail(),
+            user.getPhonenumber()
+        );
+        
+        return ResponseEntity.ok(new LoginResponse(
+            true, 
+            "Login successful.", 
+            jwtToken, 
+            expirationTime,
+            userDto
+        ));
     }
 
     public ResponseEntity<UpdateUserResponse> updateUserDetails(Long userId, UpdateUserRequest request) {
@@ -176,6 +199,20 @@ public class UserService {
             .collect(Collectors.toList());
         
         return ResponseEntity.ok(new AllUsersResponse(true, "All users retrieved successfully", userDtos));
+    }
+
+    public ResponseEntity<String> logout(String token) {
+        try {
+            // Remove "Bearer " prefix if present
+            String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+            
+            // Add token to blacklist
+            sessionService.blacklistToken(jwtToken);
+            
+            return ResponseEntity.ok("Logout successful");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
     }
 
 }

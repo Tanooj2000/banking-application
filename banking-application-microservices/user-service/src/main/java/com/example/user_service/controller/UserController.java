@@ -31,6 +31,11 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.login(request);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        return userService.logout(token);
+    }
     
     @GetMapping("/{id}")
     public ResponseEntity<UserDetailsResponse> getUserById(@PathVariable Long id) {

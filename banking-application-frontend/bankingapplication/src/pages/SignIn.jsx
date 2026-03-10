@@ -18,24 +18,35 @@ const SignIn = () => {
 	const [isRedirecting, setIsRedirecting] = useState(false); // Add redirecting state
 	const [successMsg, setSuccessMsg] = useState(""); // Success message state
 	const [progress, setProgress] = useState(0); // Progress bar state
+	const [redirectMessage, setRedirectMessage] = useState(""); // Message for redirected users
 	const navigate = useNavigate();
 	const firstInputRef = useRef(null); // Reference for auto-focus
 
+	// Check for redirect message and intended destination
+	useEffect(() => {
+		const redirectUrl = localStorage.getItem('redirectAfterLogin');
+		if (redirectUrl && redirectUrl.includes('createaccount')) {
+			setRedirectMessage("Please sign in to create your bank account");
+		}
+	}, []);
+
 	// Redirect if already signed in
 	useEffect(() => {
-		const token = sessionStorage.getItem('userToken');
-		const storedUserType = sessionStorage.getItem('userType');
+		const token = localStorage.getItem('authToken');
+		const storedUserType = localStorage.getItem('userType');
+		const adminData = sessionStorage.getItem('adminData');
 		
-
+		// Check JWT-based authentication
+		const isUserAuth = token && storedUserType === 'user';
+		// Check legacy admin authentication
+		const isAdminAuth = storedUserType === 'admin' && adminData && AuthGuard.isAdminAuthenticated();
 		
-		if (token && storedUserType) {
+		if (isUserAuth || isAdminAuth) {
 			setIsRedirecting(true);
 			// User is already signed in, redirect to appropriate dashboard
-			if (storedUserType === 'admin') {
-
+			if (isAdminAuth) {
 				navigate('/adminpage', { replace: true });
 			} else {
-
 				navigate('/userpage', { replace: true });
 			}
 		}
@@ -103,7 +114,15 @@ const SignIn = () => {
 							setSuccessMsg("");
 							setProgress(0);
 							setIsSubmitting(false);
-							navigate('/adminpage', { state: { admin: response.admin }, replace: true });
+							
+							// Check for redirect URL (usually only for user accounts, but keeping for consistency)
+							const redirectUrl = localStorage.getItem('redirectAfterLogin');
+							if (redirectUrl) {
+								localStorage.removeItem('redirectAfterLogin');
+								navigate(redirectUrl, { replace: true });
+							} else {
+								navigate('/adminpage', { state: { admin: response.admin }, replace: true });
+							}
 						}, 2000);
 					} else {
 						setErrors({ form: response.message });
@@ -115,13 +134,8 @@ const SignIn = () => {
 						setSuccessMsg('user:User login successful!');
 						setProgress(20);
 						
-						// Store session data
+						// JWT token and user data are already stored in localStorage by signInUser
 						setTimeout(() => {
-							// Clear any stale logout flags then set session
-							sessionStorage.removeItem('userLoggedOut');
-							sessionStorage.setItem('userToken', 'user-token');
-							sessionStorage.setItem('userType', 'user');
-							sessionStorage.setItem('userId', response.user.id);
 							setProgress(60);
 						}, 500);
 						
@@ -135,7 +149,15 @@ const SignIn = () => {
 							setSuccessMsg("");
 							setProgress(0);
 							setIsSubmitting(false);
-							navigate('/userpage', { state: { userId: response.user.id }, replace: true });
+							
+							// Check for redirect URL after login
+							const redirectUrl = localStorage.getItem('redirectAfterLogin');
+							if (redirectUrl) {
+								localStorage.removeItem('redirectAfterLogin');
+								navigate(redirectUrl, { replace: true });
+							} else {
+								navigate('/userpage', { state: { userId: response.user.id }, replace: true });
+							}
 						}, 2000);
 					} else {
 						setErrors({ form: response.message });
@@ -197,6 +219,23 @@ const SignIn = () => {
 							<div className="signin-card-right">
 								<h1 className="signin-headline">Welcome Back</h1>
 								<p className="signin-subtitle">Access your secure banking dashboard</p>
+								
+								{/* Show redirect message if user was redirected from bank creation */}
+								{redirectMessage && (
+									<div style={{
+										background: 'linear-gradient(135deg, #007AFF, #5856D6)',
+										color: 'white',
+										padding: '12px 20px',
+										borderRadius: '8px',
+										margin: '15px 0',
+										textAlign: 'center',
+										fontSize: '14px',
+										fontWeight: '500'
+									}}>
+										{redirectMessage}
+									</div>
+								)}
+								
 								{!userType ? (
 									<div className="signin-type-select-pro">
 										<button className="signin-type-btn-pro user" onClick={() => handleUserType('user')}>

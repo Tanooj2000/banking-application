@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './BrowseBank.css';
 import { getAvailableCountries, fetchBanks } from '../api/bankApi';
 import Footer from '../components/Footer';
+import { AuthGuard } from '../utils/authGuard';
 
 // Import default bank image for fallback
 import defaultBankImg from '../assets/bank-icon.jpg';
@@ -46,7 +47,10 @@ const BrowseBank = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = location.state?.userId || sessionStorage.getItem('userId');
+  
+  // Get current user from JWT authentication
+  const currentUser = AuthGuard.getCurrentUser();
+  const userId = currentUser?.id || location.state?.userId;
 
   const cities = getUniqueCities(banks);
 
@@ -90,9 +94,24 @@ const BrowseBank = () => {
   });
 
   const handleCreate = (bankName, branch, code) => {
+    // Check if user is authenticated using JWT
+    if (!AuthGuard.isAuthenticated()) {
+      // Store the intended destination for after login
+      localStorage.setItem('redirectAfterLogin', `/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`);
+      
+      // Redirect to sign-in page
+      navigate('/signin', {
+        state: { 
+          message: 'Please sign in to create a bank account',
+          returnUrl: `/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`
+        }
+      });
+      return;
+    }
     
+    // User is authenticated, proceed with account creation
     navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`, {
-      state: { userId: userId }
+      state: { userId: userId || currentUser.id }
     });
   };
 

@@ -8,6 +8,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaUser, FaTimes, FaEye } from 'react-icons/fa';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
+import { AuthGuard } from '../utils/authGuard';
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -15,12 +16,11 @@ const UserPage = () => {
   
   // User blocking after logout has been relaxed per request; allow normal access after re-login
 
-  // Get userId from navigation state or sessionStorage as fallback
-  const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');
+  // Get current user from JWT authentication
+  const currentUser = AuthGuard.getCurrentUser();
+  const userId = currentUser?.id || location.state?.userId || location.state?.user?.id;
   
-
-  
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(currentUser || {});
   const [bankAccounts, setBankAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState('All');
   const [isUserLoading, setIsUserLoading] = useState(true);
@@ -65,6 +65,13 @@ const UserPage = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      // Check if user is authenticated first
+      if (!AuthGuard.isAuthenticated()) {
+        console.warn('User not authenticated. Redirecting to sign in.');
+        navigate('/signin', { replace: true });
+        return;
+      }
+
       if (userId) {
         setIsUserLoading(true);
         try {
@@ -84,18 +91,18 @@ const UserPage = () => {
         } catch (error) {
           console.error('Error fetching user data:', error);
           setBankAccounts([]);
+          
+          // If it's an authentication error, user will be redirected by the API error handler
+          if (error.message.includes('401') || error.message.includes('403')) {
+            return; // Don't continue processing
+          }
         } finally {
           setIsUserLoading(false);
         }
       } else {
-        // If no userId found, check if user is authenticated but redirect failed
-        const token = sessionStorage.getItem('userToken');
-        if (token) {
-          console.error('User is authenticated but userId is missing. This suggests a session issue.');
-          // Clear corrupted session and redirect
-          sessionStorage.clear();
-        }
-        console.warn('No userId found. Redirecting to sign in.');
+        // If no userId found but user claims to be authenticated
+        console.warn('No userId found but user appears authenticated. Redirecting to sign in.');
+        await AuthGuard.logout(); // Clear any stale data
         navigate('/signin', { replace: true });
       }
     };
