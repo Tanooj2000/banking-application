@@ -19,6 +19,15 @@ import java.util.Map;
 
 @Service
 public class AccountService {
+    
+    @Autowired
+    private AccountRepository accountRepository;
+    
+    @Autowired
+    private AccountStrategyFactory strategyFactory;
+    
+    @Autowired
+    private EmailNotificationService emailNotificationService;
     public void approveAccount(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
@@ -27,6 +36,10 @@ public class AccountService {
             String accountNumber = generateRandomAccountNumber();
             account.setAccountNumber(accountNumber);
             accountRepository.save(account);
+            
+            // Send email notification to account holder
+            emailNotificationService.notifyAccountApproved(account);
+            System.out.println("Approval notification sent to: " + account.getEmail());
         } else {
             throw new IllegalArgumentException("Account can only be approved from PENDING status");
         }
@@ -42,18 +55,18 @@ public class AccountService {
         if (account.getStatus() != null && account.getStatus().name().equals("PENDING")) {
             account.setStatus(com.example.account_service.entity.AccountStatus.REJECTED);
             accountRepository.save(account);
+            
+            // Send email notification to account holder
+            emailNotificationService.notifyAccountRejected(account);
+            System.out.println("Rejection notification sent to: " + account.getEmail());
         } else {
             throw new IllegalArgumentException("Account can only be rejected from PENDING status");
         }
     }
 
-    @Autowired
-    private AccountStrategyFactory strategyFactory;
+   
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-   public void createAccount(String country, Map<String, Object> payload) {
+   public Account createAccount(String country, Map<String, Object> payload) {
     AccountCreationStrategy strategy = strategyFactory.getStrategy(country);
     if (strategy == null) {
         throw new IllegalArgumentException("Unsupported country: " + country);
@@ -75,7 +88,15 @@ if (accountExistsInBankAndBranch) {
 }
 
     Object dto = convertPayloadToDto(payload, country);
-    strategy.createAccount(dto);
+    Account createdAccount = strategy.createAccount(dto);
+    
+    // Send notification to admin about new account creation
+    if (createdAccount != null) {
+        emailNotificationService.notifyAdminAccountCreated(createdAccount);
+        System.out.println("Admin notification sent for account ID: " + createdAccount.getId());
+    }
+    
+    return createdAccount;
 }
 
     public List<Account> getAccountsByUserId(Long userId) {

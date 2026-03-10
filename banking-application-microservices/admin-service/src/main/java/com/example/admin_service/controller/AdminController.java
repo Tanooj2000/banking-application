@@ -77,5 +77,12 @@ public class AdminController {
     public ResponseEntity<?> checkApplicationStatus(@RequestParam String usernameOrEmail) {
         return adminService.checkApplicationStatus(usernameOrEmail);
     }
+
+    // Get admin emails by bank name
+    @GetMapping("/emails/by-bank")
+    public ResponseEntity<?> getAdminEmailsByBankName(@RequestParam String bankName) {
+        System.out.println("Received request to get admin emails for bank: " + bankName);
+        return adminService.getAdminEmailsByBankName(bankName);
+    }
 }
 

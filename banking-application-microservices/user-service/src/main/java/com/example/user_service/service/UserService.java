@@ -25,6 +25,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -43,6 +44,9 @@ public class UserService {
         user.setPhonenumber(request.getPhonenumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
+
+        // Send welcome email
+        emailService.sendWelcomeEmail(request.getEmail(), request.getUsername());
 
         return ResponseEntity.ok("User registered successfully.");
     }
