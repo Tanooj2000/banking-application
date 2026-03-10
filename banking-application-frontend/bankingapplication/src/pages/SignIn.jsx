@@ -78,68 +78,15 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					const response = await signInAdmin(formData);
-					if (response.success) {
-						// Show success message and start progress
-						setSuccessMsg('admin:Admin login successful!');
-						setProgress(20);
-						
-						// Store session data
-						setTimeout(() => {
-							sessionStorage.setItem('userToken', 'admin-token');
-							sessionStorage.setItem('userType', 'admin');
-							sessionStorage.setItem('adminId', response.admin.id);
-							AuthGuard.setAdminData(response.admin);
-							setProgress(60);
-						}, 500);
-						
-						// Complete progress and redirect
-						setTimeout(() => {
-							setProgress(100);
-							window.dispatchEvent(new Event('storage'));
-						}, 1200);
-						
-						setTimeout(() => {
-							setSuccessMsg("");
-							setProgress(0);
-							setIsSubmitting(false);
-							navigate('/adminpage', { state: { admin: response.admin }, replace: true });
-						}, 2000);
-					} else {
-						setErrors({ form: response.message });
-					}
+					await signInAdmin(formData);
+					sessionStorage.setItem('userToken', 'admin-token');
+					window.dispatchEvent(new Event('storage'));
+					navigate('/adminpage');
 				} else {
-					const response = await signInUser(formData);
-					if (response.success) {
-						// Show success message and start progress
-						setSuccessMsg('user:User login successful!');
-						setProgress(20);
-						
-						// Store session data
-						setTimeout(() => {
-							// Clear any stale logout flags then set session
-							sessionStorage.removeItem('userLoggedOut');
-							sessionStorage.setItem('userToken', 'user-token');
-							sessionStorage.setItem('userType', 'user');
-							sessionStorage.setItem('userId', response.user.id);
-							setProgress(60);
-						}, 500);
-						
-						// Complete progress and redirect
-						setTimeout(() => {
-							setProgress(100);
-							window.dispatchEvent(new Event('storage'));
-						}, 1200);
-						
-						setTimeout(() => {
-							setSuccessMsg("");
-							setProgress(0);
-							setIsSubmitting(false);
-							navigate('/userpage', { state: { userId: response.user.id }, replace: true });
-						}, 2000);
-					} else {
-						setErrors({ form: response.message });
-					}
+					await signInUser(formData);
+					sessionStorage.setItem('userToken', 'user-token');
+					window.dispatchEvent(new Event('storage'));
+					navigate('/userpage');
 				}
 			} catch (error) {
 				setErrors({ form: getErrorMessage(error) });

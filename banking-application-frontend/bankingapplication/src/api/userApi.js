@@ -20,9 +20,8 @@ export const signUpUser = async (userData) => {
   return response.text();
 };
 
-export const signInUser = async (credentials) => {
-  console.log('Signing in user with credentials:');
-  const response = await fetch(`${BASE_URL}login`, {
+export const signUpAdmin = async (adminData) => {
+  const response = await fetch(`${BASE_URL}admins`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

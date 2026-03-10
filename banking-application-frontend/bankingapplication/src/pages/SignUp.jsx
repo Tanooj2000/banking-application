@@ -214,7 +214,7 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-  alert(response);
+  alert('Sign up successful!');
   setFormData({});
   setUserType('');
   navigate('/signin');
