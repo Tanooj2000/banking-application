@@ -42,8 +42,9 @@ public class AccountController {
     @PostMapping("/create/{country}")
     public ResponseEntity<String> createAccount(@PathVariable String country, @RequestBody Map<String, Object> payload) {
         try {
-            accountService.createAccount(country, payload);
-            return ResponseEntity.ok("Account created for " + country);
+            Account createdAccount = accountService.createAccount(country, payload);
+            return ResponseEntity.ok("Account created successfully for " + country + 
+                " with ID: " + createdAccount.getId() + ". Admin notification sent.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
