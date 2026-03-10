@@ -1,98 +1,1929 @@
-body {
-  background: linear-gradient(135deg, #e3f0ff 0%, #f8fafc 60%, #dbeafe 100%);
-  min-height: 100vh;
-}
+/* CSS for UserPage - Dark Theme Sidebar Layout */
 
-.userpage-bg-gradient {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #2b353f 0%, #f8fafc 60%, #dbeafe 100%);
-  display: flex;
-  flex-direction: column;
-}
-/* Create button for bank card */
-.userpage-create-btn {
-  display: block;
-  margin: 16px auto 0 auto;
-  padding: 6px 14px;
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  font-size: 1rem;
-  transition: background 0.2s;
-}
-.userpage-create-btn:hover {
-  background: #1251a3;
-}
-/* Removed outer container styles */
-
-.userpage-searchbar {
-  margin: 24px auto 32px auto;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.userpage-searchbar input,
-.userpage-searchbar select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-
-.userpage-bankgrid {
-  margin-top: 24px;
-  display: flex;
-  justify-content: center;
-}
-
-.userpage-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  width: 100%;
-  max-width: 900px;
-}
-
-/* No longer needed: .userpage-banklist ul */
-
-.userpage-bankcard {
-  padding: 18px 12px;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  background: #fafbfc;
+/* Loading state styles */
+.loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 180px;
-  min-width: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: box-shadow 0.2s;
-}
-.userpage-bankcard:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+  background: #1a1a2e;
 }
 
-.userpage-bankcard img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #2c2c54;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  font-size: 16px;
+  color: #e0e6ed;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Main Dashboard Container */
+.user-dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  box-sizing: border-box;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #2c2c54;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid #40407a;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.sidebar-header {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid #40407a;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.logout-btn-sidebar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn-sidebar:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.user-avatar-sidebar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.user-info-sidebar h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-info-sidebar p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  color: #e0e6ed;
+  border-left: 3px solid transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.sidebar-item.active {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.1) 100%);
+  color: #667eea;
+  border-left-color: #667eea;
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-label {
+  flex: 1;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background: transparent;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Content Section Styles */
+.content-section {
+  background: #2c2c54;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+  border: 1px solid #40407a;
+  min-height: calc(100vh - 8rem);
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e0e6ed;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #40407a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Profile Content Styles */
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #40407a 0%, #2c2c54 100%);
   border-radius: 8px;
-  background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #40407a;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.profile-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-info p {
+  margin: 0;
+  color: #9ca3af;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  padding: 1rem;
+  background: #40407a;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #9ca3af;
+  min-width: 120px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.detail-value {
+  color: #e0e6ed;
+  flex: 1;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.action-btn.secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.action-btn.secondary:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.action-btn.logout {
+  background: linear-gradient(135deg, #af4040 0%, #d95161 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-btn.logout:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* My Accounts Content Styles */
+.accounts-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #40407a 0%, #2c2c54 100%);
+  border-radius: 12px;
+  border: 1px solid #40407a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.refresh-btn {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #218838 0%, #1abc9c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.refresh-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-container label {
+  font-weight: 600;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #40407a;
+  border-radius: 8px;
+  background: #2c2c54;
+  color: #e0e6ed;
+  cursor: pointer;
+  font-weight: 500;
+  transition: border-color 0.3s ease;
+  min-width: 120px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.no-accounts {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #9ca3af;
+  background: linear-gradient(135deg, #40407a 0%, #2c2c54 100%);
+  border-radius: 12px;
+  border: 2px dashed #524c84;
+}
+
+.no-accounts-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.no-accounts p {
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 1200px) {
+  .accounts-grid {
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .accounts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accounts-grid {
+    gap: 0.75rem;
+  }
+}
+
+.account-card {
+  background: #40407a;
+  border: 1px solid #524c84;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: #667eea;
+}
+
+.account-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.account-card:hover::before {
+  opacity: 1;
+}
+
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.account-header h4 {
+  margin: 0;
+  color: #e0e6ed;
+  font-size: 1.25rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.status-badge.pending {
+  background: #ffd60a;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.status-badge.approved {
+  background: #52b788;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.status-badge.rejected {
+  background: #e63946;
+  color: #ffffff;
+}
+
+.account-details {
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.account-details p {
+  margin: 0.75rem 0;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.account-details p strong {
+  color: #e0e6ed;
+  font-weight: 600;
+}
+
+.view-details-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.view-details-btn:hover {
+  background: #5a6fd8;
+}
+
+/* Create Account Content Styles */
+.create-account-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.create-account-info h3 {
+  color: #e0e6ed;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.create-account-info p {
+  color: #9ca3af;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.create-account-info ul {
+  text-align: left;
+  color: #9ca3af;
+  line-height: 1.8;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.create-account-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-account-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* Contact Us Content Styles */
+.contact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-height: calc(100vh - 16rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.contact-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #40407a 0%, #2c2c54 100%);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 1rem;
+  border: 2px solid #524c84;
+}
+
+.contact-hero-text h3 {
+  color: #e0e6ed;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-hero-text p {
+  color: #9ca3af;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 500px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-hero-icon {
+  font-size: 4rem;
+  color: #667eea;
+  opacity: 0.8;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.contact-card {
+  background: linear-gradient(135deg, #40407a 0%, #2c2c54 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  border: 2px solid #524c84;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  border-color: #667eea;
+}
+
+.contact-card.primary {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.contact-card.primary .contact-card-icon {
+  color: white;
+}
+
+.contact-card.primary .contact-card-content h4 {
+  color: white;
+}
+
+.contact-card.primary .contact-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-card.primary .contact-detail {
+  color: white;
+  font-weight: 700;
+}
+
+.contact-card.primary .response-time {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.contact-card-icon {
+  font-size: 2.5rem;
+  color: #667eea;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.contact-card-content h4 {
+  color: #e0e6ed;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-description {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-detail {
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  word-break: break-all;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.response-time {
+  display: inline-block;
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-tips {
+  background: #40407a;
+  border-radius: 12px;
+  padding: 2rem;
+  border-left: 4px solid #667eea;
+}
+
+.contact-tips h4 {
+  color: #e0e6ed;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-tips ul {
+  color: #9ca3af;
+  line-height: 1.7;
+  margin: 0;
+  padding-left: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.contact-tips li {
+  margin-bottom: 0.75rem;
+}
+
+.contact-tips li:last-child {
+  margin-bottom: 0;
+}
+
+/* FAQ Content Styles */
+.faq-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  max-height: calc(100vh - 16rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #40407a;
+}
+
+/* Custom scrollbar for webkit browsers */
+.faq-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.faq-content::-webkit-scrollbar-track {
+  background: #40407a;
+  border-radius: 3px;
+}
+
+.faq-content::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 3px;
+}
+
+.faq-content::-webkit-scrollbar-thumb:hover {
+  background: #5a6fd8;
+}
+
+.faq-item {
+  padding: 1.5rem;
+  background: #40407a;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.faq-item h4 {
+  color: #e0e6ed;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.faq-item p {
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #524c84;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex: 1;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-form {
+  padding: 2rem;
+  background: #40407a;
+}
+
+.modal-content {
+  padding: 2rem;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #40407a;
+  color: #e0e6ed;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #524c84;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  background: #2c2c54;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.message.success {
+  background-color: #19543e;
+  color: #68d391;
+  border: 1px solid #2f855a;
+}
+
+.message.error {
+  background-color: #742a2a;
+  color: #fc8181;
+  border: 1px solid #e53e3e;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal detail styles for account details */
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #524c84;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.detail-colon {
+  margin: 0 0.5rem;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: #e0e6ed;
+  flex: 1;
+  word-break: break-word;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 250px;
+    min-width: 250px;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-dashboard-container {
+    flex-direction: column;
+    min-height: auto;
+  }
+  
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid #524c84;
+  }
+  
+  .sidebar-header {
+    padding: 1rem 1.5rem;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  
+  .logout-btn-sidebar {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-left: auto;
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    overflow-x: auto;
+    padding: 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .sidebar-item {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+    min-width: 140px;
+  }
+  
+  .main-content {
+    padding: 1rem;
+    height: auto;
+  }
+  
+  .content-section {
+    min-height: auto;
+    padding: 1.5rem;
+  }
+  
+  .accounts-grid {
+    gap: 1rem;
+  }
+  
+  .account-card {
+    margin-bottom: 0.5rem;
+  }
+  
+  .contact-content {
+    gap: 1.25rem;
+    max-height: calc(100vh - 12rem);
+  }
+  
+  .contact-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+    gap: 1.5rem;
+  }
+  
+  .contact-hero-text h3 {
+    font-size: 1.5rem;
+  }
+  
+  .contact-hero-icon {
+    font-size: 3rem;
+  }
+  
+  .contact-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  
+  .contact-card {
+    padding: 1.5rem;
+  }
+  
+  .contact-tips {
+    padding: 1.5rem;
+  }
+  
+  .faq-content {
+    gap: 1rem;
+    max-height: calc(100vh - 12rem);
+  }
+  
+  .faq-item {
+    padding: 1rem;
+  }
+  
+  .faq-item h4 {
+    font-size: 1rem;
+  }
+  
+  .accounts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .contact-methods {
+    margin-top: 1.5rem;
+  }
+  
+  .modal-container {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .profile-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+  
+  .accounts-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .filter-container {
+    justify-content: center;
+  }
+  
+  .refresh-btn {
+    align-self: center;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+  
+  .content-section {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .faq-content {
+    gap: 0.75rem;
+    max-height: calc(100vh - 10rem);
+  }
+  
+  .contact-content {
+    gap: 1rem;
+    max-height: calc(100vh - 10rem);
+  }
+  
+  .contact-hero {
+    padding: 1.5rem;
+  }
+  
+  .contact-hero-text h3 {
+    font-size: 1.3rem;
+  }
+  
+  .contact-hero-text p {
+    font-size: 1rem;
+  }
+  
+  .contact-hero-icon {
+    font-size: 2.5rem;
+  }
+  
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .contact-card {
+    padding: 1.25rem;
+  }
+  
+  .contact-card-content h4 {
+    font-size: 1.1rem;
+  }
+  
+  .contact-tips {
+    padding: 1.25rem;
+  }
+  
+  .contact-tips h4 {
+    font-size: 1.1rem;
+  }
+  
+  .faq-item {
+    padding: 0.75rem;
+  }
+  
+  .faq-item h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .faq-item p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .sidebar-header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .logout-btn-sidebar {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.4rem;
+  }
+  
+  .user-info-sidebar h3 {
+    font-size: 1.1rem;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .contact-info h3 {
+    font-size: 1.8rem;
+  }
+  
+  .contact-method {
+    padding: 1.75rem;
+  }
+  
+  .profile-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.user-subtitle {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e6ed;
+  word-wrap: break-word;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.detail-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+
+.edit-button {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  flex: 1;
+  max-width: 150px;
+}
+
+.edit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.password-button {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+  flex: 1;
+  max-width: 150px;
+}
+
+.password-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.4);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #524c84;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background-color: red;
+}
+
+.modal-form {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #e0e6ed;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #524c84;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #2c2c54;
+  box-sizing: border-box;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #40407a;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.message {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.message.success {
+  background: #19543e;
+  color: #68d391;
+  border: 1px solid #2f855a;
+}
+
+.message.error {
+  background: #742a2a;
+  color: #fc8181;
+  border: 1px solid #e53e3e;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.cancel-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cancel-button:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-section {
+  display: flex;
+  align-items: center;
+}
+
+.create-account-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.create-account-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.create-account-button:hover::before {
+  left: 100%;
+}
+
+.create-account-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.create-account-button:active {
+  transform: translateY(0);
+}
+
+.accounts-container {
+  flex: 1;
+  padding: 20px;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.accounts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex: none;
+}
+
+.accounts-header h2 {
+  margin: 0;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* Additional responsive improvements for accounts */
+@media (max-width: 600px) {
+  .accounts-controls {
+    padding: 0.75rem;
+  }
+  
+  .account-card {
+    padding: 1rem;
+    min-height: auto;
+  }
+  
+  .account-header h4 {
+    font-size: 1.1rem;
+  }
+  
+  .account-details p {
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+  }
+  
+  .view-details-btn {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .no-accounts {
+    padding: 2rem 1rem;
+  }
+  
+  .no-accounts-icon {
+    font-size: 3rem;
+  }
+  
+  /* Contact Us mobile improvements */
+  .contact-info h3 {
+    font-size: 1.7rem;
+  }
+  
+  .contact-info p {
+    font-size: 1rem;
+    padding: 0 0.5rem;
+  }
+  
+  .contact-method {
+    padding: 2rem 1.5rem;
+  }
+  
+  .contact-method h4 {
+    font-size: 1.3rem;
+  }
+  
+  .contact-method p {
+    font-size: 0.95rem;
+  }
+  
+  .contact-method strong {
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accounts-controls {
+    margin-bottom: 1rem;
+  }
+  
+  .filter-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .filter-container label {
+    font-size: 0.85rem;
+  }
+  
+  .filter-select {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .refresh-btn {
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  /* Contact Us small mobile improvements */
+  .contact-info h3 {
+    font-size: 1.5rem;
+  }
+  
+  .contact-info h3::after {
+    width: 40px;
+    height: 2px;
+  }
+  
+  .contact-info p {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+  }
+  
+  .contact-content {
+    gap: 1.5rem;
+  }
+  
+  .contact-method {
+    padding: 1.5rem 1rem;
+  }
+  
+  .contact-method h4 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .contact-method p {
+    font-size: 0.9rem;
+    margin: 0.75rem 0;
+  }
+  
+  .contact-method strong {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    display: block;
+    text-align: center;
+  }
+}
+
+.status-filter label {
+  font-weight: 600;
+  color: #e0e6ed;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #524c84;
+  border-radius: 8px;
+  background: #2c2c54;
+  color: #e0e6ed;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filter-select:hover {
+  border-color: #667eea;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.no-accounts {
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8c;
+  font-size: 1.1rem;
+  background: #ecf0f1;
+  border-radius: 12px;
+  border: 2px dashed #bdc3c7;
+}
+
+.accounts-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(100vh - 300px);
+}
+
+.accounts-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: scroll;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f0f0f0;
+}
+
+.accounts-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.accounts-content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.accounts-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 6px;
+  border: 2px solid #f0f0f0;
+  min-height: 40px;
+}
+
+
+.no-accounts-icon {
+  font-size: 48px;
+  color: #e74c3c;
   margin-bottom: 10px;
 }
-
-.userpage-bankcard strong {
-  font-size: 1.1rem;
-  color: #222;
+.modal-content {
+  
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #e0e6ed;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.userpage-bankcard span {
-  font-size: 0.98rem;
-  color: #555;
+.detail-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #524c84;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #e0e6ed;
+  width: 30%;
+  text-align: left;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.detail-value {
+  font-weight: 400;
+  color: #e0e6ed;
+  width: 65%;
+  text-align: left;
+  word-break: break-word;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.detail-colon {
+  width: 10px;
+  text-align: center;
+}
+
+
+/* Responsive for smaller screens */
+@media (max-width: 600px) {
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-label,
+  .detail-value {
+    width: 100%;
+    text-align: left;
+  }
+
+  .detail-value {
+    margin-top: 6px;
+  }
 }

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useLocation } from 'react-router-dom';
-import './CreateAccount.css';
 
-import { createAccount } from '../api/createAccountApi';
+import { createAccount, getUserBankAccounts } from '../api/accountApi';
+import { validateGmail, validateFullName, validateMobile, getErrorMessage } from '../utils/validation';
+
+import './CreateAccount.css';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -22,10 +24,10 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Aadhaar Card', 'PAN Card', 'Voter ID', 'Passport', 'Driving License'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
-    { label: 'Initial Deposit (INR)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+  // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['SAVINGS', 'CURRENT', 'SALARY', 'FIXED_DEPOSIT'] },
+  { label: 'Initial Deposit (INR)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
   USA: [
     { label: 'Full Name', name: 'fullName', type: 'text', required: true },
@@ -36,10 +38,10 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'State ID', 'Social Security Card'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
-    { label: 'Initial Deposit (USD)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+    // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['CHECKING', 'SAVINGS', 'MONEY_MARKET', 'CERTIFICATE_OF_DEPOSIT'] },
+  { label: 'Initial Deposit (USD)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
   UK: [
     { label: 'Full Name', name: 'fullName', type: 'text', required: true },
@@ -50,20 +52,76 @@ const countryFields = {
     { label: 'Gender', name: 'gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
     { label: 'Occupation', name: 'occupation', type: 'text', required: false },
     { label: 'Address', name: 'address', type: 'textarea', required: true },
-    { label: 'ID Proof Type', name: 'idProofType', type: 'select', required: true, options: ['Passport', 'Driving License', 'National ID Card', 'Residence Permit'] },
-    { label: 'Photo ID Upload', name: 'photoId', type: 'file', required: true },
-    { label: 'Initial Deposit (GBP)', name: 'deposit', type: 'number', required: true },
-    { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
+    // ID Proof Type field removed
+  { label: 'Account Type', name: 'accountType', type: 'select', required: true, options: ['CURRENT', 'SAVINGS', 'ISA', 'FIXED_TERM'] },
+  { label: 'Initial Deposit (GBP)', name: 'deposit', type: 'number', required: true },
+  { label: 'Consent', name: 'consent', type: 'checkbox', required: true, labelAfter: true, labelText: 'I agree to the terms and conditions.' },
   ],
 };
 
 const CreateAccount = () => {
   const query = useQuery();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+
+  const userId = location.state?.userId;
   const bankName = query.get('bank');
+  const branch = query.get('branch');
   const country = query.get('country') || 'India';
+  const code = query.get('code') || '';
   const fields = countryFields[country] || countryFields['India'];
 
   const [formStatus, setFormStatus] = useState({ loading: false, success: null, error: null });
+  const [existingAccountData, setExistingAccountData] = useState(null);
+  const [isLoadingAccountData, setIsLoadingAccountData] = useState(false);
+
+  // Define which fields should be pre-filled and disabled for existing bank account holders
+  const unchangeableFields = [
+    'fullName', 'dob', 'gender', 'aadhaar', 'pan', 'ssn', 'nin', 'address'
+  ];
+
+  // Fetch existing bank account data if userId is available
+  useEffect(() => {
+    const fetchBankAccountData = async () => {
+      if (!userId) return;
+      
+      setIsLoadingAccountData(true);
+      try {
+        const bankAccounts = await getUserBankAccounts(userId);
+        
+        // If user has existing bank accounts, use the first one for pre-filling
+        if (bankAccounts && bankAccounts.length > 0) {
+          const firstAccount = bankAccounts[0];
+          setExistingAccountData(firstAccount);
+
+          
+          // Show alert about pre-filled data
+         
+        }
+      } catch (error) {
+        console.error('Failed to load bank account data:', error);
+        // Don't show error for this - user might be creating their first account
+      } finally {
+        setIsLoadingAccountData(false);
+      }
+    };
+
+    fetchBankAccountData();
+  }, [userId]);
+
+  // Helper function to check if field should be disabled
+  const isFieldDisabled = (fieldName) => {
+    return existingAccountData && unchangeableFields.includes(fieldName);
+  };
+
+  // Helper function to get pre-filled value from existing bank account
+  const getPreFilledValue = (fieldName) => {
+    if (!existingAccountData) return '';
+    
+    // Direct mapping - bank account data should have same field names as form
+    return existingAccountData[fieldName] || '';
+  };
 
   // Group fields by logical sections
   const groups = [
@@ -77,11 +135,11 @@ const CreateAccount = () => {
     },
     {
       title: 'Identification',
-      names: ['aadhaar', 'pan', 'ssn', 'nin', 'photoId'],
+      names: ['aadhaar', 'pan', 'ssn', 'nin'],
     },
     {
       title: 'Account Details',
-      names: ['deposit', 'consent'],
+      names: ['deposit', 'consent', 'accountType'],
     },
   ];
 
@@ -94,40 +152,106 @@ const CreateAccount = () => {
     e.preventDefault();
     setFormStatus({ loading: true, success: null, error: null });
     const form = e.target;
-    const formData = new FormData();
-    // Add bank and country info
-    formData.append('bank', bankName || '');
-    formData.append('country', country);
+    const data = {};
+  // Add bank info
+  data.bank = bankName || '';
+  data.branch = branch || '';
+  // Set status to PENDING
+  data.accountNumber = '';
+  data.ifscCode = code;
+  data.status = 'PENDING';
+  // Add userId if available
+  if (userId) {
+    data.userId = userId;
+  }
     // Add all fields
     fields.forEach(field => {
-      if (field.type === 'file') {
-        if (form[field.name]?.files?.[0]) {
-          formData.append(field.name, form[field.name].files[0]);
-        }
-      } else if (field.type === 'checkbox') {
-        formData.append(field.name, form[field.name]?.checked ? 'true' : 'false');
+      if (field.type === 'checkbox') {
+        data[field.name] = form[field.name]?.checked ? true : false;
       } else {
-        formData.append(field.name, form[field.name]?.value || '');
+        data[field.name] = form[field.name]?.value || '';
       }
     });
+
+    // Validate critical fields before submission
     try {
-      //await createAccount(formData);
+      // Validate full name field
+      if (data.fullName) {
+        const nameValidation = validateFullName(data.fullName);
+        if (!nameValidation.isValid) {
+          throw new Error(nameValidation.message);
+        }
+      }
+
+      // Validate email field
+      if (data.email) {
+        const emailValidation = validateGmail(data.email);
+        if (!emailValidation.isValid) {
+          throw new Error(emailValidation.message);
+        }
+      }
+
+      // Validate mobile/phone number
+      if (data.mobile) {
+        const mobileValidation = validateMobile(data.mobile);
+        if (!mobileValidation.isValid) {
+          throw new Error(mobileValidation.message);
+        }
+      }
+      if (data.phone) {
+        const phoneValidation = validateMobile(data.phone);
+        if (!phoneValidation.isValid) {
+          throw new Error(phoneValidation.message);
+        }
+      }
+
+      await createAccount(data, country);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
+      
+      // Navigate after showing success message for 3 seconds
+      setTimeout(() => {
+        navigate('/userpage');
+      }, 3000);
     } catch (err) {
-      setFormStatus({ loading: false, success: null, error: err?.response?.data?.message || 'Failed to create account.' });
+      const errorMessage = err.message || 'An unexpected error occurred';
+      console.log(errorMessage)
+      setFormStatus({ loading: false, success: null, error: errorMessage });
+      
+      // Navigate after showing error message for 3 seconds  
+      setTimeout(() => {
+        navigate('/userpage');
+      }, 3000);
     }
   };
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    // Removed isAuthenticated check as it is undefined
+  }, [navigate]);
 
   return (
     <>
       <Header />
-      <h2 className="createaccount-title" style={{marginTop: 40}}>Application For Account Creation</h2>
+      <h2 className="createaccount-title" style={{marginTop: 40}}>
+        {existingAccountData ? 'Create Additional Bank Account' : 'Application For Account Creation'}
+      </h2>
       <div className="createaccount-info-line">
-        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong>
+        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong> &nbsp; | &nbsp; IFSC Code: <strong>{code}</strong>
+        {existingAccountData && (
+          <span style={{ marginLeft: '20px', color: '#10b981', fontWeight: '500' }}>
+            ✓ Existing account holder - Personal details were pre-filled 
+          </span>
+        )}
       </div>
-      <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit} encType="multipart/form-data">
-        {groups.map((group, idx) => {
+      
+      {isLoadingAccountData ? (
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+          <div>Loading your account information...</div>
+        </div>
+      ) : (
+        <form className="createaccount-form" style={{width: '100%', maxWidth: 900, margin: '32px auto'}} onSubmit={handleSubmit}>
+          {groups.map((group, idx) => {
           const groupFields = getFieldsForGroup(group.names);
           if (groupFields.length === 0) return null;
           return (
@@ -136,10 +260,22 @@ const CreateAccount = () => {
               <div className="createaccount-form-grid">
                 {groupFields.map((field) => {
                   if (field.type === 'select') {
+                    const isDisabled = isFieldDisabled(field.name);
+                    const preFilledValue = getPreFilledValue(field.name);
                     return (
                       <div className="createaccount-form-group" key={field.name}>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        <select id={field.name} name={field.name} required={field.required}>
+                        <label htmlFor={field.name}>
+                          {field.label}
+                          {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                        </label>
+                        <select 
+                          id={field.name} 
+                          name={field.name} 
+                          required={field.required}
+                          disabled={isDisabled}
+                          defaultValue={preFilledValue}
+                          style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
+                        >
                           <option value="">Select</option>
                           {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                         </select>
@@ -147,10 +283,23 @@ const CreateAccount = () => {
                     );
                   }
                   if (field.type === 'textarea') {
+                    const isDisabled = isFieldDisabled(field.name);
+                    const preFilledValue = getPreFilledValue(field.name);
                     return (
                       <div className="createaccount-form-group" key={field.name} style={{ gridColumn: '1 / span 2' }}>
-                        <label htmlFor={field.name}>{field.label}</label>
-                        <textarea id={field.name} name={field.name} required={field.required} rows={3} />
+                        <label htmlFor={field.name}>
+                          {field.label}
+                          {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                        </label>
+                        <textarea 
+                          id={field.name} 
+                          name={field.name} 
+                          required={field.required} 
+                          rows={3}
+                          disabled={isDisabled}
+                          defaultValue={preFilledValue}
+                          style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
+                        />
                       </div>
                     );
                   }
@@ -162,14 +311,22 @@ const CreateAccount = () => {
                       </div>
                     );
                   }
+                  const isDisabled = isFieldDisabled(field.name);
+                  const preFilledValue = getPreFilledValue(field.name);
                   return (
                     <div className="createaccount-form-group" key={field.name}>
-                      <label htmlFor={field.name}>{field.label}</label>
+                      <label htmlFor={field.name}>
+                        {field.label}
+                        {isDisabled && <span style={{ color: '#10b981', fontSize: '0.8em' }}> (Pre-filled)</span>}
+                      </label>
                       <input
                         type={field.type}
                         id={field.name}
                         name={field.name}
                         required={field.required}
+                        disabled={isDisabled}
+                        defaultValue={preFilledValue}
+                        style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
                       />
                     </div>
                   );
@@ -184,7 +341,8 @@ const CreateAccount = () => {
         </button>
         {formStatus.success && <div className="createaccount-success-msg">{formStatus.success}</div>}
         {formStatus.error && <div className="createaccount-error-msg">{formStatus.error}</div>}
-      </form>
+        </form>
+      )}
       <Footer />
     </>
   );

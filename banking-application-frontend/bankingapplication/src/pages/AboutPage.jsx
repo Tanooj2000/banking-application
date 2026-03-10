@@ -10,7 +10,7 @@ const AboutPage = () => {
       <div className="about-bg-gradient">
         <div className="about-container">
           <div className="about-hero">
-            <h1 className="about-title">About AllBanksOne</h1>
+            <h1 className="about-title">About InterBankHub</h1>
             <p className="about-subtitle">Your One-Stop Solution for Modern Banking</p>
           </div>
           <div className="about-content">

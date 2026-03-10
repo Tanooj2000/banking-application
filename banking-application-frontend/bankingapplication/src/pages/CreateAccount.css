@@ -168,6 +168,27 @@
   transform: translateY(-2px) scale(1.04);
 }
 
+/* Success and error messages */
+.createaccount-success-msg {
+  color: #10b981; /* Green color for success */
+  background-color: #f0fdf4; /* Light green background */
+  border: 1px solid #10b981; /* Green border */
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.createaccount-error-msg {
+  color: #ef4444; /* Red color for error */
+  background-color: #fef2f2; /* Light red background */
+  border: 1px solid #ef4444; /* Red border */
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  text-align: center;
+}
+
 @media (max-width: 700px) {
   .createaccount-form-grid {
     grid-template-columns: 1fr;
