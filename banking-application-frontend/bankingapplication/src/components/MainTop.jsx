@@ -1,37 +1,73 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './MainTop.css';
-import { getFormattedDateTime } from '../api/timeApi';
 
 const MainTop = () => {
-  const dateString = getFormattedDateTime();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [userType, setUserType] = useState(null);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('userToken');
+    const type = sessionStorage.getItem('userType');
+    const adminData = sessionStorage.getItem('adminData');
+    const loggedOut = sessionStorage.getItem('loggedOut');
+    const isAdminAuth = type === 'admin' && adminData && loggedOut !== 'true';
+    const isUserAuth = type === 'user' && token;
+    setIsSignedIn(isAdminAuth || isUserAuth);
+    setUserType(isAdminAuth ? 'admin' : isUserAuth ? 'user' : null);
+  }, []);
+
   const hour = new Date().getHours();
-  let greeting = 'Good Morning';
-  if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
-  else if (hour >= 17 && hour < 24) greeting = 'Good Evening';
+  let greeting = 'Good morning';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  else if (hour >= 17) greeting = 'Good evening';
+
+  const dashboardPath = userType === 'admin' ? '/adminpage' : '/userpage';
 
   return (
-    <div className="main-top">
-      <div className="main-top-left">
-        <div className="main-top-welcome">{greeting}! Welcome to InterBankHub</div>
-        <div className="main-top-sub">We make your banking easy and safety</div>
-        <div className="main-top-keywords">
-          <span className="keyword-box">EASY</span>
-          <span className="keyword-box">SECURE</span>
-          <span className="keyword-box">SAFETY</span>
+    <section className="hero" aria-label="Welcome section">
+      {/* Ambient animated gradient */}
+      <div className="hero__ambient" aria-hidden="true" />
+
+      <div className="hero__content">
+        <p className="hero__eyebrow">{greeting} &nbsp;·&nbsp; InterBankHub</p>
+
+        <h1 className="hero__headline">
+          Capital managed with<br />complete <em>confidence.</em>
+        </h1>
+
+        <p className="hero__sub">
+          Unified access across every account you hold.
+          Precision controls. Zero compromise.
+        </p>
+
+        <p className="hero__tagline">
+          Where precision meets discretion.
+        </p>
+
+        <div className="hero__cta">
+          {isSignedIn ? (
+            <Link to={dashboardPath} className="hero__cta-primary">
+              <span>Go to my Dashboard</span>
+            </Link>
+          ) : (
+            <>
+              <Link to="/signin" className="hero__cta-primary">
+                <span>Sign In</span>
+              </Link>
+              <Link to="/signup" className="hero__cta-secondary">
+                <span>Create Account</span>
+              </Link>
+            </>
+          )}
         </div>
       </div>
-      <div className="main-top-right">
-        <span className="main-top-text">{dateString}</span>
+
+      {/* Breathing scroll indicator */}
+      <div className="hero__scroll-hint" aria-hidden="true">
+        <span className="hero__scroll-line" />
       </div>
-      <div className="float-bubbles">
-        <span className="float-bubble b1"></span>
-        <span className="float-bubble b2"></span>
-        <span className="float-bubble b3"></span>
-        <span className="float-bubble b4"></span>
-        <span className="float-bubble b5"></span>
-        <span className="float-bubble b6"></span>
-      </div>
-    </div>
+    </section>
   );
 };
 
