@@ -1,27 +1,7 @@
 // Global Authentication Guard
 export const AuthGuard = {
-  // Check if user is authenticated with JWT token
+  // Check if user is authenticated
   isAuthenticated: () => {
-    const token = localStorage.getItem('authToken');
-    const currentUser = localStorage.getItem('currentUser');
-    
-    if (!token || !currentUser) {
-      return false;
-    }
-    
-    // Optional: Check if token is expired (requires JWT parsing or backend validation)
-    // For now, we rely on backend 401/403 responses to handle expired tokens
-    try {
-      JSON.parse(currentUser); // Validate user data format
-      return true;
-    } catch (error) {
-      AuthGuard.logout();
-      return false;
-    }
-  },
-
-  // Check if user is admin (legacy admin session check)
-  isAdminAuthenticated: () => {
     const adminData = sessionStorage.getItem('adminData');
     const loggedOut = sessionStorage.getItem('loggedOut');
     
@@ -36,75 +16,19 @@ export const AuthGuard = {
       const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
       
       if (currentTime - admin.loginTime > sessionDuration) {
-        AuthGuard.logoutAdmin();
+        AuthGuard.logout();
         return false;
       }
       
       return true;
     } catch (error) {
-      AuthGuard.logoutAdmin();
+      AuthGuard.logout();
       return false;
     }
   },
 
-  // Get current user data
-  getCurrentUser: () => {
-    if (!AuthGuard.isAuthenticated()) {
-      return null;
-    }
-    
-    try {
-      return JSON.parse(localStorage.getItem('currentUser'));
-    } catch (error) {
-      AuthGuard.logout();
-      return null;
-    }
-  },
-
-  // Get JWT token
-  getToken: () => {
-    return localStorage.getItem('authToken');
-  },
-
-  // Get user type
-  getUserType: () => {
-    return localStorage.getItem('userType');
-  },
-
-  // JWT-based logout function
-  logout: async () => {
-    try {
-      // Call logout API to blacklist token
-      const { logoutUser } = await import('../api/userApi');
-      await logoutUser();
-    } catch (error) {
-      console.error('Logout API call failed:', error);
-    }
-    
-    // Clear localStorage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('userType');
-    
-    // Broadcast storage change
-    window.dispatchEvent(new Event('storage'));
-    
-    // Apply no-cache headers
-    AuthGuard.applyNoCacheHeaders();
-    
-    // Navigate to home
-    try {
-      if (window.history.pushState) {
-        window.history.pushState(null, '', '/');
-        window.history.replaceState(null, '', '/');
-      }
-      window.location.href = '/';
-    } catch (e) {
-      window.location.href = '/';
-    }
-  },
-  // Admin logout function (legacy)
-  logoutAdmin: () => {
+  // Global logout function
+  logout: () => {
     try {
       // Mark logged out first so any async/react re-render sees it immediately
       sessionStorage.setItem('loggedOut', 'true');
@@ -138,9 +62,21 @@ export const AuthGuard = {
     }
   },
 
-  // Legacy user logout - now delegates to main logout
+  // Harden user logout similarly to admin (separate to avoid over-clearing if needed later)
   logoutUser: () => {
-    AuthGuard.logout();
+    try {
+      // Do not set a persistent userLoggedOut flag so re-login is seamless
+      ['userToken','userType','userId','userLoggedOut'].forEach(k=>sessionStorage.removeItem(k));
+      ['userToken','userType','userId','userLoggedOut'].forEach(k=>localStorage.removeItem(k));
+      AuthGuard.applyNoCacheHeaders();
+      if (history.pushState) {
+        history.pushState(null, '', '/');
+        history.replaceState(null, '', '/');
+      }
+      window.location.href = '/';
+    } catch (e) {
+      window.location.href = '/';
+    }
   },
 
   // Get admin data
