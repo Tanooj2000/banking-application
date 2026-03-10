@@ -1,0 +1,1198 @@
+/* Homepage1.css - Professional Banking Homepage Styles */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+/* Global Styles */
+.homepage1 {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Animation Classes */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 120px 0 80px;
+  overflow: hidden;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0;
+  padding: 0 40px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.hero-content {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left;
+  height: 100%;
+  width: 50%;
+}
+
+.hero-text {
+  color: white;
+  z-index: 2;
+  max-width: 600px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  padding-left: 0;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  margin-bottom: 32px;
+  letter-spacing: -0.025em;
+  text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  position: relative;
+}
+
+.hero-subtitle {
+  font-size: 1.375rem;
+  font-weight: 400;
+  line-height: 1.65;
+  margin-bottom: 48px;
+  opacity: 0.95;
+  max-width: 540px;
+  text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero-cta {
+  margin-bottom: 48px;
+}
+
+.cta-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.cta-primary, .cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 36px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 1.125rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  letter-spacing: 0.025em;
+  text-shadow: none;
+}
+
+.cta-primary {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1a1a;
+  box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(251, 191, 36, 0.4);
+}
+
+.cta-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.cta-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.cta-primary:hover .cta-icon,
+.cta-secondary:hover .cta-icon {
+  transform: translateX(4px);
+}
+
+.trust-indicators {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.trust-icon {
+  font-size: 1.1rem;
+  color: #fbbf24;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 50px 0;
+  background: white;
+  position: relative;
+}
+
+/* Dual Slideshow Section */
+.dual-slideshow-section {
+  padding: 40px 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  overflow: hidden;
+}
+
+.dual-slideshow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.slideshow-container {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  background: white;
+}
+
+.slide-content {
+  position: relative;
+  overflow: hidden;
+  height: 250px;
+}
+
+.slides-wrapper {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+}
+
+.slide {
+  min-width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.compact-slide .slide-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.compact-slide .slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.85) 0%, rgba(55, 65, 81, 0.7) 100%);
+  z-index: 2;
+}
+
+.compact-text {
+  position: relative;
+  z-index: 3;
+  color: white;
+  padding: 0 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.slide-title-compact {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slide-description-compact {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  opacity: 0.95;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slide-features-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slide-feature-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slide-feature-compact .feature-check {
+  color: #10b981;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.compact-slide .slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.85) 0%, rgba(55, 65, 81, 0.7) 100%);
+}
+
+.compact-text {
+  position: relative;
+  z-index: 2;
+  color: white;
+  padding: 0 30px;
+  width: 100%;
+  text-align: center;
+}
+
+.slide-title-compact {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slide-description-compact {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  opacity: 0.95;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slide-features-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slide-feature-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slide-feature-compact .feature-check {
+  color: #10b981;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Bank Slideshow Specific Styles */
+.bank-slide {
+  min-width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: transparent;
+}
+
+.bank-slide-image {
+  width: 400px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bank-slide-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: none;
+}
+
+/* Slide Controls */
+.slide-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 3;
+}
+
+.slide-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #374151;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.slide-btn:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.slide-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: #fbbf24;
+  transform: scale(1.2);
+}
+
+.indicator:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Compact Slide Controls */
+.compact-controls {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 3;
+}
+
+.compact-controls .slide-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+
+}
+
+.compact-controls .indicator {
+  width: 6px;
+  height: 6px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  text-align: center;
+}
+
+.stat-card {
+  padding: 20px;
+}
+
+.stat-value {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.stat-label {
+  font-size: 1.125rem;
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* Features Section */
+.features-section {
+  padding: 60px 0;
+  background: #f8fafc;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  font-size: 1.375rem;
+  color: #6b7280;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+}
+
+.feature-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.feature-title {
+  font-size: 1.625rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+
+.feature-description {
+  color: #6b7280;
+  line-height: 1.7;
+  font-size: 1.0625rem;
+  font-weight: 400;
+}
+
+/* Benefits Section */
+.benefits-section {
+  padding: 60px 0;
+  background: white;
+}
+
+.benefits-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.benefits-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.benefits-subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-bottom: 48px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 0;
+  color: #374151;
+  font-weight: 500;
+  font-size: 1.0625rem;
+}
+
+.benefit-check {
+  color: #10b981;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.benefits-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.1875rem;
+  transition: all 0.3s ease;
+  letter-spacing: 0.025em;
+}
+
+.benefits-cta:hover {
+  color: #764ba2;
+}
+
+.benefits-cta:hover .cta-icon {
+  transform: translateX(4px);
+}
+
+/* Benefits Visual */
+.benefits-visual {
+  position: relative;
+  height: 500px;
+}
+
+.floating-card {
+  position: absolute;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  animation: float 6s ease-in-out infinite;
+}
+
+.card-1 {
+  top: 0;
+  left: 0;
+  width: 240px;
+  animation-delay: 0s;
+}
+
+.card-2 {
+  top: 120px;
+  right: 0;
+  width: 200px;
+  animation-delay: 2s;
+}
+
+.card-3 {
+  bottom: 0;
+  left: 50px;
+  width: 220px;
+  animation-delay: 4s;
+}
+
+.floating-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.floating-card .card-title {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.floating-card .card-icon {
+  color: #667eea;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.benefits-visual {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.card-icon {
+  color: #667eea;
+}
+
+.card-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.card-change {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.card-change.positive {
+  color: #10b981;
+}
+
+.transfer-info {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.transfer-to {
+  margin-bottom: 4px;
+}
+
+.transfer-amount {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.security-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #10b981;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.cta-subtitle {
+  font-size: 1.375rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 56px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-primary-large, .cta-secondary-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 44px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 1.1875rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.025em;
+}
+
+.cta-primary-large {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1a1a;
+  box-shadow: 0 15px 35px rgba(251, 191, 36, 0.3);
+}
+
+.cta-primary-large:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 25px 50px rgba(251, 191, 36, 0.4);
+}
+
+.cta-secondary-large {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.cta-secondary-large:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-container {
+    padding: 0 20px;
+  }
+
+  .hero-content {
+    width: 100%;
+    text-align: center;
+  }
+
+  .cta-group {
+    justify-content: center;
+  }
+
+  .trust-indicators {
+    justify-content: center;
+  }
+
+  .hero-bg-image {
+    object-position: center;
+  }
+
+  .hero-title {
+    font-size: 2.75rem;
+    margin-bottom: 24px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 2.25rem;
+  }
+
+  .benefits-title {
+    font-size: 2.25rem;
+  }
+
+  .cta-title {
+    font-size: 2.25rem;
+  }
+
+  .slide-title {
+    font-size: 2.25rem;
+    margin-bottom: 20px;
+  }
+
+  .slide-description {
+    font-size: 1.1875rem;
+  }
+
+  /* Slideshow responsive */
+  .dual-slideshow-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin: 0 20px;
+  }
+
+  .slideshow-container {
+    border-radius: 16px;
+  }
+
+  .slideshow-header {
+    padding: 25px 25px 15px;
+  }
+
+  .slideshow-title {
+    font-size: 1.5rem;
+  }
+
+  .slideshow-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .slide-content {
+    height: 200px;
+  }
+
+  .compact-text {
+    padding: 0 25px;
+  }
+
+  .slide-title-compact {
+    font-size: 1.25rem;
+  }
+
+  .slide-description-compact {
+    font-size: 0.9rem;
+  }
+
+  .bank-slide {
+    padding: 15px;
+  }
+
+  .bank-slide-image {
+    width: 320px;
+    height: 200px;
+  }
+
+  .bank-name {
+    font-size: 1.25rem;
+  }
+
+  .bank-description {
+    font-size: 0.85rem;
+  }
+
+  .benefits-content {
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+
+  .benefits-visual {
+    height: 400px;
+  }
+
+  .floating-card {
+    width: 180px !important;
+    padding: 20px;
+  }
+
+  .card-1 {
+    top: 0;
+    left: 20px;
+  }
+
+  .card-2 {
+    top: 100px;
+    right: 20px;
+  }
+
+  .card-3 {
+    bottom: 0;
+    left: 40px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-primary-large, .cta-secondary-large {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .trust-indicators {
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 100px 0 60px;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .benefits-title {
+    font-size: 2rem;
+  }
+
+  .cta-title {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.875rem;
+  }
+
+  .benefits-title {
+    font-size: 1.875rem;
+  }
+
+  .cta-title {
+    font-size: 1.875rem;
+  }
+
+  .stat-value {
+    font-size: 2.75rem;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .slide-title {
+    font-size: 1.875rem;
+  }
+
+  .slide-description {
+    font-size: 1.0625rem;
+  }
+
+  .cta-primary, .cta-secondary {
+    font-size: 1rem;
+    padding: 16px 30px;
+  }
+
+  .cta-primary-large, .cta-secondary-large {
+    font-size: 1rem;
+    padding: 18px 36px;
+  }
+
+  /* Slideshow mobile */
+  .dual-slideshow-grid {
+    margin: 0 10px;
+  }
+
+  .slide-content {
+    height: 180px;
+  }
+
+  .slideshow-header {
+    padding: 20px 20px 12px;
+  }
+
+  .slideshow-title {
+    font-size: 1.25rem;
+  }
+
+  .slideshow-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .compact-text {
+    padding: 0 20px;
+  }
+
+  .slide-title-compact {
+    font-size: 1.125rem;
+  }
+
+  .slide-description-compact {
+    font-size: 0.85rem;
+  }
+
+  .slide-feature-compact {
+    font-size: 0.8rem;
+  }
+
+  .bank-slide {
+    padding: 10px;
+  }
+
+  .bank-slide-image {
+    width: 260px;
+    height: 160px;
+  }
+
+  .bank-name {
+    font-size: 1.125rem;
+  }
+
+  .bank-description {
+    font-size: 0.8rem;
+  }
+
+  .bank-service {
+    font-size: 0.75rem;
+  }
+
+  .bank-cta {
+    padding: 10px 20px;
+    font-size: 0.8rem;
+  }
+
+  .compact-controls {
+    bottom: 15px;
+    right: 15px;
+    gap: 8px;
+  }
+
+  .compact-controls .slide-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .compact-controls .indicator {
+    width: 6px;
+    height: 6px;
+  }
+}

@@ -1,325 +1,563 @@
+﻿/* ============================================================
+   SIGN IN PAGE — Premium dark theme matching home page.
+   Playfair Display headlines. DM Mono labels/inputs.
+   Gold accent. Sharp geometry. Scroll-free centered layout.
+   ============================================================ */
 
-.signup-promo-card {
- 
-  padding: 2.2rem 2rem 2rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 340px;
-  margin: 0 0 5rem 0;
-  color: #fff;
-  text-align: center;
-}
-.signup-promo-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.7rem;
-  letter-spacing: 0.01em;
-}
-
-.signup-promo-sub {
-  font-size: 1.15rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #e3eafc;
-}
-.signup-promo-desc {
-  font-size: 1.05rem;
-  margin-bottom: 1.5rem;
-  color: #e3eafc;
-  opacity: 0.92;
-}
-.signup-promo-btn {
-  background: #fff;
-  color: #3949ab;
-  font-weight: 700;
-  font-size: 1.08rem;
-  border: none;
-  border-radius: 0.7rem;
-  padding: 0.7rem 2.2rem;
-  box-shadow: 0 2px 12px #23252622;
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-}
-.signup-promo-btn:hover {
-  background: #3949ab;
-  color: #fff;
-  box-shadow: 0 4px 24px #3949ab33;
-}
-
-
-/* Professional SignIn background */
+/* ---- Page wrapper ---- */
 .signin-bg-gradient {
-  min-height: 100vh;
-  background: linear-gradient(120deg, #384973 0%, #f5f7fa 100%);
+  min-height: 100dvh;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: calc(var(--nav-height) + 2rem) 1.5rem 3rem;
+  position: relative;
 }
 
+/* Ambient gold glow behind the card */
+.signin-bg-gradient::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 55% at 50% 44%,
+    rgba(201, 168, 76, 0.055) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- Card — split panel ---- */
 .signin-card {
-    display: flex;
-    width: 900px;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 980px;
+  min-height: 540px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: card-rise 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.signin-card-left {
-  flex: 1;
-    background: linear-gradient(to right, #362a6c, #4911c2);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 40px;
-    margin-left: 0.5rem;
-/* Ensuring it's always visible */
-  
-/* Entrance animation */
-animation: fadeFlash 3.5s ease-in-out forwards;
 
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-/* Flashing fade-in effect */
-@keyframes fadeFlash {
-  0% {
-    opacity: 0;
-    transform: translateX(-50px); /* Start slightly to the left */
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(0); /* Moves to original position */
-  }
-  75% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
+
+/* ---- Left panel — atmospheric brand ---- */
+.signin-card-left {
+  flex: 0 0 42%;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3.5rem 3rem;
+  position: relative;
+  overflow: hidden;
 }
-.signin-illustration {
-  width: 90%;
-  max-width: 340px;
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 16px #0003;
-  object-fit: cover;
+
+/* Gold radial bloom on left panel */
+.signin-card-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 70% at 20% 60%,
+    rgba(201, 168, 76, 0.08) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
 }
+
+/* Gold accent line on left edge */
+.signin-card-left::after {
+  content: '';
+  position: absolute;
+  top: 3.5rem;
+  bottom: 3.5rem;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--gold-dim), transparent);
+}
+
+.signup-promo-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 1.2rem;
+  max-width: 100%;
+  margin: 0;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+/* Eyebrow label */
+.signup-promo-card::before {
+  content: 'INTERBANKHUB';
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.26em;
+  color: var(--gold);
+  opacity: 0.7;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.signup-promo-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.signup-promo-sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0;
+  opacity: 0.85;
+}
+
+.signup-promo-desc {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  line-height: 1.68;
+  margin: 0;
+  max-width: 34ch;
+}
+
+.signup-promo-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.62rem 1.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.signup-promo-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-subtle);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.signup-promo-btn:hover {
+  border-color: var(--gold);
+}
+
+.signup-promo-btn:hover::before {
+  transform: scaleX(1);
+}
+
+.signup-promo-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Right panel — form ---- */
 .signin-card-right {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 2.5rem 2rem;
+  padding: 3.5rem 3rem;
   min-width: 0;
 }
+
 .signin-headline {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #232526;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 0.4rem;
 }
+
 .signin-subtitle {
-  font-size: 1.13rem;
-  color: #3949ab;
-  margin-bottom: 2.2rem;
-  opacity: 0.85;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 2.2rem;
 }
+
+/* ---- Role selector ---- */
 .signin-type-select-pro {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
-}
-.signin-type-btn-pro {
-  width: 260px;
-  padding: 1.1rem 0;
-  font-size: 1.18rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 0.8rem;
-  background: #3949ab;
-  color: #fff;
-  box-shadow: 0 2px 12px #23252622;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-  letter-spacing: 0.01em;
-}
-.signin-type-btn-pro.admin {
-  background: #232526;
-}
-.signin-type-btn-pro:hover {
-  background: #1a237e;
-  color: #90caf9;
-}
-.signin-btn-icon {
-  font-size: 1.3rem;
-  margin-right: 0.5rem;
-}
-.signin-btn-arrow {
-  font-size: 1.3rem;
-  margin-left: 0.5rem;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-/* Modal overlay for form */
-.signin-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(14, 42, 70, 0.8);
+.signin-type-btn-pro {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  box-sizing: border-box;
+  gap: 0.85rem;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1rem 1.4rem;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition:
+    color var(--transition),
+    border-color var(--transition);
 }
-.signin-modal-form {
-  background: #d8d2d2;
-  border-radius: 1.2rem;
-  box-shadow: 0 8px 40px #23252622;
-  padding: 2.2rem 2.5rem 2rem 2.5rem;
-  min-width: 380px;
-  max-width: 95vw;
+
+.signin-type-btn-pro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-subtle);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.signin-type-btn-pro:hover {
+  color: var(--gold);
+  border-color: var(--gold-border);
+}
+
+.signin-type-btn-pro:hover::before {
+  transform: scaleX(1);
+}
+
+.signin-btn-icon {
+  font-size: 1rem;
+  color: var(--gold);
+  opacity: 0.75;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.signin-btn-arrow {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.4;
+  position: relative;
+  z-index: 1;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.signin-type-btn-pro:hover .signin-btn-arrow {
+  opacity: 0.85;
+  transform: translateX(3px);
+}
+
+.signin-type-btn-pro span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Form overlay — now lives inside .signin-card-right as ternary else branch ---- */
+.signin-modal-overlay {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  animation: form-fade 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes form-fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.signin-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   position: relative;
-  animation: modalIn 0.25s cubic-bezier(.4,2,.6,1) both;
-  box-sizing: border-box;
 }
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(40px) scale(0.98); }
-  to { opacity: 1; transform: none; }
-}
+
 .signin-modal-form h2 {
-  text-align: center;
-  margin-bottom: 0.5rem;
-  font-size: 1.4rem;
-  color: #232526;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+  padding-left: 2.2rem;
 }
+
 .signin-modal-back {
   position: absolute;
-  top: 1.1rem;
-  left: 1.1rem;
+  top: 0.12rem;
+  left: 0;
   background: none;
   border: none;
-  color: #3949ab;
-  font-size: 1.3rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
   cursor: pointer;
-  padding: 0.2rem 0.5rem;
-  z-index: 2;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
 }
 
-/* Input group styling for modal */
-.signin-modal-form .input-group {
+.signin-modal-back:hover {
+  color: var(--gold);
+}
+
+/* ---- Shared form elements ---- */
+.input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
+  gap: 0.3rem;
 }
 
-/* Form input styling for modal */
-.signin-modal-form .form-input {
+.form-input {
   width: 100%;
-  padding: 1rem 1.25rem;
-  border: 2px solid #ddd;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-  background: white;
-  min-height: 48px;
-}
-
-.signin-modal-form .form-input:focus {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 300;
+  padding: 0.72rem 1rem;
   outline: none;
-  border-color: #3949ab;
-  box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.1);
+  border-radius: 0;
+  transition:
+    border-color var(--transition),
+    background var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-.signin-modal-form .form-input.error {
-  border-color: #e53e3e;
+.form-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
 }
 
-.signin-modal-form .error-message {
-  color: #e53e3e;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+.form-input:focus {
+  border-color: var(--gold);
+  background: var(--bg-surface-alt);
 }
 
-/* Submit button styling for modal */
-.signin-modal-form .submit-button {
+.form-input.error {
+  border-color: rgba(220, 50, 50, 0.6);
+}
+
+.error-message {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: rgba(220, 80, 80, 0.9);
+  margin-top: 0.1rem;
+}
+
+/* ---- Submit button (scoped to prevent global override from UserPage.css) ---- */
+.signin-card .submit-button {
+  position: relative;
   width: 100%;
-  padding: 1rem 1.25rem;
-  background: #3949ab;
-  color: white;
+  background: var(--gold);
+  color: var(--bg-primary);
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.88rem 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
   margin-top: 0.5rem;
-  min-height: 48px;
+  overflow: hidden;
+  border-radius: 0;
+  transition: color var(--transition);
 }
 
-.signin-modal-form .submit-button:hover {
-  background: #303f9f;
+.signin-card .submit-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.14);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.signin-modal-form .submit-button:disabled {
-  background: #ccc;
+.signin-card .submit-button:hover:not(:disabled)::before {
+  transform: scaleX(1);
+}
+
+.signin-card .submit-button:disabled,
+.signin-card .submit-button.loading {
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-.signin-modal-form .submit-button.loading {
-  background: #ccc;
-}
-
-@media (max-width: 1000px) {
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
   .signin-card {
     flex-direction: column;
-    width: 98vw;
-    min-height: 0;
-    border-radius: 1.2rem;
+    max-width: 480px;
+    min-height: auto;
   }
-  .signin-card-left, .signin-card-right {
-    width: 100%;
-    min-width: 0;
-    padding: 1.2rem 0.5rem;
+
+  .signin-card-left {
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 1.75rem;
+  }
+
+  .signin-card-left::after {
+    top: 0;
+    bottom: 0;
+    left: 2rem;
+    right: 2rem;
+    width: auto;
+    height: 1px;
+    top: auto;
+    bottom: 0;
+  }
+
+  .signin-card-right {
+    padding: 2.5rem 1.75rem;
+  }
+
+  .signup-promo-title {
+    font-size: 1.6rem;
   }
 }
 
 @media (max-width: 480px) {
-  .signin-modal-form {
-    min-width: 280px;
-    padding: 1.5rem 1.25rem;
-    margin: 1rem;
+  .signin-bg-gradient {
+    padding: calc(var(--nav-height) + 1rem) 1rem 2rem;
   }
-  
-  .signin-modal-form .form-input {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
-    min-height: 44px;
-  }
-  
-  .signin-modal-form .submit-button {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
-    min-height: 44px;
+
+  .signin-card-left,
+  .signin-card-right {
+    padding: 2rem 1.25rem;
   }
 }
 
-.signin-form {
-  margin-bottom: 18px;
-  color: #222;
+/* ---- Redirecting state ---- */
+.signin-redirect-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 4rem 2rem;
+}
+
+.signin-redirect-spinner {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spinner-turn 0.9s linear infinite;
+}
+
+@keyframes spinner-turn {
+  to { transform: rotate(360deg); }
+}
+
+.signin-redirect-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ---- Success / progress toast ---- */
+.signin-toast {
+  position: fixed;
+  top: calc(var(--nav-height) + 1rem);
+  right: 1.75rem;
+  z-index: 9999;
+  background: var(--bg-surface);
+  border: 1px solid var(--gold-border);
+  border-left: 2px solid var(--gold);
+  padding: 1.1rem 1.5rem;
+  min-width: 260px;
+  max-width: 340px;
+  box-shadow: var(--shadow-card);
+  animation: toast-slide 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes toast-slide {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.signin-toast__msg {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 0.85rem;
+}
+
+.signin-toast__bar {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.signin-toast__fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.signin-toast__phase {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.75;
+  margin: 0;
 }

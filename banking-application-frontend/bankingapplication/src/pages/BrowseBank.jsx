@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './BrowseBank.css';
 import { getAvailableCountries, fetchBanks } from '../api/bankApi';
+import { getUserBankAccounts } from '../api/accountApi';
 import Footer from '../components/Footer';
 import { AuthGuard } from '../utils/authGuard';
 
@@ -45,6 +46,8 @@ const BrowseBank = () => {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userBankAccounts, setUserBankAccounts] = useState([]); // User's existing bank accounts
+  const [loadingUserAccounts, setLoadingUserAccounts] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -53,6 +56,33 @@ const BrowseBank = () => {
   const userId = currentUser?.id || location.state?.userId;
 
   const cities = getUniqueCities(banks);
+
+  // Helper function to check if user already has account with this bank
+  const hasExistingAccount = (bankName, branch) => {
+    return userBankAccounts.some(account => 
+      account.bank === bankName && account.branch === branch
+    );
+  };
+
+  // Load user's existing bank accounts
+  useEffect(() => {
+    const loadUserBankAccounts = async () => {
+      if (!userId) return;
+      
+      setLoadingUserAccounts(true);
+      try {
+        const accounts = await getUserBankAccounts(userId);
+        setUserBankAccounts(accounts || []);
+      } catch (err) {
+        console.error('Failed to load user bank accounts:', err);
+        setUserBankAccounts([]);
+      } finally {
+        setLoadingUserAccounts(false);
+      }
+    };
+    
+    loadUserBankAccounts();
+  }, [userId]);
 
   // Load countries on component mount (synchronous now)
   useEffect(() => {
@@ -173,57 +203,69 @@ const BrowseBank = () => {
           </div>
         ) : (
           <div className="userpage-grid">
-            {filteredBanks.map((bank, idx) => (
-              <div
-                key={bank.id || idx}
-                className="userpage-bankcard"
-                onMouseEnter={() => setHoveredIdx(idx)}
-                onMouseLeave={() => setHoveredIdx(null)}
-              >
-                <div className="bank-card-header">
-                  <img
-                    src={getBankImage(bank.bankName)}
-                    alt={bank.bankName + ' logo'}
-                    className="bank-logo"
-                    onError={(e) => {
-                      // Simple fallback to default image if any loading fails
-                      if (e.target.src !== defaultBankImg) {
-                        e.target.src = defaultBankImg;
-                      }
-                    }}
-                  />
-                </div>
-                
-                <div className="bank-card-content">
-                  <h3 className="bank-name">{bank.bankName}</h3>
+            {filteredBanks.map((bank, idx) => {
+              const hasAccount = hasExistingAccount(bank.bankName, bank.branch);
+              
+              return (
+                <div
+                  key={bank.id || idx}
+                  className={`userpage-bankcard ${hasAccount ? 'has-existing-account' : ''}`}
+                  onMouseEnter={() => setHoveredIdx(idx)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  title={hasAccount ? 'You already have an account with this bank' : ''}
+                >
+                  <div className="bank-card-header">
+                    <img
+                      src={getBankImage(bank.bankName)}
+                      alt={bank.bankName + ' logo'}
+                      className="bank-logo"
+                      onError={(e) => {
+                        // Simple fallback to default image if any loading fails
+                        if (e.target.src !== defaultBankImg) {
+                          e.target.src = defaultBankImg;
+                        }
+                      }}
+                    />
+                    {hasAccount && (
+                      <div className="existing-account-badge">
+                        ✓ Account Exists
+                      </div>
+                    )}
+                  </div>
                   
-                  <div className="bank-details">
-                    <div className="bank-detail-item">
-                      <span className="detail-label">Branch:</span>
-                      <span className="detail-value">{bank.branch}</span>
-                    </div>
-                    <div className="bank-detail-item">
-                      <span className="detail-label">City:</span>
-                      <span className="detail-value">{bank.city}</span>
-                    </div>
-                    <div className="bank-detail-item">
-                      <span className="detail-label">Code:</span>
-                      <span className="detail-value">{bank.code}</span>
+                  <div className="bank-card-content">
+                    <h3 className="bank-name">{bank.bankName}</h3>
+                    
+                    <div className="bank-details">
+                      <div className="bank-detail-item">
+                        <span className="detail-label">Branch:</span>
+                        <span className="detail-value">{bank.branch}</span>
+                      </div>
+                      <div className="bank-detail-item">
+                        <span className="detail-label">City:</span>
+                        <span className="detail-value">{bank.city}</span>
+                      </div>
+                      <div className="bank-detail-item">
+                        <span className="detail-label">Code:</span>
+                        <span className="detail-value">{bank.code}</span>
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className="bank-card-footer">
+                    <button
+                      className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''} ${hasAccount ? 'disabled' : ''}`}
+                      onClick={() => !hasAccount && handleCreate(bank.bankName, bank.branch, bank.code)}
+                      disabled={hasAccount}
+                      title={hasAccount ? 'You already have an account with this bank' : ''}
+                    >
+                      <span className="btn-icon">{hasAccount ? '✓' : '+'}</span>
+                      {hasAccount ? 'Account Exists' : 'Create Account'}
+                    </button>
+                  </div>
                 </div>
-                
-                <div className="bank-card-footer">
-                  <button
-                    className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''}`}
-                    onClick={() => handleCreate(bank.bankName, bank.branch, bank.code)}
-                  >
-                    <span className="btn-icon">+</span>
-                    Create Account
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

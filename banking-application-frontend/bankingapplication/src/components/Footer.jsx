@@ -5,9 +5,9 @@ import './Footer.css';
 const Footer = () => (
   <footer className="footer">
     <div className="footer-main">
-      <small>&copy; 2025 Banking Application. All rights reserved.</small>
+      <small>&copy; {new Date().getFullYear()} InterBankHub. All rights reserved.</small>
       <div className="footer-contact">
-        <span>Contact us: </span>
+        <span>Support: </span>
         <a href="mailto:support@bankingapp.com">support@bankingapp.com</a>
         <span> | </span>
         <a href="tel:+18001234567">+1 800 123 4567</a>

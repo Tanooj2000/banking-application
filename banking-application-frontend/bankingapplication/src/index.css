@@ -1,0 +1,130 @@
+/* ============================================================
+   DESIGN TOKEN FOUNDATION — index.css
+   Two-color system: gold + white (dark) / gold + black (light).
+   Sharp borders. Playfair Display + DM Mono type system.
+   Theme switching: data-theme="light" on <html>.
+   ============================================================ */
+
+/* --- Dark Theme (default) --------------------------------- */
+:root {
+  /* Surfaces — keep exact dark navy */
+  --bg-primary:      #060b18;
+  --bg-secondary:    #0b1428;
+  --bg-surface:      #0e1a30;
+  --bg-surface-alt:  #0c1626;
+
+  /* Two-color text system: white + gold only */
+  --text-primary:    #FFFFFF;
+  --text-secondary:  #E8E3D8;
+  --text-muted:      #7A7060;
+  --text-inverse:    #060b18;
+
+  /* Gold accent — the only accent color */
+  --gold:            #C9A84C;
+  --gold-dim:        rgba(201, 168, 76, 0.40);
+  --gold-subtle:     rgba(201, 168, 76, 0.10);
+  --gold-border:     rgba(201, 168, 76, 0.22);
+  --gold-hover:      #D4B45A;
+
+  /* Borders — gold-tinted sharp lines */
+  --border:          rgba(201, 168, 76, 0.20);
+  --border-subtle:   rgba(201, 168, 76, 0.10);
+  --border-strong:   rgba(201, 168, 76, 0.45);
+
+  /* Status — keep green semantic only */
+  --green:           #22C55E;
+  --green-bg:        rgba(34, 197, 94, 0.08);
+  --green-border:    rgba(34, 197, 94, 0.25);
+
+  /* Nav */
+  --nav-height:      64px;
+  --nav-bg-solid:    rgba(6, 11, 24, 0.94);
+  --nav-blur:        blur(20px);
+
+  /* Shadows */
+  --shadow-card:     0 8px 48px rgba(0, 0, 0, 0.55);
+  --shadow-sm:       0 2px 16px rgba(0, 0, 0, 0.32);
+
+  /* Sharp geometry — no radius anywhere */
+  --radius-card:     0px;
+  --radius-pill:     0px;
+  --radius-sm:       0px;
+
+  /* Transitions */
+  --transition:      220ms ease;
+  --transition-slow: 650ms ease;
+
+  /* Type */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono:  'DM Mono', 'Courier New', monospace;
+  --font-body:  'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Hero gradient — dark navy range */
+  --hero-g1: #04080f;
+  --hero-g2: #090f22;
+  --hero-g3: #0b1530;
+  --hero-g4: #05091a;
+}
+
+/* --- Light Theme ------------------------------------------ */
+[data-theme="light"] {
+  /* Pure white surfaces */
+  --bg-primary:      #FFFFFF;
+  --bg-secondary:    #F7F5F0;
+  --bg-surface:      #FAFAF8;
+  --bg-surface-alt:  #F4F2EC;
+
+  /* Black text replacing white */
+  --text-primary:    #0A0805;
+  --text-secondary:  #3A3530;
+  --text-muted:      #8A8070;
+  --text-inverse:    #FFFFFF;
+
+  /* Gold darkened slightly for white bg legibility */
+  --gold:            #9A7820;
+  --gold-dim:        rgba(154, 120, 32, 0.35);
+  --gold-subtle:     rgba(154, 120, 32, 0.08);
+  --gold-border:     rgba(154, 120, 32, 0.20);
+  --gold-hover:      #A88828;
+
+  --border:          rgba(154, 120, 32, 0.18);
+  --border-subtle:   rgba(0, 0, 0, 0.08);
+  --border-strong:   rgba(154, 120, 32, 0.40);
+
+  --nav-bg-solid:    rgba(255, 255, 255, 0.96);
+  --shadow-card:     0 8px 40px rgba(0, 0, 0, 0.08);
+  --shadow-sm:       0 2px 12px rgba(0, 0, 0, 0.06);
+
+  --hero-g1: #F0EDE6;
+  --hero-g2: #F7F4EE;
+  --hero-g3: #EDE8DE;
+  --hero-g4: #F2EFE8;
+}
+
+/* --- Base Reset ------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--transition-slow),
+    color var(--transition-slow);
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
