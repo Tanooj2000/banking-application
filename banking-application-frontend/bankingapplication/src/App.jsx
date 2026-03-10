@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage.jsx'
 import AboutPage from './pages/AboutPage.jsx';
 import UserPage from './pages/UserPage.jsx';
 import { checkAuthOnPageLoad } from './utils/authGuard';
+import HomePage1 from './pages/HomePage1.jsx';
 function App() {
   // Check authentication on app load
   useEffect(() => {
@@ -19,7 +20,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage1 />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
