@@ -166,6 +166,7 @@
   justify-content: center;
   margin-bottom: 16px;
   width: 100%;
+  position: relative;
 }
 
 .bank-logo {
@@ -403,6 +404,53 @@
 .create-account-btn:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* Existing Account Styles */
+.userpage-bankcard.has-existing-account {
+  opacity: 0.85;
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #f0fdf4, #fefefe);
+}
+
+.existing-account-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #10b981;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  z-index: 2;
+}
+
+.create-account-btn.disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.create-account-btn.disabled:hover {
+  background: #e5e7eb;
+  color: #6b7280;
+  transform: none;
+  box-shadow: none;
+}
+
+.create-account-btn.disabled .btn-icon {
+  color: #10b981;
+}
+
+.userpage-bankcard.has-existing-account:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
 }
 
 /* Smooth animations */

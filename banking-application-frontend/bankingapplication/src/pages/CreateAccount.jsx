@@ -208,15 +208,20 @@ const CreateAccount = () => {
       await createAccount(data, country);
       setFormStatus({ loading: false, success: 'Account created successfully!', error: null });
       form.reset();
+      
+      // Navigate after showing success message for 3 seconds
       setTimeout(() => {
-
-      },2000
-    );
-      navigate('/userpage');
+        navigate('/userpage');
+      }, 3000);
     } catch (err) {
       const errorMessage = err.message || 'An unexpected error occurred';
+      console.log(errorMessage)
       setFormStatus({ loading: false, success: null, error: errorMessage });
-      navigate('/userpage');
+      
+      // Navigate after showing error message for 3 seconds  
+      setTimeout(() => {
+        navigate('/userpage');
+      }, 3000);
     }
   };
 

@@ -16,7 +16,7 @@ public class UsaAccountStrategy implements AccountCreationStrategy {
     private AccountRepository accountRepository;
 
     @Override
-    public void createAccount(Object request) {
+    public Account createAccount(Object request) {
         UsaAccountRequest req = (UsaAccountRequest) request;
 
         Account account = new Account();
@@ -38,7 +38,7 @@ public class UsaAccountStrategy implements AccountCreationStrategy {
         account.setAccountType(req.getAccountType());
         account.setStatus(req.getStatus());
 
-        accountRepository.save(account);
+        return accountRepository.save(account);
     }
 
     @Override

@@ -14,12 +14,14 @@ import com.example.admin_service.entity.Admin;
 import com.example.admin_service.entity.ApplicationStatus;
 import com.example.admin_service.repository.AdminRepository;
 
+
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public ResponseEntity<String> register(AdminRegisterRequest request) {
         if (adminRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -46,7 +48,15 @@ public class AdminService {
         admin.setCreatedDate(java.time.LocalDateTime.now());
         adminRepository.save(admin);
 
-        return ResponseEntity.ok("Admin registered. Awaiting root verification.");
+        // Send welcome notification email
+        emailService.sendWelcomeNotification(
+            admin.getEmail(),
+            admin.getUsername(),
+            admin.getBankname(),
+            admin.getCountry()
+        );
+
+        return ResponseEntity.ok("Admin registered successfully. Welcome email sent. Awaiting root verification.");
     }
 
     public ResponseEntity<AdminLoginResponse> login(AdminLoginRequest request) {
@@ -91,9 +101,17 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         admin.setVerifiedByRoot(true);
+        admin.setApplicationStatus(ApplicationStatus.APPROVED);
         adminRepository.save(admin);
 
-        return "Admin verified successfully.";
+        // Send account approval notification
+        emailService.sendAccountApprovalNotification(
+            admin.getEmail(),
+            admin.getUsername(),
+            admin.getBankname()
+        );
+
+        return "Admin verified successfully. Approval notification sent.";
     }
 
     // Update admin details
@@ -167,7 +185,14 @@ public class AdminService {
         admin.setApplicationStatus(ApplicationStatus.APPROVED);
         adminRepository.save(admin);
 
-        return ResponseEntity.ok("Admin application approved successfully.");
+        // Send approval notification email
+        emailService.sendAccountApprovalNotification(
+            admin.getEmail(),
+            admin.getUsername(),
+            admin.getBankname()
+        );
+
+        return ResponseEntity.ok("Admin application approved successfully. Notification email sent.");
     }
 
     // Reject admin application
@@ -195,11 +220,19 @@ public class AdminService {
         admin.setRejectionReason(request.getReason());
         adminRepository.save(admin);
 
+        // Send rejection notification email
+        emailService.sendAccountRejectionNotification(
+            admin.getEmail(),
+            admin.getUsername(),
+            admin.getBankname(),
+            request.getReason()
+        );
+
         String reason = request.getReason() != null && !request.getReason().isEmpty() 
                 ? " Reason: " + request.getReason() 
                 : "";
         
-        return ResponseEntity.ok("Admin application rejected successfully." + reason);
+        return ResponseEntity.ok("Admin application rejected successfully. Notification email sent." + reason);
     }
 
     // Check application status by username or email
@@ -220,6 +253,32 @@ public class AdminService {
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
             response.put("rejectionReason", admin.getRejectionReason());
         }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    // Get admin emails by bank name
+    public ResponseEntity<?> getAdminEmailsByBankName(String bankName) {
+        java.util.List<Admin> admins = adminRepository.findByBankname(bankName);
+        
+        if (admins.isEmpty()) {
+            return ResponseEntity.badRequest().body("No admins found for bank: " + bankName);
+        }
+        
+        // Filter only verified admins and extract their emails
+        java.util.List<String> adminEmails = admins.stream()
+                .filter(Admin::isVerifiedByRoot)
+                .map(Admin::getEmail)
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (adminEmails.isEmpty()) {
+            return ResponseEntity.badRequest().body("No verified admins found for bank: " + bankName);
+        }
+        
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("bankName", bankName);
+        response.put("adminEmails", adminEmails);
+        response.put("count", adminEmails.size());
         
         return ResponseEntity.ok(response);
     }
