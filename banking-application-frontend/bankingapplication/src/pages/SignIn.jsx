@@ -18,24 +18,35 @@ const SignIn = () => {
 	const [isRedirecting, setIsRedirecting] = useState(false); // Add redirecting state
 	const [successMsg, setSuccessMsg] = useState(""); // Success message state
 	const [progress, setProgress] = useState(0); // Progress bar state
+	const [redirectMessage, setRedirectMessage] = useState(""); // Message for redirected users
 	const navigate = useNavigate();
 	const firstInputRef = useRef(null); // Reference for auto-focus
 
+	// Check for redirect message and intended destination
+	useEffect(() => {
+		const redirectUrl = localStorage.getItem('redirectAfterLogin');
+		if (redirectUrl && redirectUrl.includes('createaccount')) {
+			setRedirectMessage("Please sign in to create your bank account");
+		}
+	}, []);
+
 	// Redirect if already signed in
 	useEffect(() => {
-		const token = sessionStorage.getItem('userToken');
-		const storedUserType = sessionStorage.getItem('userType');
+		const token = localStorage.getItem('authToken');
+		const storedUserType = localStorage.getItem('userType');
+		const adminData = sessionStorage.getItem('adminData');
 		
-
+		// Check JWT-based authentication
+		const isUserAuth = token && storedUserType === 'user';
+		// Check legacy admin authentication
+		const isAdminAuth = storedUserType === 'admin' && adminData && AuthGuard.isAdminAuthenticated();
 		
-		if (token && storedUserType) {
+		if (isUserAuth || isAdminAuth) {
 			setIsRedirecting(true);
 			// User is already signed in, redirect to appropriate dashboard
-			if (storedUserType === 'admin') {
-
+			if (isAdminAuth) {
 				navigate('/adminpage', { replace: true });
 			} else {
-
 				navigate('/userpage', { replace: true });
 			}
 		}
@@ -78,15 +89,79 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					await signInAdmin(formData);
-					sessionStorage.setItem('userToken', 'admin-token');
-					window.dispatchEvent(new Event('storage'));
-					navigate('/adminpage');
+					const response = await signInAdmin(formData);
+					if (response.success) {
+						// Show success message and start progress
+						setSuccessMsg('admin:Admin login successful!');
+						setProgress(20);
+						
+						// Store session data
+						setTimeout(() => {
+							sessionStorage.setItem('userToken', 'admin-token');
+							sessionStorage.setItem('userType', 'admin');
+							sessionStorage.setItem('adminId', response.admin.id);
+							AuthGuard.setAdminData(response.admin);
+							setProgress(60);
+						}, 500);
+						
+						// Complete progress and redirect
+						setTimeout(() => {
+							setProgress(100);
+							window.dispatchEvent(new Event('storage'));
+						}, 1200);
+						
+						setTimeout(() => {
+							setSuccessMsg("");
+							setProgress(0);
+							setIsSubmitting(false);
+							
+							// Check for redirect URL (usually only for user accounts, but keeping for consistency)
+							const redirectUrl = localStorage.getItem('redirectAfterLogin');
+							if (redirectUrl) {
+								localStorage.removeItem('redirectAfterLogin');
+								navigate(redirectUrl, { replace: true });
+							} else {
+								navigate('/adminpage', { state: { admin: response.admin }, replace: true });
+							}
+						}, 2000);
+					} else {
+						setErrors({ form: response.message });
+					}
 				} else {
-					await signInUser(formData);
-					sessionStorage.setItem('userToken', 'user-token');
-					window.dispatchEvent(new Event('storage'));
-					navigate('/userpage');
+					const response = await signInUser(formData);
+					if (response.success) {
+						// Show success message and start progress
+						setSuccessMsg('user:User login successful!');
+						setProgress(20);
+						
+						// JWT token and user data are already stored in localStorage by signInUser
+						setTimeout(() => {
+							setProgress(60);
+						}, 500);
+						
+						// Complete progress and redirect
+						setTimeout(() => {
+							setProgress(100);
+							window.dispatchEvent(new Event('storage'));
+						}, 1200);
+						
+						setTimeout(() => {
+							setSuccessMsg("");
+							setProgress(0);
+							setIsSubmitting(false);
+							
+							// Check for redirect URL after login
+							const redirectUrl = localStorage.getItem('redirectAfterLogin');
+							if (redirectUrl) {
+								localStorage.removeItem('redirectAfterLogin');
+								navigate(redirectUrl, { replace: true });
+							} else {
+								navigate('/userpage', { state: { userId: response.user.id }, replace: true });
+							}
+						}, 2000);
+					} else {
+						setErrors({ form: response.message });
+					}
 				}
 			} catch (error) {
 				setErrors({ form: getErrorMessage(error) });
@@ -101,9 +176,25 @@ const SignIn = () => {
 			<>
 				<Header />
 				<div className="signin-bg-gradient">
-					<div className="signin-redirect-state">
-						<span className="signin-redirect-spinner" />
-						<p className="signin-redirect-label">Redirecting to dashboard…</p>
+					<div className="signin-card">
+						<div style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							height: '200px',
+							flexDirection: 'column',
+							gap: '1rem'
+						}}>
+							<div style={{
+								width: '50px',
+								height: '50px',
+								border: '4px solid #f3f3f3',
+								borderTop: '4px solid #667eea',
+								borderRadius: '50%',
+								animation: 'spin 1s linear infinite'
+							}}></div>
+							<p>Redirecting to dashboard...</p>
+						</div>
 					</div>
 				</div>
 			</>
@@ -128,6 +219,23 @@ const SignIn = () => {
 							<div className="signin-card-right">
 								<h1 className="signin-headline">Welcome Back</h1>
 								<p className="signin-subtitle">Access your secure banking dashboard</p>
+								
+								{/* Show redirect message if user was redirected from bank creation */}
+								{redirectMessage && (
+									<div style={{
+										background: 'linear-gradient(135deg, #007AFF, #5856D6)',
+										color: 'white',
+										padding: '12px 20px',
+										borderRadius: '8px',
+										margin: '15px 0',
+										textAlign: 'center',
+										fontSize: '14px',
+										fontWeight: '500'
+									}}>
+										{redirectMessage}
+									</div>
+								)}
+								
 								{!userType ? (
 									<div className="signin-type-select-pro">
 										<button className="signin-type-btn-pro user" onClick={() => handleUserType('user')}>
@@ -137,7 +245,9 @@ const SignIn = () => {
 											<FaUserShield className="signin-btn-icon" /> Sign in as Admin <FaArrowRight className="signin-btn-arrow" />
 										</button>
 									</div>
-								) : (
+								) : null}
+							</div>
+							{userType && (
 								<div className="signin-modal-overlay">
 									<form onSubmit={handleSubmit} className="signin-modal-form">
 										<button type="button" className="signin-modal-back" onClick={() => setUserType(null)}>
@@ -182,18 +292,54 @@ const SignIn = () => {
 							)}
 						</div>
 					</div>
-			</div>
-
-{/* Success / Progress Toast */}
-			{successMsg && (
-				<div className="signin-toast">
-					<p className="signin-toast__msg">{successMsg.replace(/^(admin:|user:)/, '')}</p>
-					<div className="signin-toast__bar">
-						<div className="signin-toast__fill" style={{ width: `${progress}%` }} />
-					</div>
-					<p className="signin-toast__phase">
-						{progress < 30 ? 'Authenticating…' : progress < 70 ? 'Setting up session…' : progress < 100 ? 'Preparing dashboard…' : 'Redirecting…'}
-					</p>
+					
+					{/* Success Message Popup with Progress Bar */}
+					{successMsg && (
+						<div style={{
+							position: 'fixed',
+							top: 80,
+							right: 40,
+							background: successMsg.startsWith('admin:') ? '#43a047' : successMsg.startsWith('user:') ? '#1976d2' : '#43a047',
+							color: '#fff',
+							padding: '20px 32px',
+							borderRadius: 12,
+							fontWeight: 600,
+							fontSize: '1.1rem',
+							boxShadow: '0 4px 20px rgba(60,60,60,0.25)',
+							zIndex: 9999,
+							transition: 'opacity 0.4s',
+							opacity: 0.95,
+							minWidth: '280px'
+						}}>
+							<div style={{ marginBottom: '12px' }}>
+								{successMsg.replace(/^(admin:|user:)/, '')}
+							</div>
+							{/* Progress Bar */}
+							<div style={{
+								width: '100%',
+								height: '6px',
+								backgroundColor: 'rgba(255,255,255,0.3)',
+								borderRadius: '3px',
+								overflow: 'hidden'
+							}}>
+								<div style={{
+									width: `${progress}%`,
+									height: '100%',
+									backgroundColor: '#fff',
+									borderRadius: '3px',
+									transition: 'width 0.3s ease',
+									boxShadow: '0 0 8px rgba(255,255,255,0.5)'
+								}} />
+							</div>
+							<div style={{
+								fontSize: '0.9rem',
+								marginTop: '8px',
+								opacity: 0.9
+							}}>
+								{progress < 30 ? 'Authenticating...' : 
+								 progress < 70 ? 'Setting up session...' : 
+								 progress < 100 ? 'Preparing dashboard...' : 'Redirecting...'}
+							</div>
 						</div>
 					)}
 					
