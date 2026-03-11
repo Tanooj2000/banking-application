@@ -2,50 +2,17 @@ import { getErrorMessage } from '../utils/validation';
 
 const BASE_URL = 'http://localhost:8083/api/admin/';
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  
-  return headers;
-};
-
-// Helper function to handle auth errors
-const handleAuthError = async (response) => {
-  if (response.status === 401 || response.status === 403) {
-    // Token expired or invalid - clear stored data and redirect to login
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('userType');
-    // Also clear admin session data
-    sessionStorage.removeItem('adminData');
-    sessionStorage.setItem('loggedOut', 'true');
-    window.dispatchEvent(new Event('storage'));
-    
-    // Optional: redirect to login if not already there
-    if (!window.location.pathname.includes('/signin')) {
-      window.location.href = '/signin';
-    }
-  }
-};
-
 export const signUpAdmin = async (adminData) => {
   const response = await fetch(`${BASE_URL}register`, {
     method: 'POST',
-    headers: getAuthHeaders(),
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(adminData),
   });
-  
   if (!response.ok) {
-    await handleAuthError(response);
     const errorMsg = await response.text();
-    throw new Error(errorMsg || 'Failed to sign up admin');
+    throw new Error(errorMsg || 'Failed to sign up user');
   }
   return response.text();
 };
@@ -58,13 +25,12 @@ export const signInAdmin = async (credentials) => {
     },
     body: JSON.stringify(credentials),
   });
-  
   if (!response.ok) {
     const errorMsg = await response.text();
     throw new Error(errorMsg || 'Failed to sign in admin');
   }
-  
   const data = await response.json();
+
   return data;
 };
 
@@ -77,11 +43,12 @@ export const getAdminById = async (adminId) => {
   try {
     const response = await fetch(`${BASE_URL}${adminId}`, {
       method: 'GET',
-      headers: getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response.ok) {
-      await handleAuthError(response);
       const errorText = await response.text();
       // Use getErrorMessage to extract clean message from JSON response
       const cleanErrorMessage = getErrorMessage(errorText);
@@ -122,7 +89,9 @@ export const updateAdminDetails = async (adminId, updateData) => {
     
     const response = await fetch(`${BASE_URL}${numericAdminId}`, {
       method: 'PUT',
-      headers: getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         username: updateData.username,
         email: updateData.email
@@ -130,7 +99,6 @@ export const updateAdminDetails = async (adminId, updateData) => {
     });
 
     if (!response.ok) {
-      await handleAuthError(response);
       const errorText = await response.text();
       console.error('Admin update failed with status:', response.status, 'Error:', errorText);
       // Use getErrorMessage to extract clean message from JSON response

@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUniversity, FaUserShield, FaGlobe, FaPlus, FaSearch } from 'react-icons/fa';
 import Header from '../components/Header';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, validateBankName, getErrorMessage } from '../utils/validation';
-import { AuthGuard } from '../utils/authGuard';
 import CreatableSelect from 'react-select/creatable';
 const SignUp = () => {
   const [userType, setUserType] = useState('');
@@ -61,19 +60,12 @@ const SignUp = () => {
 
   // Redirect if already signed in
   useEffect(() => {
-    // Check JWT-based authentication
-    const token = localStorage.getItem('authToken');
-    const storedUserType = localStorage.getItem('userType');
-    const adminData = sessionStorage.getItem('adminData');
+    const token = sessionStorage.getItem('userToken');
+    const storedUserType = sessionStorage.getItem('userType');
     
-    // Check JWT-based authentication for users
-    const isUserAuth = token && storedUserType === 'user';
-    // Check legacy admin authentication
-    const isAdminAuth = storedUserType === 'admin' && adminData && AuthGuard.isAdminAuthenticated();
-    
-    if (isUserAuth || isAdminAuth) {
+    if (token && storedUserType) {
       // User is already signed in, redirect to appropriate dashboard
-      if (isAdminAuth) {
+      if (storedUserType === 'admin') {
         navigate('/adminpage', { replace: true });
       } else {
         navigate('/userpage', { replace: true });
@@ -222,7 +214,7 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-  alert(response);
+  alert('Sign up successful!');
   setFormData({});
   setUserType('');
   navigate('/signin');
@@ -268,7 +260,7 @@ const SignUp = () => {
                     setFormData({});
                   }}
                 />
-                <FaUser style={{ marginRight: '6px', color: '#3949ab' }} />
+                <FaUser />
                 User
               </label>
               <label className="radio-option">
@@ -282,7 +274,7 @@ const SignUp = () => {
                     setFormData({});
                   }}
                 />
-                <FaUserShield style={{ marginRight: '6px', color: '#3949ab' }} />
+                <FaUserShield />
                 Admin
               </label>
             </div>
@@ -330,7 +322,7 @@ const SignUp = () => {
                     <div className="input-icon-wrapper">
                       <FaPhone className="input-icon" />
                       <input
-                        type="tel"
+                        type="text"
                         id="mobile"
                         name="mobile"
                         className={`form-input${errors.mobile ? ' error' : ''}`}
@@ -406,35 +398,9 @@ const SignUp = () => {
                         value={formData.country || ''}
                         onChange={(e) => {
                           handleChange(e);
-                          // Reset bank selection when country changes
                           setFormData(prev => ({ ...prev, bankName: '' }));
                         }}
-                        style={{
-                          width: '100%',
-                          height: '48px',
-                          padding: '12px 15px 12px 40px',
-                          fontSize: '14px',
-                          border: `2px solid ${errors.country ? '#dc3545' : '#e0e0e0'}`,
-                          borderRadius: '6px',
-                          backgroundColor: '#fff',
-                          color: '#333',
-                          cursor: 'pointer',
-                          outline: 'none',
-                          transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
-                          appearance: 'none',
-                          backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6,9 12,15 18,9\'%3e%3c/polyline%3e%3c/svg%3e")',
-                          backgroundRepeat: 'no-repeat',
-                          backgroundPosition: 'right 12px center',
-                          backgroundSize: '16px'
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = '#007bff';
-                          e.target.style.boxShadow = '0 0 0 3px rgba(0, 123, 255, 0.1)';
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = errors.country ? '#dc3545' : '#e0e0e0';
-                          e.target.style.boxShadow = 'none';
-                        }}
+                        className={`form-input${errors.country ? ' error' : ''}`}
                       >
                         <option value="" disabled style={{ color: '#999' }}>
                           Select your country
