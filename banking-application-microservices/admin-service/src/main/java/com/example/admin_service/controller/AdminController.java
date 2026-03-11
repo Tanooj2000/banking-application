@@ -29,6 +29,16 @@ public class AdminController {
         return adminService.login(request);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        return adminService.logout(token);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentAdminDetails(@RequestHeader("Authorization") String token) {
+        return adminService.getCurrentAdminDetails(token);
+    }
+
     @PostMapping("/verify")
     public String verifyAdmin(@RequestParam String username,
                               @RequestParam String rootUsername,

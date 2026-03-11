@@ -61,4 +61,9 @@ public class UserController {
         return userService.changePassword(id, request);
     }
     
+    @GetMapping("/me")
+    public ResponseEntity<UserDetailsResponse> getCurrentUser(@RequestHeader("Authorization") String token) {
+        return userService.getCurrentUser(token);
+    }
+    
 }

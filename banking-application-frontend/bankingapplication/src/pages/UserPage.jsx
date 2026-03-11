@@ -15,8 +15,9 @@ const UserPage = () => {
   
   // User blocking after logout has been relaxed per request; allow normal access after re-login
 
-  // Get userId from navigation state or sessionStorage as fallback
-  const userId = location.state?.userId || location.state?.user?.id || sessionStorage.getItem('userId');
+  // Get current user from JWT stored in localStorage
+  const currentUser = AuthGuard.getCurrentUser();
+  const userId = currentUser?.id || currentUser?.userId || location.state?.userId || location.state?.user?.id;
   
 
   
@@ -89,12 +90,9 @@ const UserPage = () => {
           setIsUserLoading(false);
         }
       } else {
-        // If no userId found, check if user is authenticated but redirect failed
-        const token = sessionStorage.getItem('userToken');
-        if (token) {
+        // No userId — check if actually authenticated
+        if (AuthGuard.isAuthenticated()) {
           console.error('User is authenticated but userId is missing. This suggests a session issue.');
-          // Clear corrupted session and redirect
-          sessionStorage.clear();
         }
         console.warn('No userId found. Redirecting to sign in.');
         navigate('/signin', { replace: true });
@@ -648,7 +646,7 @@ const UserPage = () => {
                   type="text"
                   id="username"
                   name="username"
-                  value={editFormData.username}
+                  value={editFormData.username || ''}
                   onChange={handleEditFormChange}
                   required
                 />
@@ -659,7 +657,7 @@ const UserPage = () => {
                   type="email"
                   id="email"
                   name="email"
-                  value={editFormData.email}
+                  value={editFormData.email || ''}
                   onChange={handleEditFormChange}
                   required
                 />
@@ -670,7 +668,7 @@ const UserPage = () => {
                   type="tel"
                   id="phonenumber"
                   name="phonenumber"
-                  value={editFormData.phonenumber}
+                  value={editFormData.phonenumber || ''}
                   onChange={handleEditFormChange}
                   required
                 />
@@ -707,7 +705,7 @@ const UserPage = () => {
                   type="password"
                   id="currentPassword"
                   name="currentPassword"
-                  value={passwordFormData.currentPassword}
+                  value={passwordFormData.currentPassword || ''}
                   onChange={handlePasswordFormChange}
                   required
                 />
@@ -718,7 +716,7 @@ const UserPage = () => {
                   type="password"
                   id="newPassword"
                   name="newPassword"
-                  value={passwordFormData.newPassword}
+                  value={passwordFormData.newPassword || ''}
                   onChange={handlePasswordFormChange}
                   required
                   minLength="6"
@@ -730,7 +728,7 @@ const UserPage = () => {
                   type="password"
                   id="confirmPassword"
                   name="confirmPassword"
-                  value={passwordFormData.confirmPassword}
+                  value={passwordFormData.confirmPassword || ''}
                   onChange={handlePasswordFormChange}
                   required
                   minLength="6"

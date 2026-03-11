@@ -214,6 +214,42 @@ public class UserService {
             return ResponseEntity.badRequest().body("Invalid token");
         }
     }
+    
+    public ResponseEntity<UserDetailsResponse> getCurrentUser(String token) {
+        try {
+            // Remove "Bearer " prefix if present
+            String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+            
+            // Extract userId from JWT token
+            Long userId = jwtService.extractUserId(jwtToken);
+            
+            if (userId == null) {
+                return ResponseEntity.badRequest().body(
+                    new UserDetailsResponse(false, "Invalid token: userId not found", null));
+            }
+            
+            // Get user by ID
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    new UserDetailsResponse(false, "User not found", null));
+            }
+            
+            User user = optionalUser.get();
+            UserDetailsResponse.UserDto userDto = new UserDetailsResponse.UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPhonenumber()
+            );
+            
+            return ResponseEntity.ok(new UserDetailsResponse(true, "User details retrieved", userDto));
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                new UserDetailsResponse(false, "Invalid token", null));
+        }
+    }
 
 }
 

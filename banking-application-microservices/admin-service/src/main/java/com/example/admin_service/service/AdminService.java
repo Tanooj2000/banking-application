@@ -22,6 +22,8 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final JwtService jwtService;
+    private final SessionService sessionService;
 
     public ResponseEntity<String> register(AdminRegisterRequest request) {
         if (adminRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -70,14 +72,14 @@ public class AdminService {
             }
         }
         if (admin == null) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin not found", null));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin not found", null, null, null));
         }
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials", null));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials", null, null, null));
         }
         // Additional validation based on application status
         if (admin.getApplicationStatus() == ApplicationStatus.PENDING) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Your application is still pending approval. Please wait for verification.", admin));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Your application is still pending approval. Please wait for verification.", null, null, null));
         }
         
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
@@ -85,10 +87,31 @@ public class AdminService {
             if (admin.getRejectionReason() != null && !admin.getRejectionReason().isEmpty()) {
                 rejectionMessage += " Reason: " + admin.getRejectionReason();
             }
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, rejectionMessage, admin));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, rejectionMessage, null, null, null));
         }
 
-        return ResponseEntity.ok(new AdminLoginResponse(true, "Logged in successfully", admin));
+        // Generate JWT token
+        String jwtToken = jwtService.generateToken(admin.getUsername(), admin.getId());
+        long expirationTime = jwtService.getExpirationTime();
+        
+        // Create admin DTO without sensitive information
+        AdminLoginResponse.AdminDto adminDto = new AdminLoginResponse.AdminDto(
+            admin.getId(),
+            admin.getUsername(), 
+            admin.getEmail(),
+            admin.getBankname(),
+            admin.getCountry(),
+            admin.isVerifiedByRoot(),
+            admin.getApplicationStatus().toString()
+        );
+        
+        return ResponseEntity.ok(new AdminLoginResponse(
+            true, 
+            "Login successful.", 
+            jwtToken, 
+            expirationTime,
+            adminDto
+        ));
     }
 
     public String verifyAdmin(String username, String rootUsername, String rootPassword) {

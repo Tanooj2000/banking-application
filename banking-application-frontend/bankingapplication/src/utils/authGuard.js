@@ -1,94 +1,100 @@
 // Global Authentication Guard
 export const AuthGuard = {
-  // Check if user is authenticated
+  // Check if regular user is authenticated (JWT in localStorage)
   isAuthenticated: () => {
+    const token = localStorage.getItem('authToken');
+    return !!token;
+  },
+
+  // Check if admin is authenticated (sessionStorage)
+  isAdminAuthenticated: () => {
     const adminData = sessionStorage.getItem('adminData');
     const loggedOut = sessionStorage.getItem('loggedOut');
-    
+
     if (loggedOut === 'true' || !adminData) {
       return false;
     }
-    
-    // Check session validity (24 hours)
+
     try {
       const admin = JSON.parse(adminData);
       const currentTime = new Date().getTime();
       const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
-      
-      if (currentTime - admin.loginTime > sessionDuration) {
-        AuthGuard.logout();
+      if (currentTime - (admin.loginTime || 0) > sessionDuration) {
+        AuthGuard.logoutAdmin();
         return false;
       }
-      
       return true;
     } catch (error) {
-      AuthGuard.logout();
+      AuthGuard.logoutAdmin();
       return false;
     }
   },
 
-  // Global logout function
-  logout: () => {
+  // Get current user object from localStorage JWT data
+  getCurrentUser: () => {
     try {
-      // Mark logged out first so any async/react re-render sees it immediately
-      sessionStorage.setItem('loggedOut', 'true');
+      const raw = localStorage.getItem('currentUser');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
 
-      // Clear sensitive keys (keep loggedOut flag)
-      sessionStorage.removeItem('adminData');
-      sessionStorage.removeItem('userToken');
-      sessionStorage.removeItem('userType');
-      sessionStorage.removeItem('adminId');
+  // Get JWT token
+  getToken: () => localStorage.getItem('authToken'),
 
-      // Defensive: also clear potential legacy/local storage
-      ['adminData','userToken','userType','adminId'].forEach(k=>localStorage.removeItem(k));
+  // Get user type ('user' or 'admin')
+  getUserType: () => localStorage.getItem('userType'),
 
-      // Broadcast
+  // Async user logout — calls backend to blacklist token, then clears localStorage
+  logout: async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        await fetch('http://localhost:8081/api/user/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
+      }
+    } catch (e) {
+      // Ignore network errors during logout
+    } finally {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userType');
       window.dispatchEvent(new Event('storage'));
-
-      // Insert no-cache headers meta (best-effort)
-      AuthGuard.applyNoCacheHeaders();
-
-      // Push a clean state then replace to break back chain
-      if (window.history.pushState) {
-        window.history.pushState(null, '', '/');
-        window.history.replaceState(null, '', '/');
-      }
-
-      // Force a hard navigation (prevents bfcache restore in most browsers)
-      window.location.href = '/';
-    } catch (e) {
-      // Fallback
       window.location.href = '/';
     }
   },
 
-  // Harden user logout similarly to admin (separate to avoid over-clearing if needed later)
-  logoutUser: () => {
-    try {
-      // Do not set a persistent userLoggedOut flag so re-login is seamless
-      ['userToken','userType','userId','userLoggedOut'].forEach(k=>sessionStorage.removeItem(k));
-      ['userToken','userType','userId','userLoggedOut'].forEach(k=>localStorage.removeItem(k));
-      AuthGuard.applyNoCacheHeaders();
-      if (history.pushState) {
-        history.pushState(null, '', '/');
-        history.replaceState(null, '', '/');
-      }
-      window.location.href = '/';
-    } catch (e) {
-      window.location.href = '/';
+  // Admin logout — clears sessionStorage
+  logoutAdmin: () => {
+    sessionStorage.setItem('loggedOut', 'true');
+    sessionStorage.removeItem('adminData');
+    sessionStorage.removeItem('userToken');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('adminId');
+    window.dispatchEvent(new Event('storage'));
+    AuthGuard.applyNoCacheHeaders();
+    if (window.history.pushState) {
+      window.history.pushState(null, '', '/');
+      window.history.replaceState(null, '', '/');
     }
+    window.location.href = '/';
   },
+
+  // Legacy alias
+  logoutUser: async () => AuthGuard.logout(),
 
   // Get admin data
   getAdminData: () => {
-    if (!AuthGuard.isAuthenticated()) {
+    if (!AuthGuard.isAdminAuthenticated()) {
       return null;
     }
-    
     try {
       return JSON.parse(sessionStorage.getItem('adminData'));
     } catch (error) {
-      AuthGuard.logout();
+      AuthGuard.logoutAdmin();
       return null;
     }
   },
@@ -106,21 +112,16 @@ export const AuthGuard = {
   // Prevent back navigation to protected pages
   preventBackNavigation: () => {
     const blockIfLoggedOut = () => {
-      if (sessionStorage.getItem('loggedOut') === 'true' || !AuthGuard.isAuthenticated()) {
-        AuthGuard.logout();
+      if (!AuthGuard.isAuthenticated() && !AuthGuard.isAdminAuthenticated()) {
+        window.location.href = '/signin';
       }
     };
 
     const handlePopState = () => {
       blockIfLoggedOut();
-      // If still authenticated, push another state so back keeps cycling inside app
-      if (AuthGuard.isAuthenticated()) {
-        window.history.pushState(null, '', window.location.pathname + window.location.search);
-      }
     };
 
     const handlePageShow = (e) => {
-      // If coming from bfcache (persisted), re-check
       if (e.persisted) {
         blockIfLoggedOut();
       }
@@ -128,7 +129,7 @@ export const AuthGuard = {
 
     window.addEventListener('popstate', handlePopState, { passive: true });
     window.addEventListener('pageshow', handlePageShow, { passive: true });
-    // Seed an extra history entry so the first back stays inside
+
     if (window.history.pushState) {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
     }
@@ -158,11 +159,9 @@ export const AuthGuard = {
 
 // Global function to check authentication on page load
 export const checkAuthOnPageLoad = () => {
-  // Clear logout flag when starting fresh session
-  if (sessionStorage.getItem('loggedOut') === 'true' && 
+  if (sessionStorage.getItem('loggedOut') === 'true' &&
       window.location.pathname.includes('/admin')) {
-    AuthGuard.logout();
+    AuthGuard.logoutAdmin();
   }
-  // Always apply no-cache headers at boot
   AuthGuard.applyNoCacheHeaders();
 };
