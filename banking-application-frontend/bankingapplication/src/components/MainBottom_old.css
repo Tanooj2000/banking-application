@@ -1,6 +1,6 @@
-/* ============================================================
+﻿/* ============================================================
    BELOW-FOLD SECTIONS
-   Marquee strip · Trust Features · Platform Status · Brand Close
+   Marquee strip Â· Trust Features Â· Platform Status Â· Brand Close
    Gold accent system. Sharp geometry. DM Mono labels.
    Playfair section headings. Enhanced scroll reveal.
    ============================================================ */
@@ -18,7 +18,7 @@
   width: 100%;
 }
 
-/* Section label – DM Mono, gold */
+/* Section label â€” DM Mono, gold */
 .section-label {
   margin: 0 0 1.25rem;
   font-family: var(--font-mono);
@@ -30,7 +30,7 @@
   opacity: 0.7;
 }
 
-/* Section heading – Playfair, editorial, gold italic em */
+/* Section heading â€” Playfair, editorial, gold italic em */
 .section-heading {
   margin: 0 0 3rem;
   font-family: var(--font-serif);
@@ -46,22 +46,8 @@
   color: var(--gold);
 }
 
-/* Section subtitle – Supporting text for section heading */
-.section-subtitle {
-  margin: 0 0 3rem;
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  font-weight: 400;
-  line-height: 1.65;
-  color: var(--text-muted);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
 /* ============================================================
-   MARQUEE STRIP – Compliance tickers
+   MARQUEE STRIP â€” Compliance tickers
    ============================================================ */
 .marquee-strip {
   border-top: 1px solid var(--border);
@@ -189,225 +175,129 @@
 }
 
 /* ============================================================
-   SUPPORTED BANKS SHOWCASE
+   PLATFORM STATUS
    ============================================================ */
-.banks-section {
-  background: var(--bg-primary);
+.status-section {
+  background: var(--bg-surface);
   border-top: 1px solid var(--border);
-  padding: 4rem 0;
   transition:
     background var(--transition-slow),
     border-color var(--transition-slow);
 }
 
-.banks-intro {
-  margin: 0 0 4rem;
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  font-weight: 300;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  transition: color var(--transition-slow);
-}
-
-.banks-showcase {
-  display: flex;
-  flex-direction: column;
-  gap: 4rem;
-}
-
-.banks-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-@media (max-width: 1024px) {
-  .banks-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.25rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .banks-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .banks-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    padding: 0 1rem;
-  }
-}
-
-.bank-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.75rem;
-  padding: 1.25rem 0.75rem;
-  border: 1px solid transparent;
-  background: var(--bg-surface);
-  border-radius: 8px;
-  transition: 
-    transform var(--transition-smooth),
+.status-board {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 1.75rem 2rem;
+  background: var(--bg-surface-alt);
+  box-shadow: var(--shadow-card);
+  max-width: 520px;
+  transition:
     background var(--transition-slow),
     border-color var(--transition-slow),
-    box-shadow var(--transition-smooth);
+    box-shadow var(--transition-slow);
 }
 
-.bank-card:hover {
-  transform: translateY(-3px);
-  background: var(--bg-surface-alt);
-  border-color: rgba(201, 168, 76, 0.2);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(201, 168, 76, 0.1);
-}
-
-.bank-card__logo {
-  width: 72px;
-  height: 72px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.status-board__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 8px;
-  transition: 
-    transform var(--transition-smooth),
-    box-shadow var(--transition-smooth);
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.bank-card:hover .bank-card__logo {
-  transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.bank-card__logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: filter var(--transition-smooth);
-}
-
-.bank-card__info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.bank-card__name {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  line-height: 1.3;
-  transition: color var(--transition-slow);
-}
-
-.bank-card__region {
-  margin: 0;
+.status-board__title {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
-  font-weight: 300;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-primary);
   transition: color var(--transition-slow);
 }
 
-.bank-card:hover .bank-card__region {
-  color: var(--gold);
-}
-
-.banks-footer {
+.status-board__operational {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 3rem 2rem 0;
-  text-align: center;
-  border-top: 1px solid var(--border-subtle);
-  margin-top: 2rem;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 0;
+  padding: 0.22rem 0.65rem;
+  transition:
+    color var(--transition-slow),
+    background var(--transition-slow),
+    border-color var(--transition-slow);
 }
 
-.banks-footer__text {
-  margin: 0;
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: status-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%       { opacity: 0.4;  transform: scale(0.8); }
+}
+
+.status-board__copy {
+  margin: 0 0 1.25rem;
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   font-weight: 300;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.62;
   transition: color var(--transition-slow);
 }
 
-.banks-footer__text strong {
-  color: var(--gold);
-  font-weight: 600;
-  font-size: 1.15rem;
+.status-board__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.banks-footer__cta {
-  display: inline-flex;
+.status-board__row {
+  display: flex;
   align-items: center;
-  background: var(--gold);
-  color: var(--bg-primary);
-  text-decoration: none;
+  justify-content: space-between;
+  padding: 0.62rem 0;
+  border-top: 1px solid var(--border-subtle);
+  transition:
+    background var(--transition-slow),
+    border-color var(--transition-slow);
+}
+
+.status-board__row-label {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  transition: color var(--transition-slow);
+}
+
+.status-board__row-value {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 400;
-  letter-spacing: 0.15em;
+  font-size: 0.68rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.8rem 2rem;
-  border-radius: 4px;
-  position: relative;
-  overflow: hidden;
-  transition: 
-    transform var(--transition-smooth),
-    box-shadow var(--transition-smooth);
-}
-
-.banks-footer__cta::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.15);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-
-.banks-footer__cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 168, 76, 0.3);
-}
-
-.banks-footer__cta:hover::before {
-  transform: scaleX(1);
-}
-
-.banks-footer__cta span {
-  position: relative;
-  z-index: 1;
+  color: var(--gold);
+  transition: color var(--transition-slow);
 }
 
 /* ============================================================
-   BRAND CLOSE – Closing statement section
+   BRAND CLOSE â€” Closing statement section
    ============================================================ */
 .brand-close {
   background: var(--bg-primary);
@@ -518,7 +408,7 @@
 }
 
 /* ============================================================
-   SCROLL REVEAL – Enhanced materiality
+   SCROLL REVEAL â€” Enhanced materiality
    ============================================================ */
 .reveal-on-scroll {
   opacity: 0;
@@ -569,3 +459,4 @@
     display: none;
   }
 }
+

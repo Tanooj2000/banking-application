@@ -1,37 +1,78 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShield, FiCheckCircle, FiActivity } from 'react-icons/fi';
 import './MainBottom.css';
 
+// Import banking assets
+import hdfcBank from '../assets/banks/hdfc-bank.webp';
+import iciciBank from '../assets/banks/icici-bank.webp';
+import jpmorgan from '../assets/banks/jpmorgan-chase.webp';
+import wellsFargo from '../assets/banks/wells-fargo.webp';
+import hsbc from '../assets/banks/hsbc.webp';
+import citibank from '../assets/banks/citibank.webp';
+import axisBank from '../assets/banks/axis-bank.webp';
+import bankOfAmerica from '../assets/banks/bank-of-america.webp';
+import barclays from '../assets/banks/barclays.webp';
+import capitalone from '../assets/banks/capital-one.webp';
+import pncBank from '../assets/banks/pnc-bank.webp';
+import sbiBank from '../assets/banks/state-bank-of-india.webp';
+
 const trustFeatures = [
   {
     Icon: FiShield,
-    label: 'Protected Sessions',
-    desc: 'End-to-end session encryption with automatic expiry controls keeps your access secure at every interaction.',
+    label: 'Unmatched Security Standards',
+    desc: 'Bank-grade encryption and multi-layer authentication protect your financial data across all connected institutions. Your money, your data, always secure.',
   },
   {
     Icon: FiCheckCircle,
-    label: 'Verified Transfers',
-    desc: 'Every transaction passes multi-layer validation before execution. No movement happens without full confirmation.',
+    label: 'One Platform, Every Bank',
+    desc: 'Connect accounts from multiple banks in one unified dashboard. No more juggling between apps or websites - manage everything seamlessly.',
   },
   {
     Icon: FiActivity,
-    label: 'Real-time Monitoring',
-    desc: 'Continuous anomaly detection running around the clock. Nothing leaves or enters unaccounted.',
+    label: 'Real-time Intelligence',
+    desc: 'Live account monitoring, instant notifications, and smart insights help you make informed financial decisions across all your banking relationships.',
   },
 ];
 
 const marqueeItems = [
-  'SOC 2 TYPE II COMPLIANT',
-  'FDIC ALIGNED OPERATIONS',
-  '256-BIT ENCRYPTION',
-  'REAL-TIME FRAUD DETECTION',
-  'ZERO DATA BREACHES',
-  'MULTI-FACTOR AUTHENTICATION',
-  'INDEPENDENT SECURITY AUDITS',
+  'PCI DSS LEVEL 1 CERTIFIED',
+  'ISO 27001 COMPLIANT',
+  'OPEN BANKING READY',
+  'MULTI-BANK CONNECTIVITY',
+  'REAL-TIME FRAUD PROTECTION',
+  'ENCRYPTED DATA TRANSMISSION',
+  'REGULATORY COMPLIANT',
+];
+
+const supportedBanks = [
+  { name: 'HDFC Bank', logo: hdfcBank, region: 'India' },
+  { name: 'ICICI Bank', logo: iciciBank, region: 'India' },
+  { name: 'JPMorgan Chase', logo: jpmorgan, region: 'USA' },
+  { name: 'Wells Fargo', logo: wellsFargo, region: 'USA' },
+  { name: 'HSBC', logo: hsbc, region: 'UK' },
+  { name: 'Citibank', logo: citibank, region: 'Global' },
+  { name: 'Axis Bank', logo: axisBank, region: 'India' },
+  { name: 'Bank of America', logo: bankOfAmerica, region: 'USA' },
+  { name: 'Barclays', logo: barclays, region: 'UK' },
+  { name: 'Capital One', logo: capitalone, region: 'USA' },
+  { name: 'PNC Bank', logo: pncBank, region: 'USA' },
+  { name: 'State Bank of India', logo: sbiBank, region: 'India' },
 ];
 
 const MainBottom = () => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('userToken');
+    const type = sessionStorage.getItem('userType');
+    const adminData = sessionStorage.getItem('adminData');
+    const loggedOut = sessionStorage.getItem('loggedOut');
+    const isAdminAuth = type === 'admin' && adminData && loggedOut !== 'true';
+    const isUserAuth = type === 'user' && token;
+    setIsSignedIn(isAdminAuth || isUserAuth);
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -67,9 +108,9 @@ const MainBottom = () => {
       {/* Trust Features */}
       <section className="trust-section" aria-label="Platform principles">
         <div className="section-inner">
-          <p className="section-label reveal-on-scroll">Built on principle</p>
+          <p className="section-label reveal-on-scroll">The InterBankHub advantage</p>
           <h2 className="section-heading reveal-on-scroll">
-            What we <em>refuse</em><br />to compromise on.
+            Why banks and customers<br /><em>choose</em> InterBankHub.
           </h2>
           <div className="trust-grid">
             {trustFeatures.map((f, i) => (
@@ -89,34 +130,42 @@ const MainBottom = () => {
         </div>
       </section>
 
-      {/* Platform Status */}
-      <section className="status-section" aria-label="Platform status">
+      {/* Supported Banks Showcase */}
+      <section className="banks-section" aria-label="Supported banks">
         <div className="section-inner">
-          <p className="section-label reveal-on-scroll">System status</p>
-          <div className="status-board reveal-on-scroll">
-            <div className="status-board__header">
-              <span className="status-board__title">Platform Status</span>
-              <span className="status-board__operational">
-                <span className="status-dot" aria-hidden="true" />
-                Operational
-              </span>
+          <p className="section-label reveal-on-scroll">Global connectivity</p>
+          <h2 className="section-heading reveal-on-scroll">
+            Banking partners<br /><em>worldwide.</em>
+          </h2>
+          <p className="banks-intro reveal-on-scroll">
+            Connect with over 500+ leading financial institutions across the globe. 
+            From local banks to international giants, manage all your accounts seamlessly.
+          </p>
+          <div className="banks-showcase">
+            <div className="banks-grid">
+              {supportedBanks.map((bank, index) => (
+                <div 
+                  key={bank.name} 
+                  className="bank-card reveal-on-scroll"
+                  style={{ transitionDelay: `${index * 80}ms` }}
+                >
+                  <div className="bank-card__logo">
+                    <img src={bank.logo} alt={bank.name} />
+                  </div>
+                  <div className="bank-card__info">
+                    <h3 className="bank-card__name">{bank.name}</h3>
+                    <p className="bank-card__region">{bank.region}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="status-board__copy">
-              Secure routing, transaction validation, and system checks are currently active and uninterrupted.
-            </p>
-            <div className="status-board__rows">
-              <div className="status-board__row">
-                <span className="status-board__row-label">Session Protection</span>
-                <span className="status-board__row-value">Enabled</span>
-              </div>
-              <div className="status-board__row">
-                <span className="status-board__row-label">Verification Layer</span>
-                <span className="status-board__row-value">Live</span>
-              </div>
-              <div className="status-board__row">
-                <span className="status-board__row-label">Fraud Detection</span>
-                <span className="status-board__row-value">Active</span>
-              </div>
+            <div className="banks-footer reveal-on-scroll">
+              <p className="banks-footer__text">
+                <strong>500+</strong> banks and financial institutions connected worldwide
+              </p>
+              <Link to={isSignedIn ? "/browsebank" : "/signin"} className="banks-footer__cta">
+                <span>Explore More Banks</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -127,10 +176,10 @@ const MainBottom = () => {
         <div className="brand-close__inner reveal-on-scroll">
           <p className="brand-close__label">InterBankHub</p>
           <h2 className="brand-close__headline">
-            Your capital. Your terms.<br /><em>Our discipline.</em>
+            Your banks. Unified.<br /><em>Finally simple.</em>
           </h2>
           <p className="brand-close__sub">
-            Private banking infrastructure, built for those who expect precision.
+            Join thousands who've transformed their banking experience through our secure, multi-bank platform.
           </p>
           <Link to="/signup" className="brand-close__cta">
             <span>Open an Account</span>

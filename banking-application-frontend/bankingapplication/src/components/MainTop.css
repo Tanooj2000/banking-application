@@ -1,38 +1,27 @@
-﻿/* ============================================================
+/* ============================================================
    HERO SECTION
    Full viewport. Ambient dark navy gradient. Gold accents.
    Playfair Display headlines. DM Mono eyebrow + tagline.
    Staggered entrance animations. Sharp geometry.
    ============================================================ */
 
-/* Ensure no global margins/padding interfere */
-.hero * {
-  box-sizing: border-box;
-}
-
 .hero {
   position: relative;
-  min-height: 100vh;
   min-height: 100dvh;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
-  padding: 0;
+  padding-top: var(--nav-height);
   overflow: hidden;
-  box-sizing: border-box;
 }
 
 /* Ambient animated gradient */
 .hero__ambient {
   position: absolute;
-  top: 0;
+  top: var(--nav-height);
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
   background: linear-gradient(
     -45deg,
     var(--hero-g1),
@@ -43,37 +32,13 @@
   background-size: 400% 400%;
   animation: ambient-drift 24s ease infinite;
   z-index: 0;
-  will-change: background-position;
 }
 
-/* Respect user motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .hero__ambient {
-    animation: none;
-    background-position: 0% 50%;
-  }
-  
-  .hero__scroll-line {
-    animation: none;
-  }
-  
-  .hero__content > * {
-    animation: none;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Gold radial bloom â€” centred, perceptible */
+/* Gold radial bloom – centred, perceptible */
 .hero__ambient::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background:
     radial-gradient(
       ellipse 65% 55% at 50% 46%,
@@ -101,18 +66,14 @@
   z-index: 1;
   text-align: center;
   max-width: 720px;
-  width: 100%;
-  padding: var(--nav-height) 2rem 2rem 2rem;
-  margin: 0 auto;
+  padding: 0 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 1.35rem;
-  box-sizing: border-box;
 }
 
-/* Eyebrow â€” DM Mono, spaced, gold */
+/* Eyebrow – DM Mono, spaced, gold */
 .hero__eyebrow {
   margin: 0;
   font-family: var(--font-mono);
@@ -125,7 +86,7 @@
   animation: fade-up 500ms 80ms ease forwards;
 }
 
-/* Headline â€” Playfair, editorial weight */
+/* Headline – Playfair, editorial weight */
 .hero__headline {
   margin: 0;
   font-family: var(--font-serif);
@@ -144,7 +105,7 @@
   color: var(--gold);
 }
 
-/* Sub â€” body text, muted */
+/* Sub – body text, muted */
 .hero__sub {
   margin: 0;
   font-family: var(--font-body);
@@ -157,7 +118,7 @@
   animation: fade-up 560ms 300ms ease forwards;
 }
 
-/* Tagline â€” DM Mono whisper below sub */
+/* Tagline – DM Mono whisper below sub */
 .hero__tagline {
   margin: 0;
   font-family: var(--font-mono);
@@ -181,7 +142,7 @@
   animation: fade-up 560ms 540ms ease forwards;
 }
 
-/* Primary CTA â€” gold fill, sharp, fill-wipe hover */
+/* Primary CTA – gold fill, sharp, fill-wipe hover */
 .hero__cta-primary {
   position: relative;
   display: inline-flex;
@@ -218,7 +179,7 @@
   z-index: 1;
 }
 
-/* Secondary CTA â€” ghost, gold border, sharp */
+/* Secondary CTA – ghost, gold border, sharp */
 .hero__cta-secondary {
   position: relative;
   display: inline-flex;
@@ -263,7 +224,7 @@
   z-index: 1;
 }
 
-/* Scroll indicator â€” breathing vertical line */
+/* Scroll indicator – breathing vertical line */
 .hero__scroll-hint {
   position: absolute;
   bottom: 2.25rem;
@@ -289,23 +250,77 @@
 
 /* Shared entrance animation */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(22px); }
+  from { opacity: 0; transform: translateY(22px); }  
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Banks showcase section */
+.hero__banks {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0;
+  animation: fade-up 600ms 700ms ease forwards;
+}
+
+.hero__banks-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero__banks-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  max-width: 500px;
+}
+
+.hero__bank-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  opacity: 0;
+  animation: fade-up 400ms ease forwards;
+  transition: 
+    transform var(--transition-smooth),
+    background var(--transition-smooth),
+    border-color var(--transition-smooth);
+}
+
+.hero__bank-logo:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+.hero__bank-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter var(--transition-smooth);
+}
+
+.hero__bank-logo:hover img {
+  filter: brightness(1.1);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero {
-    min-height: 100vh;
-    min-height: 100dvh;
-    width: 100%;
-  }
-
-  .hero__content {
-    padding: var(--nav-height) 1.5rem 1.5rem 1.5rem;
-    max-width: 100%;
-  }
-
   .hero__headline {
     font-size: clamp(1.9rem, 9vw, 2.6rem);
   }
@@ -320,17 +335,21 @@
     width: 100%;
     justify-content: center;
   }
+
+  .hero__banks-grid {
+    gap: 1rem;
+    max-width: 400px;
+  }
+
+  .hero__bank-logo {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 @media (max-width: 480px) {
-  .hero {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-  }
-
   .hero__content {
-    padding: var(--nav-height) 1.25rem 1.25rem 1.25rem;
+    padding: 0 1.25rem;
     gap: 1.15rem;
   }
 
@@ -338,24 +357,43 @@
     display: none;
   }
 
-  .hero__ambient {
-    background-size: 200% 200%;
-    animation-duration: 32s;
+  .hero__banks {
+    margin-top: 1.5rem;
+  }
+
+  .hero__banks-grid {
+    gap: 0.8rem;
+    max-width: 300px;
+  }
+
+  .hero__bank-logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .hero__banks-label {
+    font-size: 0.55rem;
   }
 }
 
-/* Additional mobile optimizations */
-@media (max-width: 320px) {
-  .hero__content {
-    padding: var(--nav-height) 1rem 1rem 1rem;
-    gap: 1rem;
+  .hero__scroll-hint {
+    display: none;
   }
-  
-  .hero__eyebrow {
-    font-size: 0.58rem;
+
+  .hero__banks {
+    margin-top: 1.5rem;
   }
-  
-  .hero__tagline {
-    font-size: 0.65rem;
+
+  .hero__banks-grid {
+    gap: 0.8rem;
+    max-width: 300px;
   }
-}
+
+  .hero__bank-logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .hero__banks-label {
+    font-size: 0.55rem;
+  }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/accountApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
-import './UserPage.css';
+import './UserPageClean.css';
 import Footer from '../components/Footer';
 import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt } from 'react-icons/fa';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
@@ -272,45 +272,53 @@ const UserPage = () => {
     return account.status?.toLowerCase() === statusFilter.toLowerCase();
   });
 
-  // Sidebar navigation items
+  // Enhanced Sidebar navigation items with professional styling
   const sidebarItems = [
-    { id: 'Profile', label: 'Profile', icon: <FaUserCircle /> },
-    { id: 'MyAccounts', label: 'My Accounts', icon: <FaCreditCard /> },
-    { id: 'CreateAccount', label: 'Create Account', icon: <FaPlus /> },
-    { id: 'ContactUs', label: 'Contact Us', icon: <FaEnvelope /> },
-    { id: 'FAQ', label: 'FAQ', icon: <FaQuestionCircle /> }
+    { id: 'Profile', label: 'My Profile', icon: <FaUserCircle /> },
+    { id: 'MyAccounts', label: 'Bank Accounts', icon: <FaCreditCard /> },
+    { id: 'CreateAccount', label: 'New Account', icon: <FaPlus /> },
+    { id: 'ContactUs', label: 'Support', icon: <FaEnvelope /> },
+    { id: 'FAQ', label: 'Help Center', icon: <FaQuestionCircle /> }
   ];
 
-  // Content components for each section
+  // Content components for each section with enhanced professional styling
   const renderProfileContent = () => (
-    <div className="content-section">
-      <h2 className="section-title">User Profile</h2>
+    <div className="content-section profile-section">
+      <h2 className="section-title">User <em>Profile</em></h2>
       <div className="profile-content">
         <div className="profile-header">
           <div className="profile-avatar">
-            <FaUser size={60} />
+            <FaUser size={40} />
           </div>
           <div className="profile-info">
             <h3>{user.username || 'User'}</h3>
-            <p>Banking Customer</p>
+            <p>Professional Banking Customer</p>
           </div>
         </div>
         <div className="profile-details">
           <div className="detail-row">
-            <span className="detail-label">Email:</span>
-            <span className="detail-value">{user.email || 'N/A'}</span>
+            <span className="detail-label">Email Address:</span>
+            <span className="detail-value">{user.email || 'Not Available'}</span>
           </div>
           <div className="detail-row">
-            <span className="detail-label">Phone:</span>
-            <span className="detail-value">{user.phonenumber || 'N/A'}</span>
+            <span className="detail-label">Phone Number:</span>
+            <span className="detail-value">{user.phonenumber || 'Not Available'}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Account Status:</span>
+            <span className="detail-value" style={{ color: 'var(--gold)', fontWeight: '500' }}>Active</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Member Since:</span>
+            <span className="detail-value">2024</span>
           </div>
         </div>
         <div className="profile-actions">
           <button className="action-btn primary" onClick={handleEditDetails}>
-            Edit Details
+            <FaUser /> Edit Details
           </button>
           <button className="action-btn secondary" onClick={handleChangePassword}>
-            Change Password
+            🔐 Change Password
           </button>
           <button className="action-btn logout" onClick={handleLogout}>
             <FaSignOutAlt /> Logout
@@ -322,14 +330,14 @@ const UserPage = () => {
 
   const renderMyAccountsContent = () => (
     <div className="content-section">
-      <h2 className="section-title">My Bank Accounts</h2>
+      <h2 className="section-title">My Bank <em>Accounts</em></h2>
       <div className="accounts-controls">
         <button 
           className="refresh-btn" 
           onClick={handleRefreshAccounts}
           disabled={isRefreshingAccounts}
         >
-          {isRefreshingAccounts ? '🔄' : '↻'} {isRefreshingAccounts ? 'Refreshing...' : 'Refresh'}
+          {isRefreshingAccounts ? '🔄' : '↻'} {isRefreshingAccounts ? 'Refreshing...' : 'Refresh Accounts'}
         </button>
         <div className="filter-container">
           <label htmlFor="statusFilter">Filter by Status:</label>
@@ -339,8 +347,8 @@ const UserPage = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="filter-select"
           >
-            <option value="All">All</option>
-            <option value="Pending">Pending</option>
+            <option value="All">All Accounts</option>
+            <option value="Pending">Pending Review</option>
             <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>
           </select>
@@ -349,29 +357,30 @@ const UserPage = () => {
       
       {filteredAccounts.length === 0 ? (
         <div className="no-accounts">
-          <div className="no-accounts-icon">🚫</div>
-          <p>{statusFilter === 'All' ? 'No accounts found.' : `No ${statusFilter.toLowerCase()} accounts found.`}</p>
+          <div className="no-accounts-icon">🏦</div>
+          <h3>No Banking Accounts Found</h3>
+          <p>{statusFilter === 'All' ? 'You haven\'t created any bank accounts yet.' : `No ${statusFilter.toLowerCase()} accounts found.`}</p>
         </div>
       ) : (
         <div className="accounts-grid">
           {filteredAccounts.map((account) => (
             <div key={account.id} className="account-card">
               <div className="account-header">
-                <h4>{account.bank || 'N/A'}</h4>
+                <h4>🏛️ {account.bank || 'Bank Name Not Available'}</h4>
                 <span className={`status-badge ${account.status?.toLowerCase()}`}>
-                  {account.status || 'N/A'}
+                  {account.status || 'Unknown'}
                 </span>
               </div>
               <div className="account-details">
-                <p><strong>Country:</strong> {account.country || 'N/A'}</p>
-                <p><strong>Branch:</strong> {account.branch || 'N/A'}</p>
-                <p><strong>Created:</strong> {account.createdDate || 'N/A'}</p>
+                <p><strong>🌍 Country:</strong> {account.country || 'Not Specified'}</p>
+                <p><strong>🏢 Branch:</strong> {account.branch || 'Not Specified'}</p>
+                <p><strong>📅 Created:</strong> {account.createdDate || 'Not Available'}</p>
                 {account.status === 'APPROVED' && account.accountNumber && (
-                  <p><strong>Account Number:</strong> {account.accountNumber}</p>
+                  <p><strong>💳 Account Number:</strong> {account.accountNumber}</p>
                 )}
               </div>
               <button className="view-details-btn" onClick={() => handleViewDetails(account)}>
-                <FaEye /> View Details
+                <FaEye /> View Full Details
               </button>
             </div>
           ))}
@@ -382,28 +391,44 @@ const UserPage = () => {
 
   const renderCreateAccountContent = () => (
     <div className="content-section">
-      <h2 className="section-title">Create New Account</h2>
+      <h2 className="section-title">Create New <em>Account</em></h2>
       <div className="create-account-content">
-        <div className="create-account-info">
-          <h3>Ready to open a new bank account?</h3>
-          <p>Choose from our selection of banks and start your application process. We support multiple banks across different countries.</p>
-          <ul>
-            <li>Quick and easy application process</li>
-            <li>Multiple account types available</li>
-            <li>Secure document upload</li>
-            <li>Real-time application status tracking</li>
-          </ul>
+        <div className="create-account-header">
+          <h3>Open a New Bank Account</h3>
+          <p>Access our network of partner banks and start your application process.</p>
         </div>
-        <button className="create-account-btn" onClick={handleCreateBankAccount}>
-          <FaPlus /> Start New Application
-        </button>
+        
+        <div className="features-list">
+          <div className="feature-item">
+            <span className="feature-label">Quick Application</span>
+            <span className="feature-description">Complete in minutes</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-label">Global Network</span>
+            <span className="feature-description">Multiple countries available</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-label">Secure Process</span>
+            <span className="feature-description">Bank-grade security</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-label">Real-time Updates</span>
+            <span className="feature-description">Track your progress</span>
+          </div>
+        </div>
+        
+        <div className="create-account-action">
+          <button className="create-account-btn" onClick={handleCreateBankAccount}>
+            <FaPlus /> Start Application
+          </button>
+        </div>
       </div>
     </div>
   );
 
   const renderContactUsContent = () => (
     <div className="content-section">
-      <h2 className="section-title">Get In Touch</h2>
+      <h2 className="section-title">Get In <em>Touch</em></h2>
       <div className="contact-content">
         <div className="contact-grid">
           <div className="contact-card primary">
@@ -411,19 +436,21 @@ const UserPage = () => {
               <FaEnvelope />
             </div>
             <div className="contact-card-content">
-              <h4>Email Support</h4>
-              <p className="contact-description">Send us your questions</p>
+              <h4>📧 Professional Email Support</h4>
+              <p className="contact-description">Send us your questions and we'll provide comprehensive assistance</p>
               <p className="contact-detail">noreplyinterbankinghub@gmail.com</p>
-              <span className="response-time">Response within 24-48 hours</span>
+              <span className="response-time">⏱️ Professional response within 24-48 hours</span>
             </div>
           </div>
         </div>
         
         <div className="contact-tips">
-          <h4>💡 Quick Tips</h4>
+          <h4>💡 Professional Support Tips</h4>
           <ul>
-            <li>Include your account details for faster assistance</li>
-            <li>Describe your issue clearly with any error messages</li>
+            <li>📋 Include your account details and user ID for faster assistance</li>
+            <li>🔍 Describe your issue clearly with any error messages or screenshots</li>
+            <li>📞 For urgent matters, mention "URGENT" in your email subject line</li>
+            <li>🏦 For bank-specific queries, include the bank name and branch details</li>
           </ul>
         </div>
       </div>
@@ -432,34 +459,37 @@ const UserPage = () => {
 
   const renderFAQContent = () => (
     <div className="content-section">
-      <h2 className="section-title">Frequently Asked Questions</h2>
+      <h2 className="section-title">Frequently Asked <em>Questions</em></h2>
       <div className="faq-content">
         <div className="faq-item">
-          <h4>Q: How long does it take to approve my account application?</h4>
-          <p>A: Account approval typically takes 1-3 business days. You'll receive email notifications about your application status.</p>
+          <h4>⏱️ How long does it take to approve my account application?</h4>
+          <p><strong>Answer:</strong> Account application processing typically takes 1-3 business days depending on the bank and country. You'll receive comprehensive email notifications throughout the review process, including status updates and any additional documentation requirements.</p>
         </div>
         
         <div className="faq-item">
-          <h4>Q: What documents do I need to open an account?</h4>
-          <p>A: For Indian accounts, you need Aadhaar, PAN, and address proof. For international accounts, requirements vary by country.</p>
+          <h4>📋 What documents do I need to open a bank account?</h4>
+          <p><strong>Answer:</strong> Documentation requirements vary by country and bank type. For Indian accounts, you typically need Aadhaar card, PAN card, and address proof. For international accounts, passport, visa documentation, and local address verification may be required. Our platform guides you through the specific requirements for each bank.</p>
         </div>
         
         <div className="faq-item">
-          <h4>Q: Can I have multiple accounts with different banks?</h4>
-          <p>A: Yes, you can apply for accounts with multiple banks through our platform. Each application is processed independently.</p>
+          <h4>🏦 Can I have multiple accounts with different banks?</h4>
+          <p><strong>Answer:</strong> Absolutely! Our platform is designed to support multi-bank relationships. You can apply for accounts with multiple banks through our unified interface. Each application is processed independently, allowing you to diversify your banking portfolio across different institutions and countries.</p>
         </div>
         
         <div className="faq-item">
-          <h4>Q: How do I check my account status?</h4>
-          <p>A: You can check your account status in the "My Accounts" section. We also send email notifications for status updates.</p>
+          <h4>📱 How do I check my account application status?</h4>
+          <p><strong>Answer:</strong> You can monitor all your applications in real-time through the "My Accounts" section. Our dashboard provides comprehensive status tracking, including application progress, approval stages, and any required actions. Additionally, we send automated email notifications for all status changes.</p>
         </div>
         
         <div className="faq-item">
-          <h4>Q: What if my application is rejected?</h4>
-          <p>A: If your application is rejected, you can contact customer support for details and reapply after addressing any issues.</p>
+          <h4>❌ What happens if my application is rejected?</h4>
+          <p><strong>Answer:</strong> If your application is not approved, our customer support team will provide detailed feedback on the reasons and guidance for improvement. You can contact our support team for personalized assistance and reapply once you've addressed any identified issues. We're committed to helping you succeed in your banking journey.</p>
         </div>
         
-        
+        <div className="faq-item">
+          <h4>🔒 How secure is the application process?</h4>
+          <p><strong>Answer:</strong> We employ bank-grade security measures including SSL encryption, secure document storage, and compliance with international data protection standards. Your personal and financial information is protected throughout the entire application lifecycle.</p>
+        </div>
       </div>
     </div>
   );
@@ -482,13 +512,13 @@ const UserPage = () => {
     }
   };
 
-  // Show loading state while user data is being fetched
+  // Enhanced loading state while user data is being fetched
   if (isUserLoading) {
     return (
       <div className="user-dashboard-container">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Loading user information...</p>
+          <p>Loading your banking dashboard...</p>
         </div>
       </div>
     );
@@ -497,17 +527,17 @@ const UserPage = () => {
   return (
     <>
       <div className="user-dashboard-container">
-        {/* Left Sidebar */}
+        {/* Enhanced Professional Left Sidebar */}
         <div className="sidebar">
           <div className="sidebar-header">
             <div className="user-avatar-sidebar">
-              <FaUser size={32} />
+              <FaUser size={24} />
             </div>
             <div className="user-info-sidebar">
-              <h3>{user.username || 'User'}</h3>
-              <p>Banking Customer</p>
+              <h3>{user.username || 'Professional User'}</h3>
+              <p>Banking Dashboard</p>
             </div>
-            <button className="logout-btn-sidebar" onClick={handleLogout} title="Logout">
+            <button className="logout-btn-sidebar" onClick={handleLogout} title="Secure Logout">
               <FaSignOutAlt size={18} />
             </button>
           </div>
@@ -526,7 +556,7 @@ const UserPage = () => {
           </nav>
         </div>
 
-        {/* Main Content Area */}
+        {/* Enhanced Professional Main Content Area */}
         <div className="main-content">
           {renderContent()}
         </div>

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
-import Header from '../components/Header';
 import { fetchAllAccounts, approveAccount, rejectAccount } from '../api/accountApi';
 import { testApiConnection } from '../api/adminApi';
 import { updateAdminDetails, changeAdminPassword, getAdminById, updateAdminDetailsSimple } from '../api/adminApi';
 import { AuthGuard } from '../utils/authGuard';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
-import './AdminPage.css';
+import './AdminPageClean.css';
 import { createBranch } from '../api/bankApi';
+import { FaUser, FaTimes, FaEye, FaUserShield, FaPlus, FaCog, FaChartBar, FaBuilding, FaSignOutAlt, FaUsers, FaEdit, FaKey } from 'react-icons/fa';
 
 
 const AdminPage = () => {
@@ -61,6 +61,9 @@ const AdminPage = () => {
     }
   }, []);
 
+  // State for sections navigation
+  const [activeSection, setActiveSection] = useState('Dashboard');
+  
   // State for all applications
   const [accounts, setAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState('Pending');
@@ -148,7 +151,7 @@ const AdminPage = () => {
     setPasswordFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdateAdminDetails = async () => {
+  const handleUpdateAdmin = async () => {
     setIsLoading(true);
     setMessage('');
     
@@ -300,6 +303,20 @@ const AdminPage = () => {
     }
   };
 
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setMessage('');
+  };
+
+  const closePasswordModal = () => {
+    setShowPasswordModal(false);
+    setMessage('');
+  };
+
+  const handleLogout = () => {
+    AuthGuard.logout();
+  };
+
   const openEditModal = () => {
     setEditFormData({
       username: admin.username || '',
@@ -375,6 +392,334 @@ const AdminPage = () => {
     setShowBranchModal(true);
   };
 
+  // Enhanced Sidebar navigation items for admin
+  const sidebarItems = [
+    { id: 'Dashboard', label: 'Dashboard', icon: <FaChartBar /> },
+    { id: 'Applications', label: 'Applications', icon: <FaUsers /> },
+    { id: 'Profile', label: 'Admin Profile', icon: <FaUserShield /> },
+    { id: 'AddBranch', label: 'Add Branch', icon: <FaBuilding /> },
+    { id: 'Settings', label: 'Settings', icon: <FaCog /> }
+  ];
+
+  // Content rendering functions
+  const renderDashboardContent = () => (
+    <div className="content-section">
+      <h2 className="section-title">Admin <em>Dashboard</em></h2>
+      <div className="dashboard-content">
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon pending">📋</div>
+            <div className="stat-info">
+              <h3>{accounts.filter(acc => acc.status?.toLowerCase() === 'pending').length}</h3>
+              <p>Pending Applications</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon approved">✅</div>
+            <div className="stat-info">
+              <h3>{accounts.filter(acc => acc.status?.toLowerCase() === 'approved').length}</h3>
+              <p>Approved Accounts</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon rejected">❌</div>
+            <div className="stat-info">
+              <h3>{accounts.filter(acc => acc.status?.toLowerCase() === 'rejected').length}</h3>
+              <p>Rejected Applications</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon total">📊</div>
+            <div className="stat-info">
+              <h3>{accounts.length}</h3>
+              <p>Total Applications</p>
+            </div>
+          </div>
+        </div>
+        <div className="dashboard-actions">
+          <button className="action-btn primary" onClick={() => setActiveSection('Applications')}>
+            <FaUsers /> View Applications
+          </button>
+          <button className="action-btn secondary" onClick={() => setActiveSection('AddBranch')}>
+            <FaBuilding /> Add New Branch
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderApplicationsContent = () => (
+    <div className="content-section">
+      <h2 className="section-title">Bank <em>Applications</em></h2>
+      <div className="applications-controls">
+        <div className="filter-container">
+          <label htmlFor="statusFilter">Filter by Status:</label>
+          <select 
+            id="statusFilter"
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+            <option value="All">All Applications</option>
+          </select>
+        </div>
+      </div>
+      
+      {loading ? (
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading applications...</p>
+        </div>
+      ) : error ? (
+        <div className="error-state">
+          <p>{error}</p>
+        </div>
+      ) : (() => {
+        const filteredAccounts = accounts.filter(acc =>
+          statusFilter === 'All'
+            ? true
+            : (acc.status || '').toLowerCase() === statusFilter.toLowerCase()
+        );
+        
+        return filteredAccounts.length === 0 ? (
+          <div className="no-applications">
+            <div className="no-applications-icon">🏦</div>
+            <h3>No {statusFilter} Applications</h3>
+            <p>There are currently no {statusFilter.toLowerCase()} applications to review.</p>
+          </div>
+        ) : (
+          <div className="applications-grid">
+            {filteredAccounts.map(app => (
+              <div key={app.id} className="application-card">
+                <div className="application-header">
+                  <h4>👤 {app.applicant || app.fullName}</h4>
+                  <span className={`status-badge ${app.status?.toLowerCase()}`}>
+                    {app.status}
+                  </span>
+                </div>
+                <div className="application-details">
+                  <p><strong>📧 Email:</strong> {app.email}</p>
+                  <p><strong>🌍 Country:</strong> {app.country || app.location || '-'}</p>
+                  <p><strong>🏦 Bank:</strong> {app.bank || app.bankName || admin.bankname}</p>
+                </div>
+                <div className="application-actions">
+                  {app.status?.toLowerCase() === 'pending' && (
+                    <div className="approval-buttons">
+                      <button
+                        className="approve-btn"
+                        disabled={!!processingId}
+                        onClick={async () => {
+                          if (window.confirm('Are you sure you want to approve this account?')) {
+                            setProcessingId(app.id);
+                            try {
+                              await approveAccount(app.id);
+                              updateAccountStatus(app.id, 'Approved');
+                              setSuccessMsg('Account approved successfully!');
+                              setTimeout(() => setSuccessMsg(''), 3000);
+                            } catch (err) {
+                              alert('Failed to approve account');
+                            } finally {
+                              setProcessingId(null);
+                            }
+                          }
+                        }}
+                      >
+                        {processingId === app.id ? 'Approving...' : 'Approve'}
+                      </button>
+                      <button
+                        className="reject-btn"
+                        disabled={!!processingId}
+                        onClick={async () => {
+                          if (window.confirm('Are you sure you want to reject this account?')) {
+                            setProcessingId(app.id);
+                            try {
+                              await rejectAccount(app.id);
+                              updateAccountStatus(app.id, 'Rejected');
+                              setSuccessMsg('Account rejected successfully!');
+                              setTimeout(() => setSuccessMsg(''), 3000);
+                            } catch (err) {
+                              alert('Failed to reject account');
+                            } finally {
+                              setProcessingId(null);
+                            }
+                          }
+                        }}
+                      >
+                        {processingId === app.id ? 'Rejecting...' : 'Reject'}
+                      </button>
+                    </div>
+                  )}
+                  <button className="view-details-btn" onClick={() => setSelectedAccount(app)}>
+                    <FaEye /> View Details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+      
+      {successMsg && (
+        <div className="success-message">
+          {successMsg}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderProfileContent = () => (
+    <div className="content-section profile-section">
+      <h2 className="section-title">Admin <em>Profile</em></h2>
+      <div className="profile-content">
+        <div className="profile-header">
+          <div className="profile-avatar">
+            <FaUserShield size={40} />
+          </div>
+          <div className="profile-info">
+            <h3>{admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}</h3>
+            <p className="user-subtitle">Bank Administrator</p>
+            <div className="user-status">
+              <span className="status-indicator active"></span>
+              <span className="status-text">Active Session</span>
+            </div>
+          </div>
+        </div>
+        <div className="profile-details">
+          <div className="detail-row">
+            <div className="detail-icon">🏦</div>
+            <div className="detail-content">
+              <span className="detail-label">Bank Name</span>
+              <span className="detail-value">{admin.bankname || 'Not Available'}</span>
+            </div>
+          </div>
+          <div className="detail-row">
+            <div className="detail-icon">📧</div>
+            <div className="detail-content">
+              <span className="detail-label">Email Address</span>
+              <span className="detail-value">{admin.email ? admin.email.charAt(0).toUpperCase() + admin.email.slice(1) : 'Not Available'}</span>
+            </div>
+          </div>
+          <div className="detail-row">
+            <div className="detail-icon">👤</div>
+            <div className="detail-content">
+              <span className="detail-label">Username</span>
+              <span className="detail-value">{admin.username || 'Not Available'}</span>
+            </div>
+          </div>
+          <div className="detail-row">
+            <div className="detail-icon">🔑</div>
+            <div className="detail-content">
+              <span className="detail-label">Admin Role</span>
+              <span className="detail-value status-active">Bank Administrator</span>
+            </div>
+          </div>
+        </div>
+        <div className="profile-actions">
+          <button className="action-btn primary" onClick={() => setShowEditModal(true)}>
+            <FaEdit /> Edit Details
+          </button>
+          <button className="action-btn secondary" onClick={() => setShowPasswordModal(true)}>
+            <FaKey /> Change Password
+          </button>
+          <button className="action-btn logout" onClick={handleLogout}>
+            <FaSignOutAlt /> Secure Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAddBranchContent = () => (
+    <div className="content-section">
+      <h2 className="section-title">Add New <em>Branch</em></h2>
+      <div className="add-branch-content">
+        <div className="add-branch-header">
+          <h3>Create a New Bank Branch</h3>
+          <p>Expand your banking network by adding a new branch location.</p>
+        </div>
+        
+        <div className="features-list">
+          <div className="feature-item">
+            <span className="feature-label">Branch Management</span>
+            <span className="feature-description">Manage multiple locations</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-label">Location Tracking</span>
+            <span className="feature-description">Organize by city and country</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-label">Unique Codes</span>
+            <span className="feature-description">Generate branch identifiers</span>
+          </div>
+        </div>
+        
+        <div className="add-branch-action">
+          <button className="create-branch-btn" onClick={() => setShowBranchModal(true)}>
+            <FaPlus /> Add New Branch
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSettingsContent = () => (
+    <div className="content-section">
+      <h2 className="section-title">Admin <em>Settings</em></h2>
+      <div className="settings-content">
+        <div className="settings-grid">
+          <div className="setting-card">
+            <h4>🔧 Account Management</h4>
+            <p>Manage admin account settings and preferences</p>
+            <button onClick={() => setShowEditModal(true)}>Edit Profile</button>
+          </div>
+          <div className="setting-card">
+            <h4>🔒 Security Settings</h4>
+            <p>Update password and security preferences</p>
+            <button onClick={() => setShowPasswordModal(true)}>Change Password</button>
+          </div>
+          <div className="setting-card">
+            <h4>🏦 Bank Information</h4>
+            <p>View and manage bank details</p>
+            <span className="readonly-info">Bank: {admin.bankname}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Render content based on active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'Dashboard':
+        return renderDashboardContent();
+      case 'Applications':
+        return renderApplicationsContent();
+      case 'Profile':
+        return renderProfileContent();
+      case 'AddBranch':
+        return renderAddBranchContent();
+      case 'Settings':
+        return renderSettingsContent();
+      default:
+        return renderDashboardContent();
+    }
+  };
+
+  // Loading state while admin data is being fetched
+  if (!admin.username && !admin.email) {
+    return (
+      <div className="admin-dashboard-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Call test on component mount (optional - remove in production)
   useEffect(() => {
     if (admin.adminId) {
@@ -384,300 +729,86 @@ const AdminPage = () => {
 
   return (
     <>
-      <Header />
-      <div className="admin-page-container">
-        <div className="admin-content">
-          {/* Admin Info Card */}
-          <div className="admin-profile-section">
-            {/* Gradient top border */}
-            <div className="gradient-border"></div>
-            
-            {/* Admin Profile Section */}
-            <div className="admin-profile">
-              <div className="admin-avatar">
-                {admin.icon || '👨‍💼'}
-              </div>
-              <div className="admin-info">
-                <h1 className="admin-name">
-                  {admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}
-                </h1>
-                <p className="admin-role">
-                  Bank Administrator
-                </p>
-              </div>
+      <div className="admin-dashboard-container">
+        {/* Enhanced Professional Left Sidebar */}
+        <div className="sidebar">
+          <div className="sidebar-header">
+            <div className="admin-avatar-sidebar">
+              <FaUserShield size={24} />
             </div>
-            
-            {/* Admin Details Grid */}
-            <div className="admin-details-grid">
-              <div className="admin-detail-card">
-                <span className="detail-label">Bank Name</span>
-                <span className="detail-value">{admin.bankname || 'N/A'}</span>
-              </div>
-              
-              <div className="admin-detail-card">
-                <span className="detail-label">Email</span>
-                <span className="detail-value">{admin.email ? admin.email.charAt(0).toUpperCase() + admin.email.slice(1) : 'N/A'}</span>
-              </div>
-              
-              {/* Edit Actions */}
-              <div className="admin-actions">
-                <button onClick={openEditModal} className="action-btn edit-btn">
-                  Edit Details
-                </button>
-                
-                <button onClick={openPasswordModal} className="action-btn password-btn">
-                  Reset Password
-                </button>
-
-                <button onClick={openBranchModal} className="action-btn branch-btn">
-                  <span>+ Add New Branch</span>
-                </button>
-              </div>
+            <div className="admin-info-sidebar">
+              <h3>{admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}</h3>
+              <p>Bank Administrator</p>
             </div>
+            <button className="logout-btn-sidebar" onClick={handleLogout} title="Secure Logout">
+              <FaSignOutAlt size={18} />
+            </button>
           </div>
-          {/* Applications Container */}
-          <div className="applications-container">
-            {/* Dynamic header based on filter */}
-            <div className="applications-header">
-              <h2>
-                {statusFilter === 'Pending' ? 'Pending Applications' : statusFilter === 'Approved' ? 'Approved Applications' : statusFilter === 'Rejected' ? 'Rejected Applications' : 'Applications'}
-              </h2>
-              <div className="filter-section">
-                <label htmlFor="statusFilter">Filter by Status: </label>
-                <select
-                  id="statusFilter"
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  className="status-filter"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
-                  <option value="All">All</option>
-                </select>
+          
+          <nav className="sidebar-nav">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                className={`sidebar-item ${activeSection === item.id ? 'active' : ''}`}
+                onClick={() => setActiveSection(item.id)}
+              >
+                <span className="sidebar-icon">{item.icon}</span>
+                <span className="sidebar-label">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Enhanced Professional Main Content Area */}
+        <div className="main-content">
+          {renderContent()}
+        </div>
+      </div>
+
+      {/* Account Details Modal */}
+      {selectedAccount && (
+        <div className="modal-overlay" onClick={() => setSelectedAccount(null)}>
+          <div className="modal-container large-modal" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setSelectedAccount(null)} className="modal-close-btn">
+              <FaTimes />
+            </button>
+            <h2 className="modal-title">Application Details</h2>
+            <div className="account-details-content">
+              <h3>{selectedAccount.applicant || selectedAccount.fullName}</h3>
+              <div className="details-grid">
+                <div className="detail-item">
+                  <strong>Email:</strong> {selectedAccount.email}
+                </div>
+                <div className="detail-item">
+                  <strong>Country:</strong> {selectedAccount.country || selectedAccount.location || '-'}
+                </div>
+                <div className="detail-item">
+                  <strong>Bank:</strong> {selectedAccount.bank || selectedAccount.bankName || admin.bankname}
+                </div>
+                <div className="detail-item">
+                  <strong>Status:</strong> 
+                  <span className={`status-badge ${selectedAccount.status?.toLowerCase()}`}>
+                    {selectedAccount.status}
+                  </span>
+                </div>
               </div>
             </div>
-            {loading ? (
-              <div>Loading applications...</div>
-            ) : error ? (
-              <div className="error-message">{error}</div>
-            ) : (() => {
-              // Filter accounts based on status
-              // Filter is case-sensitive and matches backend status exactly
-              const filteredAccounts = accounts.filter(acc =>
-                statusFilter === 'All'
-                  ? true
-                  : (acc.status || '').toLowerCase() === statusFilter.toLowerCase()
-              );
-              return filteredAccounts.length === 0 ? (
-                <div className="no-applications">
-                  <div className="no-applications-icon">🚫</div>
-                  <h2>No {statusFilter} Applications</h2>
-                  <p>There are currently no {statusFilter.toLowerCase()} applications to review.</p>
-                </div>
-              ) : (
-                <table key={`${statusFilter}-${accounts.length}`} className="applications-table">
-                  <thead>
-                    <tr className="table-header">
-                      <th>Applicant</th>
-                      <th>Country</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredAccounts.map(app => (
-                      <tr key={app.id} className="table-row">
-                        <td>{app.applicant || app.fullName}</td>
-                        <td>{app.country || app.location || '-'}</td>
-                        <td>{app.email}</td>
-                        <td className={`status-cell ${app.status?.toLowerCase() === 'pending' ? 'status-pending' : app.status?.toLowerCase() === 'approved' ? 'status-approved' : 'status-rejected'}`}
-                            style={{
-                              opacity: processingId === app.id ? 0.5 : 1,
-                              transition: 'opacity 0.3s'
-                            }}>{app.status}</td>
-                        <td>
-                          {app.status?.toLowerCase() === 'pending' ? (
-                            <div className="action-buttons">
-                              <button
-                                className="approve-btn"
-                                style={{ opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
-                                disabled={!!processingId}
-                                onClick={async () => {
-                                  if (window.confirm('Are you sure you want to approve this account?')) {
-                                    setProcessingId(app.id);
-                                    setSuccessMsg("");
-                                    try {
-                                      await approveAccount(app.id);
-                                      setSuccessMsg('approved:Account approved successfully!');
-                                      updateAccountStatus(app.id, 'Approved'); // Use exact status string
-                                      setProcessingId(null);
-                                      setTimeout(() => setSuccessMsg(""), 2000);
-                                    } catch (err) {
-                                      setProcessingId(null);
-                                      alert('Failed to approve account');
-                                    }
-                                  }
-                                }}
-                              >
-                                {processingId === app.id ? 'Approving...' : 'Approve'}
-                              </button>
-                              <button
-                                className="reject-btn"
-                                style={{ opacity: processingId === app.id ? 0.6 : 1, transition: 'opacity 0.3s' }}
-                                disabled={!!processingId}
-                                onClick={async () => {
-                                  if (window.confirm('Are you sure you want to reject this account?')) {
-                                    setProcessingId(app.id);
-                                    setSuccessMsg("");
-                                    try {
-                                      await rejectAccount(app.id);
-                                      setSuccessMsg('rejected:Account rejected successfully!');
-                                      updateAccountStatus(app.id, 'Rejected'); // Use exact status string
-                                      setProcessingId(null);
-                                      setTimeout(() => setSuccessMsg(""), 2000);
-                                    } catch (err) {
-                                      setProcessingId(null);
-                                      alert('Failed to reject account');
-                                    }
-                                  }
-                                }}
-                              >
-                                {processingId === app.id ? 'Rejecting...' : 'Reject'}
-                              </button>
-                            </div>
-                          ) : null}
-                        </td>
-                        <td>
-                          <button
-                            title="View more"
-                            className="view-more-btn"
-                            onMouseEnter={(e) => {
-                              e.target.style.background = 'linear-gradient(135deg, #bbdefb 0%, #90caf9 100%)';
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)';
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                            onClick={() => setSelectedAccount(app)}
-                          >
-                            👁
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              );
-            })()}
-            {successMsg && (
-              <div className={`success-message ${successMsg.startsWith('rejected:') ? 'error' : ''}`}>
-                {successMsg.replace(/^(approved:|rejected:)/, '')}
-              </div>
-            )}
           </div>
         </div>
-        
-        {/* Modal for Account Details */}
-        {selectedAccount && (
-          <div className="modal-overlay">
-            <div className="modal-container">
-              <button
-                onClick={() => setSelectedAccount(null)}
-                className="modal-close-btn"
-              >
-                ✕
-              </button>
-              
-              <h2 className="modal-title">
-                Account Details
-              </h2>
-              
-              <div className="modal-grid">
-                
-                <div>
-                  <strong>Full Name:</strong>
-                  <div className="modal-grid-item">{selectedAccount.fullName || selectedAccount.applicant || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Email:</strong>
-                  <div className="modal-grid-item">{selectedAccount.email || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Phone:</strong>
-                  <div className="modal-grid-item">{selectedAccount.mobile || selectedAccount.phoneNumber || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Country:</strong>
-                  <div className="modal-grid-item">{selectedAccount.country || selectedAccount.location || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Bank:</strong>
-                  <div className="modal-grid-item">{selectedAccount.bank || selectedAccount.bankName || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Account Type:</strong>
-                  <div className="modal-grid-item">{selectedAccount.accountType || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Status:</strong>
-                  <div className={`modal-grid-item status ${selectedAccount.status?.toLowerCase()}`}>
-                    {selectedAccount.status || 'N/A'}
-                  </div>
-                </div>
-                
-                <div>
-                  <strong>Date Applied:</strong>
-                  <div className="modal-grid-item">{selectedAccount.dateApplied || selectedAccount.createdDate || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Address:</strong>
-                  <div className="modal-grid-item">{selectedAccount.address || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Date of Birth:</strong>
-                  <div className="modal-grid-item">{selectedAccount.dateOfBirth || selectedAccount.dob || 'N/A'}</div>
-                </div>
-                
-                <div>
-                  <strong>Initial Deposit:</strong>
-                  <div className="modal-grid-item">{selectedAccount.initialDeposit || selectedAccount.deposit || 'N/A'}</div>
-                </div>
-              </div>
-              
-              {selectedAccount.notes && (
-                <div className="modal-notes">
-                  <strong>Notes:</strong>
-                  <div className="modal-notes-content">{selectedAccount.notes}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {/* Edit Admin Details Modal */}
+      )}
+
+      {/* Edit Admin Details Modal */}
         {showEditModal && (
           <div className="modal-overlay">
             <div className="modal-container">
-              <button onClick={() => setShowEditModal(false)} className="modal-close-btn">✕</button>
+              <button onClick={closeEditModal} className="modal-close-btn">✕</button>
               <h2 className="modal-title">Edit Admin Details</h2>
               {message && (
                 <div className={`success-message ${message.includes('Error') ? 'error' : ''}`}>
                   {message}
                 </div>
               )}
-              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdminDetails(); }} className="modal-form">
+              <form onSubmit={(e) => { e.preventDefault(); handleUpdateAdmin(); }} className="modal-form">
                 <div className="form-group">
                   <label className="form-label">Username: <span className="required">*</span></label>
                   <input
@@ -713,7 +844,7 @@ const AdminPage = () => {
                   <small className="disabled-note">Bank name cannot be changed</small>
                 </div>
                 <div className="form-actions">
-                  <button type="button" onClick={() => setShowEditModal(false)} className="form-btn cancel">Cancel</button>
+                  <button type="button" onClick={closeEditModal} className="form-btn cancel">Cancel</button>
                   <button type="submit" disabled={isLoading} className="form-btn submit">
                     {isLoading ? 'Updating...' : 'Update Details'}
                   </button>
@@ -727,7 +858,7 @@ const AdminPage = () => {
         {showPasswordModal && (
           <div className="modal-overlay">
             <div className="modal-container">
-              <button onClick={() => setShowPasswordModal(false)} className="modal-close-btn">✕</button>
+              <button onClick={closePasswordModal} className="modal-close-btn">✕</button>
               <h2 className="modal-title">Reset Password</h2>
               {message && (
                 <div className={`success-message ${message.includes('Error') ? 'error' : ''}`}>
@@ -779,7 +910,7 @@ const AdminPage = () => {
                   )}
                 </div>
                 <div className="form-actions">
-                  <button type="button" onClick={() => setShowPasswordModal(false)} className="form-btn cancel">Cancel</button>
+                  <button type="button" onClick={closePasswordModal} className="form-btn cancel">Cancel</button>
                   <button type="submit" disabled={isLoading} className="form-btn submit">
                     {isLoading ? 'Updating...' : 'Update Password'}
                   </button>
@@ -880,9 +1011,8 @@ const AdminPage = () => {
             </div>
           </div>
         )}
-        </div>
-        
-        <Footer />
+
+      <Footer />
     </>
   );
 };

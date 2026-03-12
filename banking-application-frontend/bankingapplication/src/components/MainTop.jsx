@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './MainTop.css';
 
+
+
 const MainTop = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [userType, setUserType] = useState(null);
@@ -24,6 +26,8 @@ const MainTop = () => {
 
   const dashboardPath = userType === 'admin' ? '/adminpage' : '/userpage';
 
+ 
+
   return (
     <section className="hero" aria-label="Welcome section">
       {/* Ambient animated gradient */}
@@ -33,16 +37,16 @@ const MainTop = () => {
         <p className="hero__eyebrow">{greeting} &nbsp;·&nbsp; InterBankHub</p>
 
         <h1 className="hero__headline">
-          Capital managed with<br />complete <em>confidence.</em>
+          All your banks.<br />One <em>secure</em> platform.
         </h1>
 
         <p className="hero__sub">
-          Unified access across every account you hold.
-          Precision controls. Zero compromise.
+          Connect and manage accounts from multiple banks effortlessly.
+          Experience unified banking like never before.
         </p>
 
         <p className="hero__tagline">
-          Where precision meets discretion.
+          Banking simplified. Security amplified.
         </p>
 
         <div className="hero__cta">
@@ -61,6 +65,7 @@ const MainTop = () => {
             </>
           )}
         </div>
+        
       </div>
 
       {/* Breathing scroll indicator */}
@@ -72,3 +77,5 @@ const MainTop = () => {
 };
 
 export default MainTop;
+
+       
