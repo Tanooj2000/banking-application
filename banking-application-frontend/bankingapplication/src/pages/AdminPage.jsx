@@ -39,8 +39,8 @@ const AdminPage = () => {
   // Check authentication and session validity
   useEffect(() => {
     const checkAuth = () => {
-      if (!AuthGuard.isAuthenticated()) {
-        AuthGuard.logout();
+      if (!AuthGuard.isAdminAuthenticated()) {
+        AuthGuard.logoutAdmin();
         return;
       }
     };
@@ -56,8 +56,8 @@ const AdminPage = () => {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!AuthGuard.isAuthenticated()) {
-      AuthGuard.logout();
+    if (!AuthGuard.isAdminAuthenticated()) {
+      AuthGuard.logoutAdmin();
     }
   }, []);
 

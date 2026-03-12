@@ -306,6 +306,64 @@ public class AdminService {
         return ResponseEntity.ok(response);
     }
 
+    // Logout user by blacklisting the token
+    public ResponseEntity<String> logout(String authHeader) {
+        try {
+            // Extract token from Bearer header
+            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+            
+            // Validate token before blacklisting
+            if (!jwtService.isTokenValid(token)) {
+                return ResponseEntity.badRequest().body("Invalid token");
+            }
+            
+            // Blacklist the token
+            sessionService.blacklistToken(token);
+            return ResponseEntity.ok("Logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Logout failed: " + e.getMessage());
+        }
+    }
+    
+    // Get current admin details from token
+    public ResponseEntity<?> getCurrentAdminDetails(String authHeader) {
+        try {
+            // Extract token from Bearer header
+            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+            
+            // Check if token is blacklisted
+            if (sessionService.isTokenBlacklisted(token)) {
+                return ResponseEntity.badRequest().body("Token has been invalidated");
+            }
+            
+            // Extract username from token
+            String username = jwtService.extractUsername(token);
+            
+            // Find admin by username
+            Admin admin = adminRepository.findByUsername(username)
+                    .orElse(null);
+            
+            if (admin == null) {
+                return ResponseEntity.badRequest().body("Admin not found");
+            }
+            
+            // Create admin DTO without sensitive information
+            AdminLoginResponse.AdminDto adminDto = new AdminLoginResponse.AdminDto(
+                admin.getId(),
+                admin.getUsername(),
+                admin.getEmail(),
+                admin.getBankname(),
+                admin.getCountry(),
+                admin.isVerifiedByRoot(),
+                admin.getApplicationStatus().toString()
+            );
+            
+            return ResponseEntity.ok(adminDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to get admin details: " + e.getMessage());
+        }
+    }
+
     // Helper method to validate root admin credentials
     private boolean isValidRootAdmin(String rootUsername, String rootPassword) {
         return "rootadmin".equals(rootUsername) && "rootpass".equals(rootPassword);

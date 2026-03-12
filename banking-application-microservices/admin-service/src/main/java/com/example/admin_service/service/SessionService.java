@@ -22,6 +22,13 @@ public class SessionService {
 
     public void cleanup() {
         // Remove expired tokens from blacklist
-        blacklistedTokens.clear();
+        blacklistedTokens.removeIf(token -> {
+            try {
+                return !jwtService.isTokenValid(token);
+            } catch (Exception e) {
+                // If token validation fails, consider it expired
+                return true;
+            }
+        });
     }
 }

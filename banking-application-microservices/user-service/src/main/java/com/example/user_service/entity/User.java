@@ -3,6 +3,7 @@ package com.example.user_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +26,7 @@ public class User {
     private long phonenumber;
    
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 }
 

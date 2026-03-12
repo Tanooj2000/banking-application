@@ -15,16 +15,21 @@ public class EmailService {
 
     public void sendWelcomeEmail(String toEmail, String username) {
         try {
+            log.info("🚀 Starting email send process for user: {} to email: {}", username, toEmail);
+            
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(toEmail);
             message.setSubject("Welcome to InterBanking Hub!");
             message.setText(buildWelcomeEmailContent(username));
             message.setFrom("noreplyinterbankinghub@gmail.com");
 
+            log.info("📧 Email message prepared, attempting to send...");
             javaMailSender.send(message);
-            log.info("Welcome email sent successfully to: {}", toEmail);
+            log.info("✅ Welcome email sent successfully to: {}", toEmail);
         } catch (Exception e) {
-            log.error("Failed to send welcome email to: {}", toEmail, e);
+            log.error("❌ Failed to send welcome email to: {}. Error: {}", toEmail, e.getMessage(), e);
+            // Print to console as well for immediate visibility
+            System.err.println("❌ EMAIL ERROR: " + e.getMessage());
         }
     }
 

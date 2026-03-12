@@ -3,7 +3,6 @@ package com.example.user_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.user_service.entity.User;
 
 @Data
 @NoArgsConstructor
@@ -11,5 +10,15 @@ import com.example.user_service.entity.User;
 public class UpdateUserResponse {
     private boolean success;
     private String message;
-    private User user;
+    private UserDto user;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserDto {
+        private Long id;
+        private String username;
+        private String email;
+        private long phonenumber;
+    }
 }
