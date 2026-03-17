@@ -1,6 +1,6 @@
 // src/api/bankApi.js
 
-const BASE_URL = 'http://localhost:8082/api';
+const BASE_URL = 'http://localhost:8081/api';
 
 // Fixed countries - no need for API call
 export const getAvailableCountries = () => {
@@ -12,32 +12,28 @@ export const getAvailableCountries = () => {
 
 export const fetchBanks = async (country) => {
   try {
-    // Use only country path parameter
     const url = `${BASE_URL}/banks/country/${encodeURIComponent(country)}`;
-    
-    console.log('Fetching banks from:', url);
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
+      mode: 'cors'
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch banks (Status: ${response.status})`);
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch banks (Status: ${response.status}) - ${errorText}`);
     }
 
     const banks = await response.json();
-    console.log('Fetch banks response:', banks);
-    
-    // Your backend returns array directly, not wrapped in success object
     return Array.isArray(banks) ? banks : [];
   } catch (error) {
     console.error('Error fetching banks:', error);
     
     if (error.message === 'Failed to fetch') {
-      throw new Error('Cannot connect to server. Please check if the backend server is running on http://localhost:8081');
+      throw new Error('Cannot connect to server. Please check if the backend server is running and CORS is configured for your frontend port');
     }
     
     throw error;

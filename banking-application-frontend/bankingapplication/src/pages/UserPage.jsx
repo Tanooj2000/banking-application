@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 // Removed BlockedOverlay import as user page no longer hard-blocks after logout
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserBankAccounts } from '../api/accountApi';
+import { getAvailableCountries, fetchBanks } from '../api/bankApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
 import './UserPageClean.css';
 import Footer from '../components/Footer';
-import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt, FaGlobe, FaUniversity, FaMapMarkerAlt } from 'react-icons/fa';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 import { AuthGuard } from '../utils/authGuard';
 
@@ -26,6 +27,22 @@ const UserPage = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('Profile'); // New state for sidebar navigation
+  
+  // Bank selection states
+  const [countries, setCountries] = useState(['India']);
+  const [selectedCountry, setSelectedCountry] = useState('India');
+  const [banks, setBanks] = useState([]);
+  const [selectedBank, setSelectedBank] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [availableCities, setAvailableCities] = useState([]);
+  const [isBanksLoading, setIsBanksLoading] = useState(false);
+  const [bankSelectionError, setBankSelectionError] = useState('');
+  
+  // Search functionality states
+  const [bankSearchTerm, setBankSearchTerm] = useState('');
+  const [citySearchTerm, setCitySearchTerm] = useState('');
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   
   // Modal states
   const [showEditModal, setShowEditModal] = useState(false);
@@ -102,8 +119,104 @@ const UserPage = () => {
     fetchUserData();
   }, [userId, navigate]);
 
+  // Load countries and banks on component mount
+  useEffect(() => {
+    const loadCountries = () => {
+      const availableCountries = getAvailableCountries();
+      setCountries(availableCountries);
+    };
+    
+    loadCountries();
+  }, []);
+
+  // Load banks when country changes
+  useEffect(() => {
+    const loadBanks = async () => {
+      if (!selectedCountry) return;
+      
+      setIsBanksLoading(true);
+      setBankSelectionError('');
+      setSelectedBank('');
+      setSelectedCity('');
+      setAvailableCities([]);
+      setBankSearchTerm('');
+      setCitySearchTerm('');
+      
+      try {
+        const banksData = await fetchBanks(selectedCountry);
+        setBanks(banksData || []);
+        
+        if (banksData && banksData.length > 0) {
+          setBankSelectionError('');
+        }
+      } catch (err) {
+        console.error('Error loading banks for', selectedCountry, ':', err);
+        setBankSelectionError('Failed to load banks. Using sample data for testing.');
+        setBanks([]);
+      } finally {
+        setIsBanksLoading(false);
+      }
+    };
+    
+    loadBanks();
+  }, [selectedCountry]);
+
+  // Update cities when bank changes
+  useEffect(() => {
+    if (!selectedCountry || !banks.length) {
+      setAvailableCities([]);
+      setSelectedCity('');
+      setCitySearchTerm('');
+      return;
+    }
+    
+    const countryBanks = banks.filter(bank => bank.country === selectedCountry);
+    const uniqueCities = [...new Set(countryBanks.map(branch => branch.city))].filter(Boolean);
+    console.log('Cities for', selectedCountry, ':', uniqueCities);
+    setAvailableCities(uniqueCities);
+    setSelectedCity(''); // Reset city selection when country changes
+    setCitySearchTerm('');
+  }, [selectedCountry, banks]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.search-dropdown-container')) {
+        setShowBankDropdown(false);
+        setShowCityDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleCreateBankAccount = () => {
-    navigate(`/browsebank`, { state: { userId: user.id } });
+    if (!selectedBank || !selectedCity) {
+      setBankSelectionError('Please select both bank and city before proceeding.');
+      return;
+    }
+    
+    // Find branches for selected bank and city
+    const availableBranches = banks.filter(bank => 
+      bank.bankName === selectedBank && bank.city === selectedCity
+    );
+    
+    if (availableBranches.length > 0) {
+      navigate('/createaccount', {
+        state: {
+          userId: userId,
+          selectedCountry: selectedCountry,
+          selectedBank: { name: selectedBank, country: selectedCountry },
+          selectedCity: selectedCity,
+          branches: availableBranches
+        }
+      });
+    } else {
+      setBankSelectionError('No branches found for selected bank and city. Please try again.');
+    }
   };
 
   const handleLogout = () => {
@@ -389,42 +502,217 @@ const UserPage = () => {
     </div>
   );
 
-  const renderCreateAccountContent = () => (
-    <div className="content-section">
-      <h2 className="section-title">Create New <em>Account</em></h2>
-      <div className="create-account-content">
-        <div className="create-account-header">
-          <h3>Open a New Bank Account</h3>
-          <p>Access our network of partner banks and start your application process.</p>
-        </div>
-        
-        <div className="features-list">
-          <div className="feature-item">
-            <span className="feature-label">Quick Application</span>
-            <span className="feature-description">Complete in minutes</span>
+  const renderCreateAccountContent = () => {
+    console.log('Rendering CreateAccount - selectedCountry:', selectedCountry);
+    console.log('Rendering CreateAccount - banks:', banks.length, banks);
+    console.log('Rendering CreateAccount - availableCities:', availableCities.length, availableCities);
+    
+    // Get banks available in selected country and city
+    let availableBanks = [];
+    if (selectedCountry && selectedCity) {
+      availableBanks = [...new Set(banks
+        .filter(bank => bank.country === selectedCountry && bank.city === selectedCity)
+        .map(bank => bank.bankName)
+      )].filter(Boolean);
+    } else if (selectedCountry) {
+      availableBanks = [...new Set(banks
+        .filter(bank => bank.country === selectedCountry)
+        .map(bank => bank.bankName)
+      )].filter(Boolean);
+    } else {
+      availableBanks = [...new Set(banks.map(bank => bank.bankName))].filter(Boolean);
+    }
+    
+    console.log('Available banks:', availableBanks);
+    
+    // Filter banks based on search term
+    const filteredBanks = availableBanks.filter(bank =>
+      bank.toLowerCase().includes(bankSearchTerm.toLowerCase())
+    );
+    
+    // Filter cities based on search term
+    const filteredCities = availableCities.filter(city =>
+      city.toLowerCase().includes(citySearchTerm.toLowerCase())
+    );
+    
+    return (
+      <div className="content-section">
+        <h2 className="section-title">Create New <em>Account</em></h2>
+        <div className="create-account-content">
+          <div className="create-account-header">
+            <h3>Open a New Bank Account</h3>
+            <p>Select your preferred bank and city to start your application.</p>
           </div>
-          <div className="feature-item">
-            <span className="feature-label">Global Network</span>
-            <span className="feature-description">Multiple countries available</span>
+          
+          {/* Error Message - Show at top if exists */}
+          {bankSelectionError && (
+            <div className="error-message" style={{background: '#ffebee', color: '#c62828', padding: '1rem', borderRadius: '8px', margin: '1rem 0'}}>
+              ⚠️ {bankSelectionError}
+            </div>
+          )}
+          
+          {/* Bank Selection - Single Column Layout */}
+          <div className="bank-selection-container" style={{width: '100%', maxWidth: '800px', margin: '0 auto 3rem auto', padding: '2rem', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #dee2e6'}}>
+            <h4 className="form-section-title">Select Your Banking Preferences</h4>
+            
+            <div className="selection-row" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem'}}>
+              <div className="form-group country-group">
+                <label htmlFor="country-select" className="form-label">
+                  <FaGlobe className="field-icon" /> Country
+                </label>
+                <select
+                  id="country-select"
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">Select Country</option>
+                  {countries.map((country) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group city-group">
+                <label htmlFor="city-search" className="form-label">
+                  <FaMapMarkerAlt className="field-icon" /> City
+                </label>
+                <div className="search-dropdown-container">
+                  <input
+                    id="city-search"
+                    type="text"
+                    value={citySearchTerm}
+                    onChange={(e) => {
+                      setCitySearchTerm(e.target.value);
+                      setShowCityDropdown(true);
+                    }}
+                    onFocus={() => setShowCityDropdown(true)}
+                    placeholder={!selectedCountry ? "Select country first" : "Search and select city..."}
+                    className="form-search-input"
+                    disabled={!selectedCountry}
+                  />
+                  {showCityDropdown && selectedCountry && availableCities.length > 0 && (
+                    <div className="search-dropdown">
+                      {filteredCities.length > 0 ? (
+                        filteredCities.map((city) => (
+                          <div
+                            key={city}
+                            className={`dropdown-item ${selectedCity === city ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedCity(city);
+                              setCitySearchTerm(city);
+                              setShowCityDropdown(false);
+                            }}
+                          >
+                            {city}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="dropdown-item no-results">
+                          {availableCities.length === 0 ? 'Loading cities...' : 'No cities found'}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="selection-row" style={{marginBottom: '2rem'}}>
+              <div className="form-group bank-full-width" style={{gridColumn: '1 / -1'}}>
+                <label htmlFor="bank-search" className="form-label">
+                  <FaUniversity className="field-icon" /> Bank {isBanksLoading ? '(Loading...)' : ''}
+                </label>
+                <div className="search-dropdown-container">
+                  <input
+                    id="bank-search"
+                    type="text"
+                    value={bankSearchTerm}
+                    onChange={(e) => {
+                      setBankSearchTerm(e.target.value);
+                      setShowBankDropdown(true);
+                    }}
+                    onFocus={() => setShowBankDropdown(true)}
+                    placeholder={selectedCountry && selectedCity ? "Search and select bank..." : "Select country and city first"}
+                    className={`form-search-input ${!selectedCountry || !selectedCity ? 'disabled-field' : ''}`}
+                    disabled={!selectedCountry || !selectedCity || isBanksLoading || filteredBanks.length === 0}
+                  />
+                  {showBankDropdown && selectedCountry && selectedCity && (
+                    <div className="search-dropdown">
+                      {filteredBanks.length > 0 ? (
+                        filteredBanks.map((bankName) => (
+                          <div
+                            key={bankName}
+                            className={`dropdown-item ${selectedBank === bankName ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedBank(bankName);
+                              setBankSearchTerm(bankName);
+                              setShowBankDropdown(false);
+                            }}
+                          >
+                            {bankName}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="dropdown-item no-results">No banks found</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Selected Details Section - Simple */}
+            {selectedCountry && selectedCity && selectedBank && (
+              <div className="selection-details" style={{
+                background: '#f8f9fa',
+                border: '1px solid #dee2e6',
+                borderRadius: '8px',
+                padding: '1.5rem',
+                margin: '2rem 0'
+              }}>
+                <h4 style={{margin: '0 0 1rem 0', color: '#333', fontSize: '1.1rem'}}>Your Selection</h4>
+                <div style={{display: 'flex', gap: '2rem', flexWrap: 'wrap'}}>
+                  <div>
+                    <strong>Country:</strong> {selectedCountry}
+                  </div>
+                  <div>
+                    <strong>City:</strong> {selectedCity}
+                  </div>
+                  <div>
+                    <strong>Bank:</strong> {selectedBank}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Create Account Button - Simple */}
+            {selectedBank && selectedCity && (
+              <div className="action-container" style={{textAlign: 'center', marginTop: '2rem'}}>
+                <button
+                  className="create-account-btn"
+                  onClick={handleCreateBankAccount}
+                  disabled={!selectedBank || !selectedCity}
+                  style={{
+                    background: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    padding: '1rem 2rem',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Create Account with {selectedBank}
+                </button>
+              </div>
+            )}
           </div>
-          <div className="feature-item">
-            <span className="feature-label">Secure Process</span>
-            <span className="feature-description">Bank-grade security</span>
-          </div>
-          <div className="feature-item">
-            <span className="feature-label">Real-time Updates</span>
-            <span className="feature-description">Track your progress</span>
-          </div>
-        </div>
-        
-        <div className="create-account-action">
-          <button className="create-account-btn" onClick={handleCreateBankAccount}>
-            <FaPlus /> Start Application
-          </button>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderContactUsContent = () => (
     <div className="content-section">

@@ -107,22 +107,47 @@ const BrowseBank = () => {
     loadBanks();
   }, [country]);
 
-  const filteredBanks = banks.filter((bank) => {
-    // Safety check: ensure bank.bankName exists before calling toLowerCase
-    if (!bank || !bank.bankName) {
-      return false;
-    }
+  // Get unique banks (group by bankName and show one representative)
+  const getUniqueBanks = (banksArray) => {
+    const bankGroups = {};
     
+    banksArray.forEach((bank) => {
+      if (!bank || !bank.bankName) return;
+      
+      const key = bank.bankName.toLowerCase();
+      if (!bankGroups[key]) {
+        bankGroups[key] = {
+          ...bank,
+          branchCount: 1,
+          cities: [bank.city],
+          branches: [{ branch: bank.branch, city: bank.city, code: bank.code }]
+        };
+      } else {
+        bankGroups[key].branchCount++;
+        if (!bankGroups[key].cities.includes(bank.city)) {
+          bankGroups[key].cities.push(bank.city);
+        }
+        bankGroups[key].branches.push({ branch: bank.branch, city: bank.city, code: bank.code });
+      }
+    });
+    
+    return Object.values(bankGroups);
+  };
+
+  const filteredBanks = getUniqueBanks(banks).filter((bank) => {
     const matchesSearch = bank.bankName.toLowerCase().includes(search.toLowerCase());
-    const matchesCity = !city || bank.city === city;
+    const matchesCity = !city || bank.cities.includes(city);
     
     return matchesSearch && matchesCity;
   });
 
-  const handleCreate = (bankName, branch, code) => {
-    
-    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}&branch=${encodeURIComponent(branch)}&code=${encodeURIComponent(code)}`, {
-      state: { userId: userId }
+  const handleCreate = (bankName, branches) => {
+    navigate(`/createaccount?country=${encodeURIComponent(country)}&bank=${encodeURIComponent(bankName)}`, {
+      state: { 
+        userId: userId,
+        branches: branches,
+        selectedCountry: country
+      }
     });
   };
 
@@ -130,15 +155,17 @@ const BrowseBank = () => {
     <div className="userpage-bg-gradient">
       <Header />
       <div className="page-header">
-        <h1 className="page-title">Browse Banks</h1>
-        <p className="page-subtitle">Find and create accounts with trusted banking partners</p>
+        <h1 className="page-title">Select Your Bank</h1>
+        <p className="page-subtitle">Choose from our network of trusted financial institutions to begin your banking journey</p>
       </div>
       <div className="search-section">
         <div className="search-container">
           <div className="search-input-wrapper">
+            <label htmlFor="bank-search">Find Your Bank</label>
             <input
+              id="bank-search"
               type="text"
-              placeholder="Search banks..."
+              placeholder="Search by bank name or institution..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="search-input"
@@ -147,26 +174,34 @@ const BrowseBank = () => {
           </div>
           
           <div className="filter-controls">
-            <select 
-              value={country} 
-              onChange={(e) => {
-                setCountry(e.target.value);
-                setCity(''); // Reset city when country changes
-              }}
-              className="filter-select"
-              disabled={isLoading}
-            >
-              {countries.map((ctry) => <option key={ctry} value={ctry}>{ctry}</option>)}
-            </select>
+            <div className="filter-group">
+              <label htmlFor="country-select">Country</label>
+              <select 
+                id="country-select"
+                value={country} 
+                onChange={(e) => {
+                  setCountry(e.target.value);
+                  setCity(''); // Reset city when country changes
+                }}
+                className="filter-select"
+                disabled={isLoading}
+              >
+                {countries.map((ctry) => <option key={ctry} value={ctry}>{ctry}</option>)}
+              </select>
+            </div>
             
-            <select 
-              value={city} 
-              onChange={(e) => setCity(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Cities</option>
-              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div className="filter-group">
+              <label htmlFor="city-select">City</label>
+              <select 
+                id="city-select"
+                value={city} 
+                onChange={(e) => setCity(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Cities</option>
+                {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -179,21 +214,23 @@ const BrowseBank = () => {
         ) : filteredBanks.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🏦</div>
-            <h3>No banks found</h3>
-            <p>Try adjusting your search criteria or select a different location.</p>
+            <h3>No Banks Available</h3>
+            <p>We couldn't find any banking institutions matching your criteria. Please try adjusting your search or location filters.</p>
           </div>
         ) : (
           <div className="userpage-grid">
             {filteredBanks.map((bank, idx) => {
-              const hasAccount = hasExistingAccount(bank.bankName, bank.branch);
+              const hasAnyAccount = bank.branches.some(branch => 
+                hasExistingAccount(bank.bankName, branch.branch)
+              );
               
               return (
                 <div
                   key={bank.id || idx}
-                  className={`userpage-bankcard ${hasAccount ? 'has-existing-account' : ''}`}
+                  className={`userpage-bankcard ${hasAnyAccount ? 'has-existing-account' : ''}`}
                   onMouseEnter={() => setHoveredIdx(idx)}
                   onMouseLeave={() => setHoveredIdx(null)}
-                  title={hasAccount ? 'You already have an account with this bank' : ''}
+                  title={hasAnyAccount ? 'You have existing accounts with this bank' : 'Click to create account'}
                 >
                   <div className="bank-card-header">
                     <img
@@ -207,9 +244,9 @@ const BrowseBank = () => {
                         }
                       }}
                     />
-                    {hasAccount && (
+                    {hasAnyAccount && (
                       <div className="existing-account-badge">
-                        ✓ Account Exists
+                        ✓ Active Customer
                       </div>
                     )}
                   </div>
@@ -219,29 +256,27 @@ const BrowseBank = () => {
                     
                     <div className="bank-details">
                       <div className="bank-detail-item">
-                        <span className="detail-label">Branch:</span>
-                        <span className="detail-value">{bank.branch}</span>
+                        <span className="detail-label">Branches:</span>
+                        <span className="detail-value">{bank.branchCount} Available</span>
                       </div>
                       <div className="bank-detail-item">
-                        <span className="detail-label">City:</span>
-                        <span className="detail-value">{bank.city}</span>
+                        <span className="detail-label">Locations:</span>
+                        <span className="detail-value">{bank.cities.length > 1 ? `${bank.cities.length} Cities` : bank.cities[0]}</span>
                       </div>
                       <div className="bank-detail-item">
-                        <span className="detail-label">Code:</span>
-                        <span className="detail-value">{bank.code}</span>
+                        <span className="detail-label">Country:</span>
+                        <span className="detail-value">{country}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="bank-card-footer">
                     <button
-                      className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''} ${hasAccount ? 'disabled' : ''}`}
-                      onClick={() => !hasAccount && handleCreate(bank.bankName, bank.branch, bank.code)}
-                      disabled={hasAccount}
-                      title={hasAccount ? 'You already have an account with this bank' : ''}
+                      className={`create-account-btn ${hoveredIdx === idx ? 'visible' : ''}`}
+                      onClick={() => handleCreate(bank.bankName, bank.branches)}
                     >
-                      <span className="btn-icon">{hasAccount ? '✓' : '+'}</span>
-                      {hasAccount ? 'Account Exists' : 'Create Account'}
+                      <span className="btn-icon">{hasAnyAccount ? '→' : '+'}</span>
+                      {hasAnyAccount ? 'Manage Accounts' : 'Create Account'}
                     </button>
                   </div>
                 </div>

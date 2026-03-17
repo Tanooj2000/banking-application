@@ -5,10 +5,11 @@
   justify-content: center;
   padding: 20px 0;
   margin: 20px 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%);
   border-radius: 15px;
-  box-shadow: 0 2px 10px rgba(57,73,171,0.1);
+  box-shadow: var(--shadow-sm);
   overflow-x: auto;
+  border: 1px solid var(--border-subtle);
 }
 
 .progress-step-container {
@@ -427,5 +428,179 @@
   .form-navigation .createaccount-submit-btn {
     width: 100%;
     margin: 0;
+  }
+}
+
+/* ============================================================
+   BRANCH SELECTION - SIMPLE DROPDOWN INTERFACE
+   Matches CreateAccount form styling for consistency
+   ============================================================ */
+
+/* Branch Selection Container */
+.branch-selection-container {
+  padding: 1rem 0;
+}
+
+.branch-selection-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.branch-selection-header h4 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-serif);
+}
+
+.branch-selection-header p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+  font-family: var(--font-body);
+}
+
+/* Simple Branch Selection */
+.simple-branch-selection {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.branch-select-dropdown {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 1px solid #b6c2d6 !important;
+  border-radius: 8px !important;
+  font-size: 1.08rem !important;
+  background: #f8fafc !important;
+  transition: border 0.18s !important;
+  font-family: var(--font-body) !important;
+  color: var(--text-primary) !important;
+}
+
+.branch-select-dropdown:focus {
+  border: 1.5px solid #2563eb !important;
+  outline: none !important;
+  background: white !important;
+}
+
+/* Selected Branch Info */
+.selected-branch-info {
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.branch-info-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  border-left: 4px solid var(--gold);
+}
+
+.branch-info-card h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-family: var(--font-serif);
+}
+
+.branch-details-compact {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.branch-details-compact div {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+}
+
+.branch-details-compact strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* No Branches Message */
+.no-branches-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-secondary);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.no-branches-message h4 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-weight: 400;
+  font-family: var(--font-serif);
+}
+
+.no-branches-message p {
+  font-size: 1rem;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  font-family: var(--font-body);
+}
+
+.back-btn {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 0.875rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+}
+
+.back-btn:hover {
+  background: var(--gold-subtle);
+  border-color: var(--gold-border);
+  color: var(--gold);
+}
+
+/* Responsive Branch Selection */
+@media (max-width: 768px) {
+  .simple-branch-selection {
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .branch-selection-header h4 {
+    font-size: 1.25rem;
+  }
+  
+  .branch-selection-header p {
+    font-size: 0.9rem;
+  }
+  
+  .branch-info-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .branch-selection-container {
+    padding: 0.5rem 0;
+  }
+  
+  .branch-selection-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .branch-select-dropdown {
+    font-size: 1rem !important;
+    padding: 10px 14px !important;
   }
 }

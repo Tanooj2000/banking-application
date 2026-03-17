@@ -15,6 +15,11 @@ function useQuery() {
 // Multi-step form configuration
 const FORM_STEPS = [
   {
+    id: 'branch',
+    title: 'Select Branch',
+    icon: '🏦'
+  },
+  {
     id: 'personal',
     title: 'Personal Details',
     icon: '👤'
@@ -176,13 +181,40 @@ const CreateAccount = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
+  // Extract navigation state from UserPage bank selection
+  const userId = location.state?.userId;
+  const selectedCountry = location.state?.selectedCountry || 'India';
+  const selectedBank = location.state?.selectedBank;
+  const selectedBranch = location.state?.selectedBranch;
+  const branches = location.state?.branches || [];
+  
+  // Fallback to URL parameters for backward compatibility
+  const bankName = selectedBank?.name || query.get('bank');
+  const branchName = selectedBranch?.branch || query.get('branch');
+  const country = selectedCountry || query.get('country') || 'India';
+  const code = query.get('code') || '';
+  
   // State management
+  const [selectedBranchInfo, setSelectedBranchInfo] = useState(() => {
+    // Use the selectedBranch from navigation state first
+    if (selectedBranch) {
+      return selectedBranch;
+    }
+    // Fallback to finding in branches array
+    if (branchName && branches.length > 0) {
+      return branches.find(b => b.branch === branchName) || null;
+    }
+    return null;
+  });
+  
   // Generate a unique key for this form session
-  const formStorageKey = `createAccount_${bankName}_${branch}_${country}`;
+  const formStorageKey = `createAccount_${bankName}_${selectedBranchInfo?.branch || 'temp'}_${country}`;
   
   const [currentStep, setCurrentStep] = useState(() => {
     const saved = localStorage.getItem(`${formStorageKey}_step`);
-    return saved ? parseInt(saved, 10) : 0;
+    // Start with branch selection (step 0) if no branch is selected
+    const initialStep = selectedBranchInfo ? 1 : 0;
+    return saved ? parseInt(saved, 10) : initialStep;
   });
   const [completedSteps, setCompletedSteps] = useState(() => {
     const saved = localStorage.getItem(`${formStorageKey}_completedSteps`);
@@ -190,17 +222,16 @@ const CreateAccount = () => {
   });
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem(`${formStorageKey}_formData`);
-    return saved ? JSON.parse(saved) : {};
+    const baseData = saved ? JSON.parse(saved) : {};
+    // Include branch info if selected
+    if (selectedBranchInfo) {
+      baseData.selectedBranch = selectedBranchInfo;
+    }
+    return baseData;
   });
   const [formStatus, setFormStatus] = useState({ loading: false, success: null, error: null });
   const [existingAccountData, setExistingAccountData] = useState(null);
   const [isLoadingAccountData, setIsLoadingAccountData] = useState(false);
-
-  const userId = location.state?.userId;
-  const bankName = query.get('bank');
-  const branch = query.get('branch');
-  const country = query.get('country') || 'India';
-  const code = query.get('code') || '';
   
   // Get current step configuration
   const currentStepId = FORM_STEPS[currentStep].id;
@@ -281,6 +312,14 @@ const CreateAccount = () => {
 
   // Validate current step
   const validateCurrentStep = () => {
+    // Special validation for branch selection step
+    if (currentStepId === 'branch') {
+      if (!selectedBranchInfo) {
+        return ['Please select a branch to continue'];
+      }
+      return [];
+    }
+    
     const requiredFields = currentFields.filter(field => field.required);
     const errors = [];
 
@@ -566,7 +605,14 @@ const CreateAccount = () => {
       </h2>
       
       <div className="createaccount-info-line">
-        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; Country: <strong>{country}</strong> &nbsp; | &nbsp; IFSC Code: <strong>{code}</strong>
+        Bank: <strong>{bankName || 'N/A'}</strong> &nbsp; | &nbsp; 
+        Branch: <strong>{selectedBranchInfo?.branch || 'Not Selected'}</strong> &nbsp; | &nbsp; 
+        Country: <strong>{country}</strong>
+        {selectedBranchInfo && (
+          <span style={{ marginLeft: '20px', color: '#C9A84C', fontWeight: '500' }}>
+            📍 {selectedBranchInfo.city} - {selectedBranchInfo.code}
+          </span>
+        )}
         {existingAccountData && (
           <span style={{ marginLeft: '20px', color: '#10b981', fontWeight: '500' }}>
             ✓ Existing account holder - Personal details were pre-filled 
@@ -586,9 +632,72 @@ const CreateAccount = () => {
           {/* Current Step Form */}
           <div className="createaccount-form-section">
             <h3 className="createaccount-section-title">{FORM_STEPS[currentStep].title}</h3>
-            <div className="createaccount-form-grid">
-              {currentFields.map(renderField)}
-            </div>
+            
+            {/* Branch Selection Step */}
+            {currentStepId === 'branch' ? (
+              <div className="branch-selection-container">
+                <div className="branch-selection-header">
+                  <h4>Select Your Branch</h4>
+                  <p>Choose your preferred branch location for <strong>{bankName}</strong></p>
+                </div>
+                
+                <div className="simple-branch-selection">
+                  <div className="createaccount-form-group">
+                    <label htmlFor="branch-select">Available Branches *</label>
+                    <select
+                      id="branch-select"
+                      value={selectedBranchInfo?.branch || ''}
+                      onChange={(e) => {
+                        const selected = branches.find(b => b.branch === e.target.value);
+                        setSelectedBranchInfo(selected || null);
+                        setFormData(prev => ({ ...prev, selectedBranch: selected }));
+                      }}
+                      className="branch-select-dropdown"
+                      required
+                    >
+                      <option value="">-- Select a Branch --</option>
+                      {branches.map((branch, index) => (
+                        <option key={index} value={branch.branch}>
+                          {branch.branch} - {branch.city} ({branch.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {selectedBranchInfo && (
+                    <div className="selected-branch-info">
+                      <div className="branch-info-card">
+                        <h5>Selected Branch Details</h5>
+                        <div className="branch-details-compact">
+                          <div><strong>Branch:</strong> {selectedBranchInfo.branch}</div>
+                          <div><strong>City:</strong> {selectedBranchInfo.city}</div>
+                          <div><strong>Code:</strong> {selectedBranchInfo.code}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {branches.length === 0 && (
+                  <div className="no-branches-message">
+                    <div className="empty-icon">🏦</div>
+                    <h4>No Branches Available</h4>
+                    <p>There are currently no branches available for {bankName} in {country}.</p>
+                    <button 
+                      className="nav-btn back-btn" 
+                      onClick={() => navigate('/userpage')}
+                    >
+                      ← Back to Bank Selection
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Regular Form Fields for Other Steps */
+              <div className="createaccount-form-grid">
+                {currentFields.map(renderField)}
+              </div>
+            )}
           </div>
 
           {/* Navigation Buttons */}
@@ -603,16 +712,29 @@ const CreateAccount = () => {
               </button>
             )}
             
-            <button 
-              type="button" 
-              className="nav-btn save-btn" 
-              onClick={handleSave}
-            >
-              💾 Save Progress
-            </button>
+            {/* Go back to bank selection from branch step */}
+            {currentStep === 0 && (
+              <button 
+                type="button" 
+                className="nav-btn back-btn" 
+                onClick={() => navigate('/userpage')}
+              >
+                ← Back to Bank Selection
+              </button>
+            )}
+            
+            {currentStep > 0 && (
+              <button 
+                type="button" 
+                className="nav-btn save-btn" 
+                onClick={handleSave}
+              >
+                💾 Save Progress
+              </button>
+            )}
 
             {/* Show clear button if there's saved data */}
-            {(Object.keys(formData).length > 0 || currentStep > 0 || completedSteps.size > 0) && (
+            {(Object.keys(formData).length > 0 || currentStep > 0 || completedSteps.size > 0) && currentStep > 0 && (
               <button 
                 type="button" 
                 className="nav-btn clear-btn" 
@@ -628,8 +750,9 @@ const CreateAccount = () => {
                 type="button" 
                 className="nav-btn next-btn" 
                 onClick={handleNext}
+                disabled={currentStep === 0 && !selectedBranchInfo}
               >
-                Next →
+                {currentStep === 0 ? 'Continue with Selected Branch' : 'Next'} →
               </button>
             ) : (
               <button 
