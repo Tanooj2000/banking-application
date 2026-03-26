@@ -60,8 +60,8 @@ const SignUp = () => {
 
   // Redirect if already signed in
   useEffect(() => {
-    const token = sessionStorage.getItem('userToken');
-    const storedUserType = sessionStorage.getItem('userType');
+    const token = localStorage.getItem('authToken');
+    const storedUserType = localStorage.getItem('userType');
     
     if (token && storedUserType) {
       // User is already signed in, redirect to appropriate dashboard
@@ -214,10 +214,18 @@ const SignUp = () => {
           };
           response = await signUpAdmin(adminPayload);
         }
-  alert('Sign up successful!');
-  setFormData({});
-  setUserType('');
-  navigate('/signin');
+        alert('Sign up successful!');
+        
+        // Clear any existing session data to ensure clean state
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userType');
+        sessionStorage.clear(); // Clear any sessionStorage data
+        
+        // Reset form and redirect
+        setFormData({});
+        setUserType('');
+        navigate('/signin');
       } catch (error) {
         console.error('Submission error:', error);
         alert(getErrorMessage(error)); 

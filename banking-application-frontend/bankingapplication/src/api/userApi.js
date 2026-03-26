@@ -1,5 +1,6 @@
 // src/api/userApi.js
 import { getErrorMessage } from '../utils/validation';
+import { AuthGuard } from '../utils/authGuard';
 
 const BASE_URL = 'http://localhost:8081/api/user/';
 
@@ -102,7 +103,20 @@ export const getUserById = async (userId) => {
       throw new Error(cleanErrorMessage || `Failed to fetch user details (Status: ${response.status})`);
     }
 
-    const responseData = await response.json();
+    // Check if response has content before parsing JSON
+    const responseText = await response.text();
+    if (!responseText) {
+      console.warn('Backend returned empty response for getUserById - this should be fixed in backend');
+      // Try to get user data from localStorage as fallback
+      const currentUser = AuthGuard.getCurrentUser();
+      if (currentUser && (currentUser.id == userId || currentUser.userId == userId)) {
+        console.log('Using localStorage user data as fallback');
+        return currentUser;
+      }
+      throw new Error('Empty response from server and no localStorage fallback available');
+    }
+    
+    const responseData = JSON.parse(responseText);
     // Handle both wrapped {success, user} and flat user object responses
     if (responseData.success && responseData.user) return responseData.user;
     if (responseData.id || responseData.userId) return responseData;
@@ -133,11 +147,32 @@ export const updateUserDetails = async (userId, userData) => {
       throw new Error(cleanErrorMessage || 'Failed to update user details');
     }
 
-    const responseData = await response.json();
-    if (responseData.success && responseData.user) return responseData.user;
-    if (responseData.id || responseData.userId) return responseData;
-    if (responseData.user) return responseData.user;
-    return responseData;
+    // Check if response has content before parsing JSON
+    const responseText = await response.text();
+    if (!responseText) {
+      console.warn('Backend update successful but returned empty response - this should be fixed in backend');
+      // Update was successful (200 status), so update localStorage with new data
+      const currentUser = AuthGuard.getCurrentUser();
+      if (currentUser) {
+        const updatedUser = { ...currentUser, ...userData };
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        return updatedUser;
+      }
+      // Return the updated data since the update was successful
+      return { id: userId, ...userData, message: 'Update successful but backend returned empty response' };
+    }
+    
+    const responseData = JSON.parse(responseText);
+    
+    // Always update localStorage with the latest user data after successful update
+    const finalUserData = responseData.success && responseData.user ? responseData.user : 
+                         (responseData.id || responseData.userId ? responseData : responseData.user || responseData);
+    
+    if (finalUserData && (finalUserData.id || finalUserData.userId)) {
+      localStorage.setItem('currentUser', JSON.stringify(finalUserData));
+    }
+    
+    return finalUserData;
   } catch (error) {
     console.error('Update user details error:', error.message);
     throw error;

@@ -49,11 +49,11 @@ const UserPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  // Form states
+  // Form states - Initialize with empty strings to avoid controlled/uncontrolled input issues
   const [editFormData, setEditFormData] = useState({
-    username: user.username || '',
-    email: user.email || '',
-    phonenumber: user.phonenumber || ''
+    username: '',
+    email: '',
+    phonenumber: ''
   });
   
   const [passwordFormData, setPasswordFormData] = useState({
@@ -84,11 +84,26 @@ const UserPage = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      // First check if user is properly authenticated
+      if (!AuthGuard.isAuthenticated()) {
+        console.warn('User not authenticated. Redirecting to sign in.');
+        navigate('/signin', { replace: true });
+        return;
+      }
+
       if (userId) {
+        console.log('Fetching user data for userId:', userId);
         setIsUserLoading(true);
         try {
           // Fetch user details
           const userData = await getUserById(userId);
+          console.log('Received user data:', userData);
+          
+          if (!userData || (!userData.id && !userData.userId)) {
+            console.error('Invalid user data received:', userData);
+            throw new Error('Invalid user data received from server');
+          }
+          
           setUser(userData);
           
           // Initialize edit form with fetched user data
@@ -102,7 +117,20 @@ const UserPage = () => {
           await fetchBankAccounts();
         } catch (error) {
           console.error('Error fetching user data:', error);
-          setBankAccounts([]);
+          
+          // Set user to a clear error state instead of empty object
+          setUser({ error: true, message: error.message });
+          
+          // If there's an authentication error, redirect to signin
+          if (error.message.includes('authentication') || 
+              error.message.includes('Unauthorized') ||
+              error.message.includes('Empty response from server')) {
+            console.warn('Authentication/server error, redirecting to signin');
+            await AuthGuard.logout(); // Clear any stale authentication
+            return; // logout() will handle the redirect
+          } else {
+            setBankAccounts([]);
+          }
         } finally {
           setIsUserLoading(false);
         }
@@ -219,17 +247,9 @@ const UserPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    // Clear user session and redirect
-    sessionStorage.removeItem('userId');
-    sessionStorage.removeItem('userToken');
-    sessionStorage.removeItem('userType');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userType');
-    
-    // Navigate to home page
-    navigate('/', { replace: true });
+  const handleLogout = async () => {
+    // Use the proper AuthGuard logout method to ensure all data is cleared
+    await AuthGuard.logout();
   };
 
   const handleEditDetails = () => {
@@ -314,9 +334,28 @@ const UserPage = () => {
       const updatedUser = await updateUserDetails(user.id, editFormData);
       setMessage('User details updated successfully!');
       
-      // Fetch fresh user data from the API to ensure we have the latest details
-      const freshUserData = await getUserById(user.id);
-      setUser(freshUserData);
+      // Update the user state with the returned data from update
+      if (updatedUser && (updatedUser.id || updatedUser.userId)) {
+        setUser(updatedUser);
+        console.log('User updated with returned data:', updatedUser);
+      } else {
+        // If update didn't return proper user data, merge with existing user data
+        const mergedUser = { ...user, ...editFormData };
+        setUser(mergedUser);
+        console.log('User updated with merged data:', mergedUser);
+      }
+      
+      // Try to fetch fresh data, but don't fail if it doesn't work
+      try {
+        const freshUserData = await getUserById(user.id);
+        if (freshUserData && (freshUserData.id || freshUserData.userId)) {
+          setUser(freshUserData);
+          console.log('User updated with fresh API data:', freshUserData);
+        }
+      } catch (refreshError) {
+        console.warn('Could not refresh user data after update, but update was successful:', refreshError.message);
+        // Don't throw error here - update was successful, we just couldn't refresh
+      }
       
       setTimeout(() => {
         closeModals();
@@ -822,8 +861,8 @@ const UserPage = () => {
               <FaUser size={24} />
             </div>
             <div className="user-info-sidebar">
-              <h3>{user.username || 'Professional User'}</h3>
-              <p>Banking Dashboard</p>
+              <h3>{user.username || 'User'}</h3>
+              <p>Banking Customer</p>
             </div>
             <button className="logout-btn-sidebar" onClick={handleLogout} title="Secure Logout">
               <FaSignOutAlt size={18} />

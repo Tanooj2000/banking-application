@@ -14,13 +14,23 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: noreplyinterbankinghub@gmail.com
-    password: sufd mtak snum ahgc
+    password: iwmrruyqugysrlwu
     properties:
       mail:
+        debug: true
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+          ssl:
+            trust: "*"
+            protocols: "TLSv1.2"
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+        transport:
+          protocol: smtp
 
 jwt:
   secret: myVerySecretJWTKeyForBankingApplicationThatIsLongEnough

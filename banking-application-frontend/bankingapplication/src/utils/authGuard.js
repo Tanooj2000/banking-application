@@ -3,7 +3,23 @@ export const AuthGuard = {
   // Check if regular user is authenticated (JWT in localStorage)
   isAuthenticated: () => {
     const token = localStorage.getItem('authToken');
-    return !!token;
+    const currentUser = AuthGuard.getCurrentUser();
+    
+    // More thorough check - need both token and valid user data
+    if (!token || !currentUser) {
+      return false;
+    }
+    
+    // Validate that user has essential data
+    if (!currentUser.id && !currentUser.userId) {
+      console.warn('User data missing ID, clearing authentication');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userType');
+      return false;
+    }
+    
+    return true;
   },
 
   // Check if admin is authenticated (sessionStorage)
@@ -59,9 +75,20 @@ export const AuthGuard = {
     } catch (e) {
       // Ignore network errors during logout
     } finally {
+      // Clear ALL possible authentication data
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
       localStorage.removeItem('userType');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userToken');
+      
+      // Also clear any session storage data that might interfere
+      sessionStorage.removeItem('userId');
+      sessionStorage.removeItem('userToken');
+      sessionStorage.removeItem('userType');
+      sessionStorage.removeItem('adminData');
+      sessionStorage.removeItem('loggedOut');
+      
       window.dispatchEvent(new Event('storage'));
       window.location.href = '/';
     }

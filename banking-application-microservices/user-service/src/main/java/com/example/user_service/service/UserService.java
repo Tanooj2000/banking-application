@@ -27,6 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final SessionService sessionService;
+    private final EmailService emailService;
 
     public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -44,7 +45,15 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhonenumber(request.getPhonenumber());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // Send welcome email
+        try {
+            emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getUsername());
+        } catch (Exception e) {
+            // Log but don't fail registration if email fails
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
 
         return ResponseEntity.ok("User registered successfully.");
     }
@@ -129,7 +138,13 @@ public class UserService {
         }
         
         User updatedUser = userRepository.save(user);
-        return ResponseEntity.ok(new UpdateUserResponse(true, "User details updated successfully", updatedUser));
+        UpdateUserResponse.UserDto userDto = new UpdateUserResponse.UserDto(
+            updatedUser.getId(),
+            updatedUser.getUsername(),
+            updatedUser.getEmail(),
+            updatedUser.getPhonenumber()
+        );
+        return ResponseEntity.ok(new UpdateUserResponse(true, "User details updated successfully", userDto));
     }
 
     public ResponseEntity<UpdateUserResponse> changePassword(Long userId, ChangePasswordRequest request) {
@@ -163,9 +178,13 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         User updatedUser = userRepository.save(user);
         
-        // Don't return the user object with password for security
-        updatedUser.setPassword(null);
-        return ResponseEntity.ok(new UpdateUserResponse(true, "Password changed successfully", updatedUser));
+        UpdateUserResponse.UserDto userDto = new UpdateUserResponse.UserDto(
+            updatedUser.getId(),
+            updatedUser.getUsername(),
+            updatedUser.getEmail(),
+            updatedUser.getPhonenumber()
+        );
+        return ResponseEntity.ok(new UpdateUserResponse(true, "Password changed successfully", userDto));
     }
 
     public ResponseEntity<UserDetailsResponse> getUserById(Long userId) {

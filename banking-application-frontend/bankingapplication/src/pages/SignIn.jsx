@@ -21,24 +21,39 @@ const SignIn = () => {
 	const navigate = useNavigate();
 	const firstInputRef = useRef(null); // Reference for auto-focus
 
-	// Redirect if already signed in
+	// Redirect if already signed in - with a small delay to ensure logout has completed
 	useEffect(() => {
-		const token = sessionStorage.getItem('userToken');
-		const storedUserType = sessionStorage.getItem('userType');
-		
-
-		
-		if (token && storedUserType) {
-			setIsRedirecting(true);
-			// User is already signed in, redirect to appropriate dashboard
-			if (storedUserType === 'admin') {
-
-				navigate('/adminpage', { replace: true });
-			} else {
-
-				navigate('/userpage', { replace: true });
+		const checkAndRedirect = () => {
+			const token = localStorage.getItem('authToken');
+			const currentUser = AuthGuard.getCurrentUser();
+			
+			// More thorough validation - check if token AND user data are valid
+			if (token && currentUser && currentUser.id && currentUser.email) {
+				// Additional validation for admin
+				if (AuthGuard.isAdminAuthenticated()) {
+					setIsRedirecting(true);
+					navigate('/adminpage', { replace: true });
+				} else if (AuthGuard.isAuthenticated()) {
+					setIsRedirecting(true);
+					navigate('/userpage', { replace: true });
+				}
+			} else if (token && (!currentUser || !currentUser.id || !currentUser.email)) {
+				// Invalid/incomplete user data - clear everything
+				console.warn('Found invalid authentication data, clearing...');
+				localStorage.removeItem('authToken');
+				localStorage.removeItem('currentUser');
+				localStorage.removeItem('userType');
+				localStorage.removeItem('userId');
+				localStorage.removeItem('userToken');
+				sessionStorage.clear();
+				window.dispatchEvent(new Event('storage'));
 			}
-		}
+		};
+		
+		// Small delay to allow logout to complete if user just logged out
+		const timeoutId = setTimeout(checkAndRedirect, 100);
+		
+		return () => clearTimeout(timeoutId);
 	}, [navigate]);
 
 	// Auto-focus first input when user type is selected
@@ -69,7 +84,7 @@ const SignIn = () => {
 	const handleUserType = (type) => {
 		setUserType(type);
 		setErrors({});
-		setFormData({ identifier: '', password: '' });
+		setFormData({ usernameOrEmail: '', password: '' });
 	};
 
 	const handleSubmit = async (e) => {
@@ -78,13 +93,14 @@ const SignIn = () => {
 		if (validateForm()) {
 			try {
 				if (userType === 'admin') {
-					await signInAdmin(formData);
-					sessionStorage.setItem('userToken', 'admin-token');
+					const adminResponse = await signInAdmin(formData);
+					// Persist admin session so isAdminAuthenticated() returns true
+					AuthGuard.setAdminData(adminResponse);
+					localStorage.setItem('userType', 'admin');
 					window.dispatchEvent(new Event('storage'));
-					navigate('/adminpage');
+					navigate('/adminpage', { state: { admin: adminResponse } });
 				} else {
 					await signInUser(formData);
-					sessionStorage.setItem('userToken', 'user-token');
 					window.dispatchEvent(new Event('storage'));
 					navigate('/userpage');
 				}
