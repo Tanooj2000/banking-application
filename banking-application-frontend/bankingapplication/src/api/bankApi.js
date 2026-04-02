@@ -1,6 +1,6 @@
 // src/api/bankApi.js
 
-const BASE_URL = 'http://localhost:8081/api';
+const BASE_URL = 'http://localhost:8082/api';
 
 // Fixed countries - no need for API call
 export const getAvailableCountries = () => {

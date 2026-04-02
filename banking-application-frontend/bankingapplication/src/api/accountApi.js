@@ -1,6 +1,6 @@
 // src/api/accountApi.js
 import axios from 'axios';
-const BASE_URL = 'http://localhost:8081/api/accounts';
+const BASE_URL = 'http://localhost:8085/api/accounts';
 
 export const getUserBankAccounts = async (userId) => {
   try {
@@ -19,7 +19,7 @@ export const getUserBankAccounts = async (userId) => {
   } catch (error) {
     console.error('Error in getUserBankAccounts:', error);
     if (error.message === 'Failed to fetch') {
-      throw new Error('Cannot connect to server. Please check if the backend server is running on http://localhost:8081');
+      throw new Error('Cannot connect to server. Please check if the backend server is running on http://localhost:8085');
     }
     throw error;
   }
