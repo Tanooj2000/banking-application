@@ -859,12 +859,18 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   transition: border-color 0.3s;
-  color: #2d3748;
+  color: #000000 !important;
+  background: #FFFFFF !important;
+}
+
+.form-input::placeholder {
+  color: #9CA3A3 !important;
 }
 
 /* Focus effect for input fields */
 .form-input:focus {
   border-color: #667eea;
+  background: #FFFFFF !important;
   outline: none;
 }
 

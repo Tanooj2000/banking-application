@@ -209,18 +209,18 @@
 /* Base form input */
 .form-input {
   width: 100%;
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  background: #FFFFFF !important;
+  color: #000000;
   border: 1px solid var(--border);
   font-family: var(--font-body);
   font-size: 0.88rem; font-weight: 300;
   padding: 0.72rem 1rem;
   outline: none; border-radius: 0;
   -webkit-appearance: none; appearance: none;
-  transition: border-color var(--transition), background var(--transition);
+  transition: border-color var(--transition);
 }
-.form-input::placeholder { color: var(--text-muted); font-weight: 300; }
-.form-input:focus { border-color: var(--gold); background: var(--bg-surface-alt); }
+.form-input::placeholder { color: #9CA3A3; font-weight: 300; }
+.form-input:focus { border-color: var(--gold); background: #FFFFFF !important; }
 .form-input.error { border-color: rgba(220,50,50,0.6); }
 
 /* Inputs that have an icon — override padding unconditionally */
@@ -230,8 +230,8 @@
 
 /* Country select */
 .signup-card-right select.form-input {
-  background: var(--bg-surface) !important;
-  color: var(--text-primary) !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
   border: 1px solid var(--border) !important;
   border-radius: 0 !important;
   font-family: var(--font-body) !important;
@@ -240,6 +240,7 @@
 }
 .signup-card-right select.form-input:focus {
   border-color: var(--gold) !important;
+  background: #FFFFFF !important;
   box-shadow: none !important;
   outline: none !important;
 }
