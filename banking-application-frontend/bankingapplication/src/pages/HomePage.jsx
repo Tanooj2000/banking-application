@@ -11,7 +11,7 @@ const HomePage = () => {
     <div className="home-root">
       <Header />
       <main className="home-main">
-        <div className="main-content">
+        <div className="home-content">
           <MainTop />
           <MainBottom />
         </div>

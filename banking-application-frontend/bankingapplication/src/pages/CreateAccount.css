@@ -287,20 +287,29 @@
   border-radius: 8px;
   border: 1px solid #b6c2d6;
   font-size: 1.08rem;
-  background: #f8fafc;
+  background: #FFFFFF !important;
+  color: #000000;
   transition: border 0.18s;
+}
+.createaccount-form-group input::placeholder {
+  color: #9CA3A3 !important;
 }
 .createaccount-form-group textarea {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #b6c2d6;
   font-size: 1.08rem;
-  background: #f8fafc;
+  background: #FFFFFF !important;
+  color: #000000;
   transition: border 0.18s;
   resize: vertical;
 }
+.createaccount-form-group textarea::placeholder {
+  color: #9CA3A3 !important;
+}
 .createaccount-form-group textarea:focus {
   border: 1.5px solid #2563eb;
+  background: #FFFFFF !important;
   outline: none;
 }
 .createaccount-form-group select {
@@ -308,11 +317,13 @@
   border-radius: 8px;
   border: 1px solid #b6c2d6;
   font-size: 1.08rem;
-  background: #f8fafc;
+  background: #FFFFFF !important;
+  color: #000000;
   transition: border 0.18s;
 }
 .createaccount-form-group select:focus {
   border: 1.5px solid #2563eb;
+  background: #FFFFFF !important;
   outline: none;
 }
 .createaccount-form-group input[type="file"] {
@@ -335,6 +346,7 @@
 }
 .createaccount-form-group input:focus {
   border: 1.5px solid #2563eb;
+  background: #FFFFFF !important;
   outline: none;
 }
 

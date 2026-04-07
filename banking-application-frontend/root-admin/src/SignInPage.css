@@ -192,8 +192,8 @@ body {
 
 .input-container input {
   width: 100%;
-  background: var(--ra-bg-surf);
-  color: var(--ra-text);
+  background: #FFFFFF !important;
+  color: #000000;
   border: 1px solid var(--ra-border);
   border-radius: 0;
   font-family: var(--ra-body);
@@ -201,19 +201,19 @@ body {
   font-weight: 300;
   padding: 0.78rem 1rem 0.78rem 2.6rem;
   outline: none;
-  transition: border-color var(--ra-ease), background var(--ra-ease);
+  transition: border-color var(--ra-ease);
   -webkit-appearance: none;
   appearance: none;
 }
 
 .input-container input::placeholder {
-  color: var(--ra-muted);
+  color: #9CA3A3;
   font-weight: 300;
 }
 
 .input-container input:focus {
   border-color: var(--ra-gold);
-  background: var(--ra-bg-surf-alt);
+  background: #FFFFFF !important;
   box-shadow: none;
 }
 

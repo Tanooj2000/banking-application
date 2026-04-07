@@ -1,7 +1,8 @@
-const BASE_URL = 'http://localhost:8080/api';
+const USER_BASE_URL = 'http://localhost:8081/api/user';
+const ADMIN_BASE_URL = 'http://localhost:8083/api/admin';
 
 export const signInUser = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/users/login`, {
+  const response = await fetch(`${USER_BASE_URL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -16,7 +17,7 @@ export const signInUser = async (credentials) => {
 };
 
 export const signInAdmin = async (credentials) => {
-  const response = await fetch(`${BASE_URL}/admin/signin`, {
+  const response = await fetch(`${ADMIN_BASE_URL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

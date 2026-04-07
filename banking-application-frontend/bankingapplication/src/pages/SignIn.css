@@ -351,8 +351,8 @@
 
 .form-input {
   width: 100%;
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  background: #FFFFFF !important;
+  color: #000000;
   border: 1px solid var(--border);
   font-family: var(--font-body);
   font-size: 0.88rem;
@@ -360,21 +360,19 @@
   padding: 0.72rem 1rem;
   outline: none;
   border-radius: 0;
-  transition:
-    border-color var(--transition),
-    background var(--transition);
+  transition: border-color var(--transition);
   -webkit-appearance: none;
   appearance: none;
 }
 
 .form-input::placeholder {
-  color: var(--text-muted);
+  color: #9CA3A3;
   font-weight: 300;
 }
 
 .form-input:focus {
   border-color: var(--gold);
-  background: var(--bg-surface-alt);
+  background: #FFFFFF !important;
 }
 
 .form-input.error {
