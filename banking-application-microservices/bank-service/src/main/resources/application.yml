@@ -4,9 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/bankdb?createDatabaseIfNotExist=true
-    username: bankapp
-    password: BankApp@123
-  jpa:
+    username: root
+    password: root
     hibernate:
       ddl-auto: update
     show-sql: true

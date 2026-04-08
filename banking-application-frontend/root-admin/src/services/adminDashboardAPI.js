@@ -1,5 +1,20 @@
 // Admin Dashboard API service
+import { getAuthHeaders, adminSignOut } from './adminAuthAPI';
+
 const API_BASE_URL = 'http://localhost:8083';
+
+/**
+ * Handle authentication errors and auto-logout if needed
+ * @param {Response} response - Fetch response object
+ */
+const handleAuthError = (response) => {
+  if (response.status === 401) {
+    console.warn('Authentication failed. Signing out...');
+    adminSignOut();
+    // Optionally redirect to login page
+    window.location.href = '/admin/signin';
+  }
+};
 
 /**
  * Admin Dashboard API Service for managing applications
@@ -7,15 +22,12 @@ const API_BASE_URL = 'http://localhost:8083';
 export class AdminDashboardAPI {
   
   /**
-   * Get authentication headers with token
+   * Get authentication headers with token (deprecated - use centralized version)
    * @returns {Object} Headers object with authorization
+   * @deprecated Use getAuthHeaders from adminAuthAPI instead
    */
   static getAuthHeaders() {
-    const token = localStorage.getItem('adminToken');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
+    return getAuthHeaders();
   }
 
   /**
@@ -23,17 +35,37 @@ export class AdminDashboardAPI {
    * @returns {Promise<Object>} Response with applications data
    */
   static async getPendingApplications() {
+    console.log('Fetching pending applications from:', `${API_BASE_URL}/api/admin/applications/pending`);
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/applications/pending`, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
+        handleAuthError(response);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Check if response has content and is JSON
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        // Check if response has content
+        const text = await response.text();
+        if (text.trim()) {
+          data = JSON.parse(text);
+        } else {
+          // Empty response
+          console.warn('Empty response received for pending applications');
+          data = [];
+        }
+      } else {
+        // Non-JSON response, treat as empty array
+        data = [];
+      }
+      
       return {
         success: true,
         data: data,
@@ -41,6 +73,18 @@ export class AdminDashboardAPI {
 
     } catch (error) {
       console.error('Error fetching pending applications:', error);
+      
+      // Handle authentication errors
+      if (error.message.includes('token') || error.message.includes('Authentication')) {
+        console.warn('Authentication error, redirecting to signin');
+        window.location.href = '/admin/signin';
+        return {
+          success: false,
+          error: 'Please sign in again',
+          authError: true
+        };
+      }
+      
       return {
         success: false,
         error: error.message || 'Failed to fetch applications',
@@ -59,7 +103,7 @@ export class AdminDashboardAPI {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/applications/${adminId}/approve`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           rootUsername: "rootadmin",
           rootPassword: "rootpass",
@@ -68,6 +112,7 @@ export class AdminDashboardAPI {
       });
 
       if (!response.ok) {
+        handleAuthError(response);
         // Try to get error message from response
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
@@ -98,6 +143,18 @@ export class AdminDashboardAPI {
 
     } catch (error) {
       console.error('Error approving application:', error);
+      
+      // Handle authentication errors
+      if (error.message.includes('token') || error.message.includes('Authentication')) {
+        console.warn('Authentication error, redirecting to signin');
+        window.location.href = '/admin/signin';
+        return {
+          success: false,
+          error: 'Please sign in again',
+          authError: true
+        };
+      }
+      
       return {
         success: false,
         error: error.message || 'Failed to approve application',
@@ -116,7 +173,7 @@ export class AdminDashboardAPI {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/applications/${adminId}/reject`, {
         method: 'POST',
-        headers: this.getAuthHeaders(),
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           rootUsername: "rootadmin",
           rootPassword: "rootpass",
@@ -125,6 +182,7 @@ export class AdminDashboardAPI {
       });
 
       if (!response.ok) {
+        handleAuthError(response);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -149,6 +207,18 @@ export class AdminDashboardAPI {
 
     } catch (error) {
       console.error('Error rejecting application:', error);
+      
+      // Handle authentication errors
+      if (error.message.includes('token') || error.message.includes('Authentication')) {
+        console.warn('Authentication error, redirecting to signin');
+        window.location.href = '/admin/signin';
+        return {
+          success: false,
+          error: 'Please sign in again',
+          authError: true
+        };
+      }
+      
       return {
         success: false,
         error: error.message || 'Failed to reject application',
@@ -166,14 +236,29 @@ export class AdminDashboardAPI {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/applications/${applicationId}`, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
+        handleAuthError(response);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Check if response has content and is JSON
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim()) {
+          data = JSON.parse(text);
+        } else {
+          data = null;
+        }
+      } else {
+        data = null;
+      }
+      
       return {
         success: true,
         data: data,
@@ -181,6 +266,18 @@ export class AdminDashboardAPI {
 
     } catch (error) {
       console.error('Error fetching application details:', error);
+      
+      // Handle authentication errors
+      if (error.message.includes('token') || error.message.includes('Authentication')) {
+        console.warn('Authentication error, redirecting to signin');
+        window.location.href = '/admin/signin';
+        return {
+          success: false,
+          error: 'Please sign in again',
+          authError: true
+        };
+      }
+      
       return {
         success: false,
         error: error.message || 'Failed to fetch application details',
@@ -197,14 +294,29 @@ export class AdminDashboardAPI {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/applications/stats`, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
+        handleAuthError(response);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Check if response has content and is JSON
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim()) {
+          data = JSON.parse(text);
+        } else {
+          data = { total: 0, pending: 0, approved: 0, rejected: 0 };
+        }
+      } else {
+        data = { total: 0, pending: 0, approved: 0, rejected: 0 };
+      }
+      
       return {
         success: true,
         data: data,
@@ -212,6 +324,18 @@ export class AdminDashboardAPI {
 
     } catch (error) {
       console.error('Error fetching applications stats:', error);
+      
+      // Handle authentication errors
+      if (error.message.includes('token') || error.message.includes('Authentication')) {
+        console.warn('Authentication error, redirecting to signin');
+        window.location.href = '/admin/signin';
+        return {
+          success: false,
+          error: 'Please sign in again',
+          authError: true
+        };
+      }
+      
       return {
         success: false,
         error: error.message || 'Failed to fetch statistics',

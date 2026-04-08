@@ -3,6 +3,7 @@ package com.example.admin_service.controller;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.admin_service.dto.AdminLoginRequest;
@@ -36,6 +37,7 @@ public class AdminController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentAdminDetails(@RequestHeader("Authorization") String token) {
+        System.out.println("[CONTROLLER DEBUG] /me endpoint called with token: " + token.substring(0, Math.min(30, token.length())) + "...");
         return adminService.getCurrentAdminDetails(token);
     }
 
@@ -60,22 +62,32 @@ public class AdminController {
         return adminService.updateAdminPassword(id, request);
     }
 
-    // Get all applications that are not verified by root-admin
+    // Get all applications that are not verified by root-admin (ROOT ADMIN ONLY)
     @GetMapping("/applications/pending")
+    @PreAuthorize("hasRole('ROOT_ADMIN')")
     public ResponseEntity<java.util.List<com.example.admin_service.entity.Admin>> getUnverifiedApplications() {
+        System.out.println("[CONTROLLER DEBUG] /applications/pending endpoint called - requires ROOT_ADMIN role");
+        System.out.println("[CONTROLLER DEBUG] Current authentication: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
+        if (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null) {
+            System.out.println("[CONTROLLER DEBUG] User authorities: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        }
         return adminService.getUnverifiedApplications();
     }
 
-    // Approve admin application
+    // Approve admin application (ROOT ADMIN ONLY)
     @PostMapping("/applications/{adminId}/approve")
+    @PreAuthorize("hasRole('ROOT_ADMIN')")
     public ResponseEntity<String> approveApplication(
             @PathVariable Long adminId,
             @RequestBody ApplicationActionRequest request) {
+        System.out.println("[CONTROLLER DEBUG] /applications/approve endpoint called - requires ROOT_ADMIN role");
+        System.out.println("[CONTROLLER DEBUG] Current authentication: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
         return adminService.approveApplication(adminId, request);
     }
 
-    // Reject admin application
+    // Reject admin application (ROOT ADMIN ONLY)
     @PostMapping("/applications/{adminId}/reject")
+    @PreAuthorize("hasRole('ROOT_ADMIN')")
     public ResponseEntity<String> rejectApplication(
             @PathVariable Long adminId,
             @RequestBody ApplicationActionRequest request) {
@@ -91,7 +103,6 @@ public class AdminController {
     // Get admin emails by bank name
     @GetMapping("/emails/by-bank")
     public ResponseEntity<?> getAdminEmailsByBankName(@RequestParam String bankName) {
-        System.out.println("Received request to get admin emails for bank: " + bankName);
         return adminService.getAdminEmailsByBankName(bankName);
     }
 }

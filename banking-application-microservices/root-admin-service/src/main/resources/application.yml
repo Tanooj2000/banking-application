@@ -4,3 +4,7 @@ server:
 spring:
   application:
     name: root-admin-service
+
+jwt:
+  secret: ${JWT_SECRET:myAdminSecretKeyForBankingAdminService123456789}  # SAME as admin-service
+  expiration: ${JWT_EXPIRATION:86400000}

@@ -2,6 +2,7 @@ package com.example.admin_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +23,10 @@ public class Admin {
     private String email;
     private String bankname;
     private String country;
+    
+    @JsonIgnore
     private String password;
+    
     private boolean verifiedByRoot;
     
     @Enumerated(EnumType.STRING)

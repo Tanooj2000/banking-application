@@ -3,6 +3,8 @@ package com.example.admin_service.service;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +47,10 @@ public class AdminService {
         admin.setBankname(request.getBankname());
         admin.setCountry(request.getCountry());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-        admin.setVerifiedByRoot(false); // initially not verified
-        admin.setApplicationStatus(ApplicationStatus.PENDING);
+        // admin.setVerifiedByRoot(false); // initially not verified
+        admin.setVerifiedByRoot(true); // automatically verified for admin service
+        // admin.setApplicationStatus(ApplicationStatus.PENDING);
+        admin.setApplicationStatus(ApplicationStatus.APPROVED); // auto-approved
         admin.setCreatedDate(java.time.LocalDateTime.now());
         adminRepository.save(admin);
 
@@ -58,7 +62,8 @@ public class AdminService {
             admin.getCountry()
         );
 
-        return ResponseEntity.ok("Admin registered successfully. Welcome email sent. Awaiting root verification.");
+        // return ResponseEntity.ok("Admin registered successfully. Welcome email sent. Awaiting root verification.");
+        return ResponseEntity.ok("Admin registered successfully and activated. You can now login.");
     }
 
     public ResponseEntity<AdminLoginResponse> login(AdminLoginRequest request) {
@@ -90,8 +95,11 @@ public class AdminService {
             return ResponseEntity.badRequest().body(new AdminLoginResponse(false, rejectionMessage, null, null, null));
         }
 
-        // Generate JWT token
-        String jwtToken = jwtService.generateToken(admin.getUsername(), admin.getId());
+        // Determine user role
+        String userRole = determineUserRole(admin);
+        
+        // Generate JWT token with role
+        String jwtToken = jwtService.generateToken(admin.getUsername(), admin.getId(), userRole);
         long expirationTime = jwtService.getExpirationTime();
         
         // Create admin DTO without sensitive information
@@ -112,6 +120,12 @@ public class AdminService {
             expirationTime,
             adminDto
         ));
+    }
+    
+    private String determineUserRole(Admin admin) {
+        // This service only creates ADMIN tokens
+        // ROOT_ADMIN tokens are created by root-admin-service
+        return "ADMIN";
     }
 
     public String verifyAdmin(String username, String rootUsername, String rootPassword) {
@@ -174,12 +188,11 @@ public class AdminService {
         return ResponseEntity.ok(pendingAdmins);
     }
 
-    // Approve admin application
+    // Approve admin application (JWT authenticated ROOT_ADMIN only)
     public ResponseEntity<String> approveApplication(Long adminId, com.example.admin_service.dto.ApplicationActionRequest request) {
-        // Validate root admin credentials
-        if (!isValidRootAdmin(request.getRootUsername(), request.getRootPassword())) {
-            return ResponseEntity.badRequest().body("Invalid root admin credentials.");
-        }
+        // Get authenticated root admin from security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String rootAdminUsername = authentication.getName();
 
         Admin admin = adminRepository.findById(adminId).orElse(null);
         if (admin == null) {
@@ -215,15 +228,14 @@ public class AdminService {
             admin.getBankname()
         );
 
-        return ResponseEntity.ok("Admin application approved successfully. Notification email sent.");
+        return ResponseEntity.ok("Admin application approved successfully by " + rootAdminUsername + ". Notification email sent.");
     }
 
-    // Reject admin application
+    // Reject admin application (JWT authenticated ROOT_ADMIN only)
     public ResponseEntity<String> rejectApplication(Long adminId, com.example.admin_service.dto.ApplicationActionRequest request) {
-        // Validate root admin credentials
-        if (!isValidRootAdmin(request.getRootUsername(), request.getRootPassword())) {
-            return ResponseEntity.badRequest().body("Invalid root admin credentials.");
-        }
+        // Get authenticated root admin from security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String rootAdminUsername = authentication.getName();
 
         Admin admin = adminRepository.findById(adminId).orElse(null);
         if (admin == null) {
@@ -255,7 +267,7 @@ public class AdminService {
                 ? " Reason: " + request.getReason() 
                 : "";
         
-        return ResponseEntity.ok("Admin application rejected successfully. Notification email sent." + reason);
+        return ResponseEntity.ok("Admin application rejected successfully by " + rootAdminUsername + ". Notification email sent." + reason);
     }
 
     // Check application status by username or email
@@ -362,11 +374,6 @@ public class AdminService {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to get admin details: " + e.getMessage());
         }
-    }
-
-    // Helper method to validate root admin credentials
-    private boolean isValidRootAdmin(String rootUsername, String rootPassword) {
-        return "rootadmin".equals(rootUsername) && "rootpass".equals(rootPassword);
     }
 }
 
