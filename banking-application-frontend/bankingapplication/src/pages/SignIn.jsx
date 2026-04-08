@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { signInUser } from '../api/userApi';
-import { signInAdmin } from '../api/adminApi';
+import { signInAdmin, getAdminById } from '../api/adminApi';
 import { useNavigate } from 'react-router-dom';
 import './SignIn.css';
 import welcomeImg from '../assets/bank-1.jpg'; // Use your preferred illustration or SVG
@@ -87,6 +87,17 @@ const SignIn = () => {
 		setFormData({ usernameOrEmail: '', password: '' });
 	};
 
+	const extractAdminId = (adminObj) => {
+		if (!adminObj || typeof adminObj !== 'object') return null;
+		const possibleIdFields = ['adminId', 'id', 'ID', '_id', 'admin_id'];
+		for (const field of possibleIdFields) {
+			if (adminObj[field] !== undefined && adminObj[field] !== null && adminObj[field] !== '') {
+				return adminObj[field];
+			}
+		}
+		return null;
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsSubmitting(true);
@@ -94,11 +105,27 @@ const SignIn = () => {
 			try {
 				if (userType === 'admin') {
 					const adminResponse = await signInAdmin(formData);
+					let adminPayload = adminResponse;
+
+					// Enrich admin payload with full profile details when backend login returns partial data
+					const adminId = extractAdminId(adminResponse);
+					if (adminId) {
+						try {
+							const fullAdmin = await getAdminById(adminId);
+							if (fullAdmin && typeof fullAdmin === 'object' && Object.keys(fullAdmin).length > 0) {
+								adminPayload = { ...adminResponse, ...fullAdmin };
+							}
+						} catch (profileError) {
+							console.warn('Could not fetch full admin profile after login:', profileError);
+						}
+					}
+
 					// Persist admin session so isAdminAuthenticated() returns true
-					AuthGuard.setAdminData(adminResponse);
+					AuthGuard.setAdminData(adminPayload);
 					localStorage.setItem('userType', 'admin');
+					sessionStorage.setItem('userType', 'admin');
 					window.dispatchEvent(new Event('storage'));
-					navigate('/adminpage', { state: { admin: adminResponse } });
+					navigate('/adminpage', { state: { admin: adminPayload } });
 				} else {
 					await signInUser(formData);
 					window.dispatchEvent(new Event('storage'));

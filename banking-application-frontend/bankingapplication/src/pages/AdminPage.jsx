@@ -10,6 +10,7 @@ import { validateGmail, validatePassword, validateName, validateConfirmPassword,
 import './AdminPageClean.css';
 import { createBranch } from '../api/bankApi';
 import { FaUser, FaTimes, FaEye, FaUserShield, FaPlus, FaCog, FaChartBar, FaBuilding, FaSignOutAlt, FaUsers, FaEdit, FaKey } from 'react-icons/fa';
+import { HiSun, HiMoon } from 'react-icons/hi';
 
 
 const AdminPage = () => {
@@ -27,6 +28,12 @@ const AdminPage = () => {
   const [admin, setAdmin] = useState(() => {
     return location.state?.admin || AuthGuard.getAdminData() || {};
   });
+
+  const adminIdResolved = admin.adminId || admin.id || admin.ID || admin._id || admin.admin_id;
+  const adminName = admin.username || admin.userName || admin.name || admin.adminName || '';
+  const adminEmail = admin.email || admin.mail || admin.emailAddress || '';
+  const adminBankName = admin.bankname || admin.bankName || admin.bank || admin.bank_name || '';
+  const adminCountry = admin.country || admin.countryName || admin.locationCountry || '';
 
   // Store admin data when received
   useEffect(() => {
@@ -64,6 +71,9 @@ const AdminPage = () => {
   // State for sections navigation
   const [activeSection, setActiveSection] = useState('Dashboard');
   
+  // State to track if admin data has been loaded
+  const [adminLoaded, setAdminLoaded] = useState(!!admin && Object.keys(admin).length > 0);
+  
   // State for all applications
   const [accounts, setAccounts] = useState([]);
   const [statusFilter, setStatusFilter] = useState('Pending');
@@ -79,8 +89,8 @@ const AdminPage = () => {
   
   // Form states for admin edit
   const [editFormData, setEditFormData] = useState({
-    username: admin.username || '',
-    email: admin.email || ''
+    username: adminName,
+    email: adminEmail
   });
   
   const [passwordFormData, setPasswordFormData] = useState({
@@ -91,22 +101,72 @@ const AdminPage = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Theme state — persisted in localStorage, synced with data-theme attribute
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('ibh-theme') || 'dark'
+  );
   
   // Branch creation states
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchFormData, setBranchFormData] = useState({
     country: '',
     city: '',
-    bankName: admin.bankname || '',
+    bankName: adminBankName,
     branch: '',
     code: ''
   });
   const [isBranchLoading, setIsBranchLoading] = useState(false);
   const [branchMessage, setBranchMessage] = useState('');
 
+  const extractAdminId = (adminObj) => {
+    if (!adminObj || typeof adminObj !== 'object') return null;
+    const possibleIdFields = ['adminId', 'id', 'ID', '_id', 'admin_id'];
+    for (const field of possibleIdFields) {
+      if (adminObj[field] !== undefined && adminObj[field] !== null && adminObj[field] !== '') {
+        return adminObj[field];
+      }
+    }
+    return null;
+  };
+
+  // Load admin data from AuthGuard if not already set
+  useEffect(() => {
+    const loadAdminData = async () => {
+      try {
+        const savedAdmin = AuthGuard.getAdminData();
+        if (savedAdmin && typeof savedAdmin === 'object' && Object.keys(savedAdmin).length > 0) {
+          setAdmin(savedAdmin);
+          setAdminLoaded(true);
+        } else {
+          // If no admin data in AuthGuard, redirect to signin
+          console.warn('No admin data found, redirecting to signin');
+          AuthGuard.logoutAdmin();
+        }
+      } catch (err) {
+        console.error('Error loading admin data:', err);
+        AuthGuard.logoutAdmin();
+      }
+    };
+    
+    if (!admin || Object.keys(admin).length === 0) {
+      loadAdminData();
+    } else {
+      setAdminLoaded(true);
+    }
+  }, []);
+
+  // Theme effect
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ibh-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!admin.bankname) {
+      if (!adminBankName) {
         setLoading(false);
         return;
       }
@@ -114,7 +174,7 @@ const AdminPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const fetchedAccounts = await fetchAllAccounts(admin.bankname);
+        const fetchedAccounts = await fetchAllAccounts(adminBankName);
         setAccounts(fetchedAccounts);
       } catch (err) {
         setAccounts([]); // Set accounts to an empty array instead of showing an error
@@ -123,7 +183,33 @@ const AdminPage = () => {
       }
     };
     fetchData();
-  }, [admin.bankname]);
+  }, [adminBankName]);
+
+  // Hydrate complete admin profile once when dashboard starts with partial login payload
+  useEffect(() => {
+    const hydrateAdminProfile = async () => {
+      const adminId = extractAdminId(admin);
+      if (!adminId) return;
+
+      const hasCompleteProfile = !!(adminName && adminEmail && adminBankName);
+      if (hasCompleteProfile) return;
+
+      try {
+        const fullAdmin = await getAdminById(adminId);
+        if (fullAdmin && typeof fullAdmin === 'object' && Object.keys(fullAdmin).length > 0) {
+          const mergedAdmin = { ...admin, ...fullAdmin };
+          setAdmin(mergedAdmin);
+          AuthGuard.setAdminData(mergedAdmin);
+        }
+      } catch (error) {
+        console.warn('Failed to hydrate admin profile details:', error);
+      }
+    };
+
+    if (adminLoaded) {
+      hydrateAdminProfile();
+    }
+  }, [adminLoaded]);
 
   // Helper to update account status and move between lists instantly
   const updateAccountStatus = (id, newStatus) => {
@@ -319,8 +405,8 @@ const AdminPage = () => {
 
   const openEditModal = () => {
     setEditFormData({
-      username: admin.username || '',
-      email: admin.email || ''
+      username: adminName,
+      email: adminEmail
     });
     setMessage('');
     setShowEditModal(true);
@@ -382,9 +468,9 @@ const AdminPage = () => {
 
   const openBranchModal = () => {
     setBranchFormData({
-      country: admin.country || '',
+      country: adminCountry,
       city: '',
-      bankName: admin.bankname || '',
+      bankName: adminBankName,
       branch: '',
       code: ''
     });
@@ -503,7 +589,7 @@ const AdminPage = () => {
                 <div className="application-details">
                   <p><strong>📧 Email:</strong> {app.email}</p>
                   <p><strong>🌍 Country:</strong> {app.country || app.location || '-'}</p>
-                  <p><strong>🏦 Bank:</strong> {app.bank || app.bankName || admin.bankname}</p>
+                  <p><strong>🏦 Bank:</strong> {app.bank || app.bankName || adminBankName}</p>
                 </div>
                 <div className="application-actions">
                   {app.status?.toLowerCase() === 'pending' && (
@@ -579,7 +665,7 @@ const AdminPage = () => {
             <FaUserShield size={40} />
           </div>
           <div className="profile-info">
-            <h3>{admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}</h3>
+            <h3>{adminName ? adminName.charAt(0).toUpperCase() + adminName.slice(1) : 'Admin'}</h3>
             <p className="user-subtitle">Bank Administrator</p>
             <div className="user-status">
               <span className="status-indicator active"></span>
@@ -592,21 +678,21 @@ const AdminPage = () => {
             <div className="detail-icon">🏦</div>
             <div className="detail-content">
               <span className="detail-label">Bank Name</span>
-              <span className="detail-value">{admin.bankname || 'Not Available'}</span>
+              <span className="detail-value">{adminBankName || 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
             <div className="detail-icon">📧</div>
             <div className="detail-content">
               <span className="detail-label">Email Address</span>
-              <span className="detail-value">{admin.email ? admin.email.charAt(0).toUpperCase() + admin.email.slice(1) : 'Not Available'}</span>
+              <span className="detail-value">{adminEmail ? adminEmail.charAt(0).toUpperCase() + adminEmail.slice(1) : 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
             <div className="detail-icon">👤</div>
             <div className="detail-content">
               <span className="detail-label">Username</span>
-              <span className="detail-value">{admin.username || 'Not Available'}</span>
+              <span className="detail-value">{adminName || 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
@@ -683,7 +769,7 @@ const AdminPage = () => {
           <div className="setting-card">
             <h4>🏦 Bank Information</h4>
             <p>View and manage bank details</p>
-            <span className="readonly-info">Bank: {admin.bankname}</span>
+            <span className="readonly-info">Bank: {adminBankName}</span>
           </div>
         </div>
       </div>
@@ -709,7 +795,7 @@ const AdminPage = () => {
   };
 
   // Loading state while admin data is being fetched
-  if (!admin.username && !admin.email) {
+  if (!adminLoaded) {
     return (
       <div className="admin-dashboard-container">
         <div className="loading-container">
@@ -722,10 +808,10 @@ const AdminPage = () => {
 
   // Call test on component mount (optional - remove in production)
   useEffect(() => {
-    if (admin.adminId) {
+    if (adminIdResolved) {
       testApiConnection();
     }
-  }, [admin.adminId]);
+  }, [adminIdResolved]);
 
   return (
     <>
@@ -737,7 +823,7 @@ const AdminPage = () => {
               <FaUserShield size={24} />
             </div>
             <div className="admin-info-sidebar">
-              <h3>{admin.username ? admin.username.charAt(0).toUpperCase() + admin.username.slice(1) : 'Admin'}</h3>
+              <h3>{adminName ? adminName.charAt(0).toUpperCase() + adminName.slice(1) : 'Admin'}</h3>
               <p>Bank Administrator</p>
             </div>
             <button className="logout-btn-sidebar" onClick={handleLogout} title="Secure Logout">
@@ -757,6 +843,14 @@ const AdminPage = () => {
               </button>
             ))}
           </nav>
+
+          {/* Theme Toggle */}
+          <div className="sidebar-theme-toggle">
+            <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
+              {theme === 'dark' ? <HiSun size={18} /> : <HiMoon size={18} />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Enhanced Professional Main Content Area */}
@@ -783,7 +877,7 @@ const AdminPage = () => {
                   <strong>Country:</strong> {selectedAccount.country || selectedAccount.location || '-'}
                 </div>
                 <div className="detail-item">
-                  <strong>Bank:</strong> {selectedAccount.bank || selectedAccount.bankName || admin.bankname}
+                  <strong>Bank:</strong> {selectedAccount.bank || selectedAccount.bankName || adminBankName}
                 </div>
                 <div className="detail-item">
                   <strong>Status:</strong> 
@@ -837,7 +931,7 @@ const AdminPage = () => {
                   <label className="form-label">Bank Name:</label>
                   <input
                     type="text"
-                    value={admin.bankname || ''}
+                    value={adminBankName || ''}
                     disabled
                     className="form-input readonly"
                   />
@@ -940,7 +1034,7 @@ const AdminPage = () => {
                   <input
                     type="text"
                     name="country"
-                    value={admin.country || ''}
+                    value={adminCountry || ''}
                     className="form-input readonly"
                     placeholder="Enter country name"
                     required
@@ -967,7 +1061,7 @@ const AdminPage = () => {
                   <input
                     type="text"
                     name="bankName"
-                    value={admin.bankname || ''}
+                    value={adminBankName || ''}
                     className="form-input readonly"
                     placeholder="Bank name"
                     readOnly

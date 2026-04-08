@@ -2,6 +2,33 @@ import { getErrorMessage } from '../utils/validation';
 
 const BASE_URL = 'http://localhost:8083/api/admin/';
 
+const pickFirst = (obj, keys) => {
+  for (const key of keys) {
+    if (obj?.[key] !== undefined && obj?.[key] !== null && obj?.[key] !== '') {
+      return obj[key];
+    }
+  }
+  return undefined;
+};
+
+const normalizeAdminData = (payload) => {
+  if (!payload || typeof payload !== 'object') return payload;
+
+  // Some backends wrap admin object in `admin`, `data`, or `result`.
+  const source = payload.admin || payload.data || payload.result || payload;
+  if (!source || typeof source !== 'object') return payload;
+
+  return {
+    ...source,
+    adminId: pickFirst(source, ['adminId', 'id', 'ID', '_id', 'admin_id']),
+    id: pickFirst(source, ['id', 'adminId', 'ID', '_id', 'admin_id']),
+    username: pickFirst(source, ['username', 'userName', 'name', 'adminName']),
+    email: pickFirst(source, ['email', 'mail', 'emailAddress']),
+    bankname: pickFirst(source, ['bankname', 'bankName', 'bank', 'bank_name']),
+    country: pickFirst(source, ['country', 'countryName', 'locationCountry'])
+  };
+};
+
 export const signUpAdmin = async (adminData) => {
   const response = await fetch(`${BASE_URL}register`, {
     method: 'POST',
@@ -30,8 +57,7 @@ export const signInAdmin = async (credentials) => {
     throw new Error(errorMsg || 'Failed to sign in admin');
   }
   const data = await response.json();
-
-  return data;
+  return normalizeAdminData(data);
 };
 
 /**
@@ -55,7 +81,7 @@ export const getAdminById = async (adminId) => {
       throw new Error(cleanErrorMessage);
     }
 
-    const adminData = await response.json();
+    const adminData = normalizeAdminData(await response.json());
     console.log('Admin data fetched successfully:', adminData);
     return adminData;
   } catch (error) {
@@ -106,7 +132,7 @@ export const updateAdminDetails = async (adminId, updateData) => {
       throw new Error(cleanErrorMessage);
     }
 
-    const updatedAdmin = await response.json();
+    const updatedAdmin = normalizeAdminData(await response.json());
     console.log('Admin details updated successfully:', updatedAdmin);
     return updatedAdmin;
   } catch (error) {
@@ -223,7 +249,7 @@ export const updateAdminDetailsSimple = async (adminId, updateData) => {
     // Handle both JSON and text responses
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      const result = await response.json();
+      const result = normalizeAdminData(await response.json());
       console.log('Admin updated (JSON response):', result);
       return result;
     } else {
