@@ -7,6 +7,7 @@ import { updateUserDetails, changeUserPassword, getUserById } from '../api/userA
 import './UserPageClean.css';
 import Footer from '../components/Footer';
 import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt, FaGlobe, FaUniversity, FaMapMarkerAlt } from 'react-icons/fa';
+import { HiSun, HiMoon } from 'react-icons/hi';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 import { AuthGuard } from '../utils/authGuard';
 
@@ -65,6 +66,18 @@ const UserPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isRefreshingAccounts, setIsRefreshingAccounts] = useState(false);
+
+  // Theme state — persisted in localStorage, synced with data-theme attribute
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem('ibh-theme') || 'dark'
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ibh-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
 
   const fetchBankAccounts = async () => {
     try {
@@ -881,6 +894,14 @@ const UserPage = () => {
               </button>
             ))}
           </nav>
+
+          {/* Theme Toggle */}
+          <div className="sidebar-theme-toggle">
+            <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle theme">
+              {theme === 'dark' ? <HiSun size={18} /> : <HiMoon size={18} />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Enhanced Professional Main Content Area */}
