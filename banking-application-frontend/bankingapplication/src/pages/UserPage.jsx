@@ -77,6 +77,12 @@ const UserPage = () => {
     localStorage.setItem('ibh-theme', theme);
   }, [theme]);
 
+  // Prompt before manual URL/page leave and clear session when user confirms leaving.
+  useEffect(() => {
+    const cleanup = AuthGuard.registerLeavePromptAndAutoLogout({ isAdmin: false });
+    return cleanup;
+  }, []);
+
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
 
   const fetchBankAccounts = async () => {

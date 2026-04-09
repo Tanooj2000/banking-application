@@ -3,13 +3,12 @@ import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import { fetchAllAccounts, approveAccount, rejectAccount } from '../api/accountApi';
-import { testApiConnection } from '../api/adminApi';
 import { updateAdminDetails, changeAdminPassword, getAdminById, updateAdminDetailsSimple } from '../api/adminApi';
 import { AuthGuard } from '../utils/authGuard';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
 import './AdminPageClean.css';
 import { createBranch } from '../api/bankApi';
-import { FaUser, FaTimes, FaEye, FaUserShield, FaPlus, FaCog, FaChartBar, FaBuilding, FaSignOutAlt, FaUsers, FaEdit, FaKey } from 'react-icons/fa';
+import { FaUser, FaTimes, FaEye, FaUserShield, FaPlus, FaChartBar, FaBuilding, FaSignOutAlt, FaUsers, FaEdit, FaKey } from 'react-icons/fa';
 import { HiSun, HiMoon } from 'react-icons/hi';
 
 
@@ -69,7 +68,7 @@ const AdminPage = () => {
   }, []);
 
   // State for sections navigation
-  const [activeSection, setActiveSection] = useState('Dashboard');
+  const [activeSection, setActiveSection] = useState('Profile');
   
   // State to track if admin data has been loaded
   const [adminLoaded, setAdminLoaded] = useState(!!admin && Object.keys(admin).length > 0);
@@ -223,6 +222,12 @@ const AdminPage = () => {
   // Prevent browser back navigation to admin pages
   useEffect(() => {
     const cleanup = AuthGuard.preventBackNavigation();
+    return cleanup;
+  }, []);
+
+  // Prompt before manual URL/page leave and clear session when user confirms leaving.
+  useEffect(() => {
+    const cleanup = AuthGuard.registerLeavePromptAndAutoLogout({ isAdmin: true });
     return cleanup;
   }, []);
 
@@ -480,19 +485,18 @@ const AdminPage = () => {
     setShowBranchModal(true);
   };
 
-  // Enhanced Sidebar navigation items for admin
+  // Sidebar navigation items aligned with UserPage naming style
   const sidebarItems = [
+    { id: 'Profile', label: 'My Profile', icon: <FaUserShield /> },
     { id: 'Dashboard', label: 'Dashboard', icon: <FaChartBar /> },
     { id: 'Applications', label: 'Applications', icon: <FaUsers /> },
-    { id: 'Profile', label: 'Admin Profile', icon: <FaUserShield /> },
-    { id: 'AddBranch', label: 'Add Branch', icon: <FaBuilding /> },
-    { id: 'Settings', label: 'Settings', icon: <FaCog /> }
+    { id: 'AddBranch', label: 'New Branch', icon: <FaBuilding /> }
   ];
 
   // Content rendering functions
   const renderDashboardContent = () => (
     <div className="content-section">
-      <h2 className="section-title">Admin <em>Dashboard</em></h2>
+      <h2 className="section-title">Dashboard <em>Overview</em></h2>
       <div className="dashboard-content">
         <div className="stats-grid">
           <div className="stat-card">
@@ -660,7 +664,7 @@ const AdminPage = () => {
 
   const renderProfileContent = () => (
     <div className="content-section profile-section">
-      <h2 className="section-title">Admin <em>Profile</em></h2>
+      <h2 className="section-title">My <em>Profile</em></h2>
       <div className="profile-content">
         <div className="profile-header">
           <div className="profile-avatar">
@@ -677,30 +681,38 @@ const AdminPage = () => {
         </div>
         <div className="profile-details">
           <div className="detail-row">
-            <div className="detail-icon">🏦</div>
             <div className="detail-content">
-              <span className="detail-label">Bank Name</span>
+              <div className="detail-header">
+                <div className="detail-icon">🏦</div>
+                <span className="detail-label">Bank Name</span>
+              </div>
               <span className="detail-value">{adminBankName || 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
-            <div className="detail-icon">📧</div>
             <div className="detail-content">
-              <span className="detail-label">Email Address</span>
+              <div className="detail-header">
+                <div className="detail-icon">📧</div>
+                <span className="detail-label">Email Address</span>
+              </div>
               <span className="detail-value">{adminEmail ? adminEmail.charAt(0).toUpperCase() + adminEmail.slice(1) : 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
-            <div className="detail-icon">👤</div>
             <div className="detail-content">
-              <span className="detail-label">Username</span>
+              <div className="detail-header">
+                <div className="detail-icon">👤</div>
+                <span className="detail-label">Username</span>
+              </div>
               <span className="detail-value">{adminName || 'Not Available'}</span>
             </div>
           </div>
           <div className="detail-row">
-            <div className="detail-icon">🔑</div>
             <div className="detail-content">
-              <span className="detail-label">Admin Role</span>
+              <div className="detail-header">
+                <div className="detail-icon">🔑</div>
+                <span className="detail-label">Admin Role</span>
+              </div>
               <span className="detail-value status-active">Bank Administrator</span>
             </div>
           </div>
@@ -722,7 +734,7 @@ const AdminPage = () => {
 
   const renderAddBranchContent = () => (
     <div className="content-section">
-      <h2 className="section-title">Add New <em>Branch</em></h2>
+      <h2 className="section-title">New <em>Branch</em></h2>
       <div className="add-branch-content">
         <div className="add-branch-header">
           <h3>Create a New Bank Branch</h3>
@@ -753,31 +765,6 @@ const AdminPage = () => {
     </div>
   );
 
-  const renderSettingsContent = () => (
-    <div className="content-section">
-      <h2 className="section-title">Admin <em>Settings</em></h2>
-      <div className="settings-content">
-        <div className="settings-grid">
-          <div className="setting-card">
-            <h4>🔧 Account Management</h4>
-            <p>Manage admin account settings and preferences</p>
-            <button onClick={() => setShowEditModal(true)}>Edit Profile</button>
-          </div>
-          <div className="setting-card">
-            <h4>🔒 Security Settings</h4>
-            <p>Update password and security preferences</p>
-            <button onClick={() => setShowPasswordModal(true)}>Change Password</button>
-          </div>
-          <div className="setting-card">
-            <h4>🏦 Bank Information</h4>
-            <p>View and manage bank details</p>
-            <span className="readonly-info">Bank: {adminBankName}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   // Render content based on active section
   const renderContent = () => {
     switch (activeSection) {
@@ -789,8 +776,6 @@ const AdminPage = () => {
         return renderProfileContent();
       case 'AddBranch':
         return renderAddBranchContent();
-      case 'Settings':
-        return renderSettingsContent();
       default:
         return renderDashboardContent();
     }
@@ -807,13 +792,6 @@ const AdminPage = () => {
       </div>
     );
   }
-
-  // Call test on component mount (optional - remove in production)
-  useEffect(() => {
-    if (adminIdResolved) {
-      testApiConnection();
-    }
-  }, [adminIdResolved]);
 
   return (
     <>

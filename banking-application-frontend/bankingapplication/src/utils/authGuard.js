@@ -1,5 +1,7 @@
 // Global Authentication Guard
 export const AuthGuard = {
+  LEAVE_GUARD_BYPASS_KEY: 'leaveGuardBypass',
+
   // Check if regular user is authenticated (JWT in localStorage)
   isAuthenticated: () => {
     const token = localStorage.getItem('authToken');
@@ -64,6 +66,8 @@ export const AuthGuard = {
 
   // Async user logout — calls backend to blacklist token, then clears localStorage
   logout: async () => {
+    localStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
+    sessionStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
     try {
       const token = localStorage.getItem('authToken');
       if (token) {
@@ -96,6 +100,8 @@ export const AuthGuard = {
 
   // Admin logout — clears sessionStorage
   logoutAdmin: () => {
+    localStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
+    sessionStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
     sessionStorage.setItem('loggedOut', 'true');
     sessionStorage.removeItem('adminData');
     sessionStorage.removeItem('userToken');
@@ -128,6 +134,8 @@ export const AuthGuard = {
 
   // Set admin data on login
   setAdminData: (adminData) => {
+    localStorage.removeItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY);
+    sessionStorage.removeItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY);
     const adminWithTimestamp = {
       ...adminData,
       loginTime: new Date().getTime()
@@ -181,11 +189,72 @@ export const AuthGuard = {
     ensure('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     ensure('Pragma', 'no-cache');
     ensure('Expires', '0');
+  },
+
+  // Show a logout confirmation when the user navigates away via browser
+  // back/forward buttons. Reload is intentionally excluded — it must never
+  // trigger the prompt or clear auth data.
+  registerLeavePromptAndAutoLogout: ({ isAdmin = false } = {}) => {
+    const protectedUrl = window.location.pathname + window.location.search;
+
+    const hasActiveSession = () => {
+      return isAdmin ? AuthGuard.isAdminAuthenticated() : AuthGuard.isAuthenticated();
+    };
+
+    const forceLogoutRedirect = () => {
+      localStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
+      sessionStorage.setItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY, 'true');
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userToken');
+
+      sessionStorage.setItem('loggedOut', 'true');
+      sessionStorage.removeItem('adminData');
+      sessionStorage.removeItem('userToken');
+      sessionStorage.removeItem('userType');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('userId');
+
+      window.dispatchEvent(new Event('storage'));
+      window.location.href = '/';
+    };
+
+    // Push a sentinel history entry so pressing back fires popstate
+    // instead of silently leaving. Without this, popstate never fires.
+    window.history.pushState({ leaveGuard: true }, '', protectedUrl);
+
+    // popstate fires on back/forward navigation — NOT on reload or address-bar changes.
+    const handlePopState = (event) => {
+      if (!hasActiveSession()) return;
+
+      const confirmed = window.confirm(
+        'Do you want to logout?\n\nLeaving this page will end your session.'
+      );
+
+      if (confirmed) {
+        forceLogoutRedirect();
+      } else {
+        // Re-push the sentinel so the guard is re-armed for next back press.
+        window.history.pushState({ leaveGuard: true }, '', protectedUrl);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }
 };
 
 // Global function to check authentication on page load
 export const checkAuthOnPageLoad = () => {
+  localStorage.removeItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY);
+  sessionStorage.removeItem(AuthGuard.LEAVE_GUARD_BYPASS_KEY);
+
   if (sessionStorage.getItem('loggedOut') === 'true' &&
       window.location.pathname.includes('/admin')) {
     AuthGuard.logoutAdmin();
