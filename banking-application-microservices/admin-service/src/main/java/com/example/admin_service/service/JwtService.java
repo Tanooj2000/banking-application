@@ -24,14 +24,7 @@ public class JwtService {
     private Integer jwtExpiration;
 
     public String extractUsername(String token) {
-        try {
-            String username = extractClaim(token, Claims::getSubject);
-            System.out.println("[JWT DEBUG] Extracted username: " + username);
-            return username;
-        } catch (Exception e) {
-            System.out.println("[JWT DEBUG] Error extracting username: " + e.getMessage());
-            throw e;
-        }
+        return extractClaim(token, Claims::getSubject);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -68,12 +61,7 @@ public class JwtService {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("adminId", adminId);
         extraClaims.put("role", role);
-        extraClaims.put("tokenType", "STATELESS"); // Marker for stateless tokens
-        
-        System.out.println("[JWT DEBUG] Generating stateless token:");
-        System.out.println("  - Username: " + username);
-        System.out.println("  - AdminId: " + adminId);
-        System.out.println("  - Role: " + role);
+        extraClaims.put("tokenType", "STATELESS");
         
         return Jwts
                 .builder()
@@ -107,39 +95,17 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             final String username = extractUsername(token);
-            boolean usernameMatches = username.equals(userDetails.getUsername());
-            boolean tokenNotExpired = !isTokenExpired(token);
-            boolean isValid = usernameMatches && tokenNotExpired;
-            
-            System.out.println("[JWT DEBUG] Token validation:");
-            System.out.println("  - Token username: " + username);
-            System.out.println("  - UserDetails username: " + userDetails.getUsername());
-            System.out.println("  - Username matches: " + usernameMatches);
-            System.out.println("  - Token not expired: " + tokenNotExpired);
-            System.out.println("  - Overall valid: " + isValid);
-            
-            return isValid;
+            return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
         } catch (Exception e) {
-            System.out.println("[JWT DEBUG] Error validating token: " + e.getMessage());
             return false;
         }
     }
 
     public boolean isTokenValid(String token) {
         try {
-            // For stateless authentication - only check token validity
             final String username = extractUsername(token);
-            boolean tokenNotExpired = !isTokenExpired(token);
-            boolean isValid = username != null && !username.isEmpty() && tokenNotExpired;
-            
-            System.out.println("[JWT DEBUG] Stateless token validation:");
-            System.out.println("  - Token username: " + username);
-            System.out.println("  - Token not expired: " + tokenNotExpired);
-            System.out.println("  - Overall valid: " + isValid);
-            
-            return isValid;
+            return username != null && !username.isEmpty() && !isTokenExpired(token);
         } catch (Exception e) {
-            System.out.println("[JWT DEBUG] Error validating token: " + e.getMessage());
             return false;
         }
     }
@@ -160,28 +126,6 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    
-    /**
-     * Debug method to display all claims in a JWT token
-     */
-    public void debugTokenClaims(String token) {
-        try {
-            Claims claims = extractAllClaims(token);
-            System.out.println("[JWT DEBUG] All token claims:");
-            System.out.println("  - Subject (username): " + claims.getSubject());
-            System.out.println("  - Issued At: " + claims.getIssuedAt());
-            System.out.println("  - Expiration: " + claims.getExpiration());
-            
-            // Print all custom claims
-            claims.forEach((key, value) -> {
-                if (!key.equals("sub") && !key.equals("iat") && !key.equals("exp")) {
-                    System.out.println("  - " + key + ": " + value);
-                }
-            });
-        } catch (Exception e) {
-            System.out.println("[JWT DEBUG] Error reading token claims: " + e.getMessage());
-        }
-    }
 
     private Key getSignInKey() {
         byte[] keyBytes = jwtSecret.getBytes();
@@ -197,38 +141,26 @@ public class JwtService {
         try {
             Claims claims = extractAllClaims(token);
             
-            // Get role from single role claim
             String role = claims.get("role", String.class);
-            System.out.println("[JWT DEBUG] Role from 'role' claim: " + role);
             
-            // If no role claim, try to determine from username
             if (role == null || role.isEmpty()) {
                 String username = claims.getSubject();
-                System.out.println("[JWT DEBUG] No role claim found, checking username: " + username);
                 
-                // Check if this looks like a root admin
                 if (username != null && (username.equals("rootadmin") || 
                     username.startsWith("root") || 
                     username.contains("rootadmin"))) {
                     role = "ROOT_ADMIN";
-                    System.out.println("[JWT DEBUG] Detected ROOT_ADMIN based on username pattern");
                 } else {
-                    // Default to ADMIN if still no role found
                     role = "ADMIN";
-                    System.out.println("[JWT DEBUG] No role indicators found, defaulting to ADMIN");
                 }
             }
             
-            // Clean up role string (remove ROLE_ prefix if present)
             if (role != null && role.startsWith("ROLE_")) {
                 role = role.substring(5);
-                System.out.println("[JWT DEBUG] Cleaned role (removed ROLE_ prefix): " + role);
             }
             
-            System.out.println("[JWT DEBUG] Final extracted role: " + role);
             return role != null ? role : "ADMIN";
         } catch (Exception e) {
-            System.out.println("[JWT DEBUG] Error extracting role: " + e.getMessage());
             return "ADMIN";
         }
     }

@@ -598,16 +598,16 @@ const UserPage = () => {
           
           {/* Error Message - Show at top if exists */}
           {bankSelectionError && (
-            <div className="error-message" style={{background: '#ffebee', color: '#c62828', padding: '1rem', borderRadius: '8px', margin: '1rem 0'}}>
+            <div className="create-account-error">
               ⚠️ {bankSelectionError}
             </div>
           )}
           
           {/* Bank Selection - Single Column Layout */}
-          <div className="bank-selection-container" style={{width: '100%', maxWidth: '800px', margin: '0 auto 3rem auto', padding: '2rem', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #dee2e6'}}>
+          <div className="bank-selection-container">
             <h4 className="form-section-title">Select Your Banking Preferences</h4>
             
-            <div className="selection-row" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem'}}>
+            <div className="selection-row">
               <div className="form-group country-group">
                 <label htmlFor="country-select" className="form-label">
                   <FaGlobe className="field-icon" /> Country
@@ -671,7 +671,7 @@ const UserPage = () => {
             </div>
 
             <div className="selection-row" style={{marginBottom: '2rem'}}>
-              <div className="form-group bank-full-width" style={{gridColumn: '1 / -1'}}>
+              <div className="form-group bank-full-width">
                 <label htmlFor="bank-search" className="form-label">
                   <FaUniversity className="field-icon" /> Bank {isBanksLoading ? '(Loading...)' : ''}
                 </label>
@@ -716,15 +716,9 @@ const UserPage = () => {
 
             {/* Selected Details Section - Simple */}
             {selectedCountry && selectedCity && selectedBank && (
-              <div className="selection-details" style={{
-                background: '#f8f9fa',
-                border: '1px solid #dee2e6',
-                borderRadius: '8px',
-                padding: '1.5rem',
-                margin: '2rem 0'
-              }}>
-                <h4 style={{margin: '0 0 1rem 0', color: '#333', fontSize: '1.1rem'}}>Your Selection</h4>
-                <div style={{display: 'flex', gap: '2rem', flexWrap: 'wrap'}}>
+              <div className="selection-details">
+                <h4>Your Selection</h4>
+                <div className="selection-details-grid">
                   <div>
                     <strong>Country:</strong> {selectedCountry}
                   </div>
@@ -740,14 +734,12 @@ const UserPage = () => {
 
             {/* Create Account Button - Simple */}
             {selectedBank && selectedCity && (
-              <div className="action-container" style={{textAlign: 'center', marginTop: '2rem'}}>
+              <div className="action-container">
                 <button
                   className="create-account-btn"
                   onClick={handleCreateBankAccount}
                   disabled={!selectedBank || !selectedCity}
                   style={{
-                    background: '#007bff',
-                    color: 'white',
                     border: 'none',
                     padding: '1rem 2rem',
                     borderRadius: '8px',
@@ -755,7 +747,7 @@ const UserPage = () => {
                     fontWeight: '600',
                     cursor: 'pointer'
                   }}
-                >
+              >
                   Create Account with {selectedBank}
                 </button>
               </div>

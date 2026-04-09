@@ -47,10 +47,10 @@ public class AdminService {
         admin.setBankname(request.getBankname());
         admin.setCountry(request.getCountry());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-        // admin.setVerifiedByRoot(false); // initially not verified
-        admin.setVerifiedByRoot(true); // automatically verified for admin service
-        // admin.setApplicationStatus(ApplicationStatus.PENDING);
-        admin.setApplicationStatus(ApplicationStatus.APPROVED); // auto-approved
+        admin.setVerifiedByRoot(false); // initially not verified
+        //admin.setVerifiedByRoot(true); // automatically verified for admin service
+        admin.setApplicationStatus(ApplicationStatus.PENDING);
+        //admin.setApplicationStatus(ApplicationStatus.APPROVED); // auto-approved
         admin.setCreatedDate(java.time.LocalDateTime.now());
         adminRepository.save(admin);
 

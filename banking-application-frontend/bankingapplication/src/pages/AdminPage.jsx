@@ -110,7 +110,7 @@ const AdminPage = () => {
   // Branch creation states
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchFormData, setBranchFormData] = useState({
-    country: '',
+    country: adminCountry,
     city: '',
     bankName: adminBankName,
     branch: '',
@@ -431,6 +431,7 @@ const AdminPage = () => {
   const handleCreateBranch = async () => {
     setIsBranchLoading(true);
     setBranchMessage('');
+    console.log('Creating branch with data:', branchFormData);
 
     try {
       // Validation
@@ -447,7 +448,7 @@ const AdminPage = () => {
 
       setBranchMessage('Branch created successfully!');
       setBranchFormData({
-        country: '',
+        country: admin.country || '',
         city: '',
         bankName: admin.bankname || '',
         branch: '',
@@ -467,10 +468,11 @@ const AdminPage = () => {
   };
 
   const openBranchModal = () => {
+    console.log('Opening branch modal with initial data:')
     setBranchFormData({
-      country: adminCountry,
+      country: adminCountry || '',
       city: '',
-      bankName: adminBankName,
+      bankName: adminBankName || '',
       branch: '',
       code: ''
     });
@@ -1029,17 +1031,16 @@ const AdminPage = () => {
                 e.preventDefault();
                 handleCreateBranch();
               }} className="modal-form">
-                <div className="form-group">
+               <div className="form-group">
                   <label className="form-label">Country <span className="required">*</span></label>
                   <input
                     type="text"
                     name="country"
-                    value={adminCountry || ''}
+                    value={branchFormData.country}
                     className="form-input readonly"
-                    placeholder="Enter country name"
-                    required
-                    style={{ pointerEvents: 'none' }}
+                    placeholder="Country"
                     readOnly
+                    style={{ pointerEvents: 'none' }}
                   />
                 </div>
                 
@@ -1061,7 +1062,7 @@ const AdminPage = () => {
                   <input
                     type="text"
                     name="bankName"
-                    value={adminBankName || ''}
+                    value={branchFormData.bankName}
                     className="form-input readonly"
                     placeholder="Bank name"
                     readOnly

@@ -52,69 +52,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             // Check if token is blacklisted
             if (sessionService.isTokenBlacklisted(jwt)) {
-                System.out.println("[FILTER DEBUG] Token is blacklisted");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Token has been invalidated");
                 return;
             }
-            System.out.println("[FILTER DEBUG] Token not blacklisted");
             
             final String adminUsername = jwtService.extractUsername(jwt);
-            System.out.println("[FILTER DEBUG] Extracted username: " + adminUsername);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("[FILTER DEBUG] Current authentication: " + (authentication != null ? authentication.getName() : "null"));
 
             if (adminUsername != null && authentication == null) {
                 try {
-                    // Debug: Show all token claims
-                    jwtService.debugTokenClaims(jwt);
-                    
-                    // Validate JWT token without database lookup - stateless authentication
                     if (jwtService.isTokenValid(jwt)) {
-                        System.out.println("[FILTER DEBUG] Token is valid. Creating stateless authentication.");
-                        
-                        // Extract role and other claims directly from JWT
                         String role = jwtService.extractRole(jwt);
                         Long adminId = jwtService.extractAdminId(jwt);
                         
-                        System.out.println("[FILTER DEBUG] JWT Claims - Username: " + adminUsername + ", Role: " + role + ", AdminId: " + adminId);
-                        
-                        // Create authorities based on role from JWT token only
                         List<SimpleGrantedAuthority> authorities = List.of(
                                 new SimpleGrantedAuthority("ROLE_" + role)
                         );
-                        System.out.println("[FILTER DEBUG] Creating stateless authorities: " + authorities);
                         
-                        // Create UserDetails without database lookup
                         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                                 .username(adminUsername)
-                                .password("") // Not used for stateless JWT auth
+                                .password("")
                                 .authorities(authorities)
                                 .build();
 
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails,
-                                jwt, // Store JWT as credentials for potential future use
+                                jwt,
                                 authorities
                         );
 
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                        System.out.println("[FILTER DEBUG] Stateless authentication set successfully");
-                    } else {
-                        System.out.println("[FILTER DEBUG] Token validation failed");
                     }
                 } catch (Exception authEx) {
-                    System.out.println("[FILTER DEBUG] Error during stateless authentication: " + authEx.getClass().getSimpleName() + " - " + authEx.getMessage());
-                    authEx.printStackTrace();
-                }
-            } else {
-                if (adminUsername == null) {
-                    System.out.println("[FILTER DEBUG] No username extracted from token");
-                }
-                if (authentication != null) {
-                    System.out.println("[FILTER DEBUG] Authentication already exists");
+                    // Authentication failed, continue without setting context
                 }
             }
 

@@ -2,6 +2,199 @@ import { getErrorMessage } from '../utils/validation';
 
 const BASE_URL = 'http://localhost:8083/api/admin/';
 
+// Production error handling utilities
+const ErrorTypes = {
+  NETWORK: 'NETWORK_ERROR',
+  AUTHENTICATION: 'AUTH_ERROR',
+  VALIDATION: 'VALIDATION_ERROR',
+  SERVER: 'SERVER_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  PERMISSION: 'PERMISSION_ERROR',
+  RATE_LIMIT: 'RATE_LIMIT',
+  TIMEOUT: 'TIMEOUT_ERROR'
+};
+
+const UserFriendlyMessages = {
+  [ErrorTypes.NETWORK]: 'Server not responding please try again',
+  [ErrorTypes.AUTHENTICATION]: 'Your session has expired. Please sign in again.',
+  [ErrorTypes.VALIDATION]: 'Please check the information you entered and try again.',
+  [ErrorTypes.SERVER]: 'A server error occurred. Our team has been notified. Please try again later.',
+  [ErrorTypes.NOT_FOUND]: 'The requested information was not found.',
+  [ErrorTypes.PERMISSION]: 'You do not have permission to perform this action.',
+  [ErrorTypes.RATE_LIMIT]: 'Too many requests. Please wait a moment and try again.',
+  [ErrorTypes.TIMEOUT]: 'The request timed out. Please try again.'
+};
+
+class ApiError extends Error {
+  constructor(message, type, statusCode = null, originalError = null) {
+    super(message);
+    this.name = 'ApiError';
+    this.type = type;
+    this.statusCode = statusCode;
+    this.originalError = originalError;
+    this.userMessage = UserFriendlyMessages[type] || message;
+    this.timestamp = new Date().toISOString();
+  }
+}
+
+const logError = (operation, error, context = {}) => {
+  const errorLog = {
+    operation,
+    error: {
+      name: error.name,
+      message: error.message,
+      type: error.type || 'UNKNOWN',
+      statusCode: error.statusCode,
+      stack: error.stack
+    },
+    context,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Log to console in development, send to monitoring service in production
+  if (process.env.NODE_ENV === 'development') {
+    console.error('API Error:', errorLog);
+  }
+  
+  // In production, send to monitoring service
+  // Example: monitoringService.captureError(errorLog);
+};
+
+const determineErrorType = (response, error) => {
+  // Network errors - enhanced detection
+  if (!navigator.onLine) return ErrorTypes.NETWORK;
+  
+  // Check for common fetch failures
+  if (error && (
+    error.name === 'TypeError' ||
+    error.message === 'Failed to fetch' ||
+    error.message.includes('fetch') ||
+    error.message.includes('NetworkError') ||
+    error.message.includes('ERR_CONNECTION_REFUSED') ||
+    error.message.includes('ERR_NAME_NOT_RESOLVED')
+  )) {
+    return ErrorTypes.NETWORK;
+  }
+  
+  if (!response) return ErrorTypes.NETWORK;
+  
+  // HTTP status based errors
+  switch (response.status) {
+    case 400: return ErrorTypes.VALIDATION;
+    case 401: return ErrorTypes.AUTHENTICATION;
+    case 403: return ErrorTypes.PERMISSION;
+    case 404: return ErrorTypes.NOT_FOUND;
+    case 429: return ErrorTypes.RATE_LIMIT;
+    case 408: return ErrorTypes.TIMEOUT;
+    case 500:
+    case 502:
+    case 503:
+    case 504: return ErrorTypes.SERVER;
+    default: return ErrorTypes.SERVER;
+  }
+};
+
+const handleApiResponse = async (response, operation) => {
+  if (!response.ok) {
+    let errorMessage;
+    let errorDetails = null;
+    
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || `Request failed with status ${response.status}`;
+        errorDetails = errorData;
+      } else {
+        errorMessage = await response.text() || `Request failed with status ${response.status}`;
+      }
+    } catch (parseError) {
+      errorMessage = `Server error (${response.status}). Please try again later.`;
+    }
+    
+    const errorType = determineErrorType(response);
+    throw new ApiError(errorMessage, errorType, response.status, errorDetails);
+  }
+  
+  return response;
+};
+
+const makeApiRequest = async (url, options = {}, operation = 'API Request') => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  
+  try {
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      ...options
+    };
+    
+    const response = await fetch(url, defaultOptions);
+    clearTimeout(timeoutId);
+    
+    return await handleApiResponse(response, operation);
+    
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error.name === 'AbortError') {
+      const timeoutError = new ApiError('Request timed out', ErrorTypes.TIMEOUT);
+      logError(operation, timeoutError, { url, options });
+      throw timeoutError;
+    }
+    
+    if (error instanceof ApiError) {
+      logError(operation, error, { url, options });
+      throw error;
+    }
+    
+    // Handle network errors and connection refused with simple message
+    let networkErrorMessage = 'Network connection failed';
+    
+    // Show simple message for network/connection issues
+    if (error.message === 'Failed to fetch' || 
+        error.name === 'TypeError' ||
+        error.message.includes('ERR_CONNECTION_REFUSED') ||
+        error.message.includes('ERR_NAME_NOT_RESOLVED') ||
+        error.message.includes('fetch') ||
+        error.message.includes('NetworkError')) {
+      networkErrorMessage = 'Server not responding please try again';
+    }
+    
+    const networkError = new ApiError(
+      networkErrorMessage,
+      ErrorTypes.NETWORK,
+      null,
+      error
+    );
+    logError(operation, networkError, { url, options });
+    throw networkError;
+  }
+};
+
+const retryRequest = async (requestFn, maxRetries = 2, delay = 1000) => {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      // Don't retry validation, authentication, or permission errors
+      if ([ErrorTypes.VALIDATION, ErrorTypes.AUTHENTICATION, ErrorTypes.PERMISSION].includes(error.type)) {
+        throw error;
+      }
+      
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      // Wait before retrying (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, attempt)));
+    }
+  }
+};
+
 const pickFirst = (obj, keys) => {
   for (const key of keys) {
     if (obj?.[key] !== undefined && obj?.[key] !== null && obj?.[key] !== '') {
@@ -30,34 +223,54 @@ const normalizeAdminData = (payload) => {
 };
 
 export const signUpAdmin = async (adminData) => {
-  const response = await fetch(`${BASE_URL}register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(adminData),
+  return await retryRequest(async () => {
+    // Validate input data
+    if (!adminData || typeof adminData !== 'object') {
+      throw new ApiError('Invalid registration data provided', ErrorTypes.VALIDATION);
+    }
+    
+    const requiredFields = ['username', 'email', 'password'];
+    const missingFields = requiredFields.filter(field => !adminData[field]);
+    if (missingFields.length > 0) {
+      throw new ApiError(
+        `Missing required fields: ${missingFields.join(', ')}`,
+        ErrorTypes.VALIDATION
+      );
+    }
+    
+    const response = await makeApiRequest(
+      `${BASE_URL}register`,
+      {
+        method: 'POST',
+        body: JSON.stringify(adminData),
+      },
+      'Admin Registration'
+    );
+    
+    return await response.text();
   });
-  if (!response.ok) {
-    const errorMsg = await response.text();
-    throw new Error(errorMsg || 'Failed to sign up user');
-  }
-  return response.text();
 };
 
 export const signInAdmin = async (credentials) => {
-  const response = await fetch(`${BASE_URL}login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(credentials),
+  return await retryRequest(async () => {
+    console.log(credentials);
+    // Validate credentials
+    if (!credentials || !credentials.usernameOrEmail || !credentials.password) {
+      throw new ApiError('Username and password are required', ErrorTypes.VALIDATION);
+    }
+    
+    const response = await makeApiRequest(
+      `${BASE_URL}login`,
+      {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      },
+      'Admin Login'
+    );
+    
+    const data = await response.json();
+    return normalizeAdminData(data);
   });
-  if (!response.ok) {
-    const errorMsg = await response.text();
-    throw new Error(errorMsg || 'Failed to sign in admin');
-  }
-  const data = await response.json();
-  return normalizeAdminData(data);
 };
 
 /**
@@ -66,28 +279,26 @@ export const signInAdmin = async (credentials) => {
  * @returns {Promise<Object>} Admin data
  */
 export const getAdminById = async (adminId) => {
-  try {
-    const response = await fetch(`${BASE_URL}${adminId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      // Use getErrorMessage to extract clean message from JSON response
-      const cleanErrorMessage = getErrorMessage(errorText);
-      throw new Error(cleanErrorMessage);
+  return await retryRequest(async () => {
+    // Validate adminId
+    if (!adminId || adminId === 'undefined' || adminId === 'null') {
+      throw new ApiError('Invalid admin ID provided', ErrorTypes.VALIDATION);
     }
-
-    const adminData = normalizeAdminData(await response.json());
-    console.log('Admin data fetched successfully:', adminData);
-    return adminData;
-  } catch (error) {
-    console.error('Error fetching admin by ID:', error);
-    throw new Error(`Failed to fetch admin details: ${error.message}`);
-  }
+    
+    const numericAdminId = parseInt(adminId, 10);
+    if (isNaN(numericAdminId)) {
+      throw new ApiError(`Admin ID must be a valid number, received: ${adminId}`, ErrorTypes.VALIDATION);
+    }
+    
+    const response = await makeApiRequest(
+      `${BASE_URL}${numericAdminId}`,
+      { method: 'GET' },
+      'Get Admin Details'
+    );
+    
+    const adminData = await response.json();
+    return normalizeAdminData(adminData);
+  });
 };
 
 /**
@@ -97,48 +308,47 @@ export const getAdminById = async (adminId) => {
  * @returns {Promise<Object>} Updated admin data
  */
 export const updateAdminDetails = async (adminId, updateData) => {
-  try {
-    console.log('Updating admin details for ID:', adminId, 'with data:', updateData);
-    
+  return await retryRequest(async () => {
     // Validate adminId
     if (!adminId || adminId === 'undefined' || adminId === 'null') {
-      throw new Error('Invalid admin ID. Please ensure you are properly logged in.');
+      throw new ApiError('Invalid admin ID. Please ensure you are properly logged in.', ErrorTypes.AUTHENTICATION);
     }
-
-    // Convert adminId to number for backend compatibility
+    
+    // Validate update data
+    if (!updateData || typeof updateData !== 'object') {
+      throw new ApiError('Invalid update data provided', ErrorTypes.VALIDATION);
+    }
+    
+    if (!updateData.username || !updateData.email) {
+      throw new ApiError('Username and email are required', ErrorTypes.VALIDATION);
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updateData.email)) {
+      throw new ApiError('Please enter a valid email address', ErrorTypes.VALIDATION);
+    }
+    
     const numericAdminId = parseInt(adminId, 10);
     if (isNaN(numericAdminId)) {
-      throw new Error(`Admin ID must be a valid number, got: ${adminId}`);
+      throw new ApiError(`Admin ID must be a valid number, received: ${adminId}`, ErrorTypes.VALIDATION);
     }
     
-    console.log('Using numeric admin ID:', numericAdminId);
-    
-    const response = await fetch(`${BASE_URL}${numericAdminId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await makeApiRequest(
+      `${BASE_URL}${numericAdminId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          username: updateData.username,
+          email: updateData.email
+        })
       },
-      body: JSON.stringify({
-        username: updateData.username,
-        email: updateData.email
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Admin update failed with status:', response.status, 'Error:', errorText);
-      // Use getErrorMessage to extract clean message from JSON response
-      const cleanErrorMessage = getErrorMessage(errorText);
-      throw new Error(cleanErrorMessage);
-    }
-
-    const updatedAdmin = normalizeAdminData(await response.json());
-    console.log('Admin details updated successfully:', updatedAdmin);
-    return updatedAdmin;
-  } catch (error) {
-    console.error('Error updating admin details:', error);
-    throw new Error(`Failed to update admin details: ${error.message}`);
-  }
+      'Update Admin Details'
+    );
+    
+    const updatedAdmin = await response.json();
+    return normalizeAdminData(updatedAdmin);
+  });
 };
 
 /**
@@ -148,64 +358,58 @@ export const updateAdminDetails = async (adminId, updateData) => {
  * @returns {Promise<Object>} Success response
  */
 export const changeAdminPassword = async (adminId, passwordData) => {
-  try {
-    console.log('Changing password for admin ID:', adminId);
-    
+  return await retryRequest(async () => {
     // Validate adminId
     if (!adminId || adminId === 'undefined' || adminId === 'null') {
-      throw new Error('Invalid admin ID. Please ensure you are properly logged in.');
+      throw new ApiError('Invalid admin ID. Please ensure you are properly logged in.', ErrorTypes.AUTHENTICATION);
     }
-
-    // Convert adminId to number for backend compatibility
+    
+    // Validate password data
+    if (!passwordData || typeof passwordData !== 'object') {
+      throw new ApiError('Invalid password data provided', ErrorTypes.VALIDATION);
+    }
+    
+    if (!passwordData.currentPassword || !passwordData.newPassword) {
+      throw new ApiError('Current password and new password are required', ErrorTypes.VALIDATION);
+    }
+    
+    // Password strength validation
+    if (passwordData.newPassword.length < 6) {
+      throw new ApiError('New password must be at least 6 characters long', ErrorTypes.VALIDATION);
+    }
+    
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      throw new ApiError('New password must be different from current password', ErrorTypes.VALIDATION);
+    }
+    
     const numericAdminId = parseInt(adminId, 10);
     if (isNaN(numericAdminId)) {
-      throw new Error(`Admin ID must be a valid number, got: ${adminId}`);
+      throw new ApiError(`Admin ID must be a valid number, received: ${adminId}`, ErrorTypes.VALIDATION);
     }
     
-    console.log('Using numeric admin ID for password change:', numericAdminId);
-    
-    // Create request body matching backend ChangePasswordRequest
     const requestBody = {
       oldPassword: passwordData.currentPassword,
       newPassword: passwordData.newPassword
     };
     
-    console.log('Password change request body:', requestBody);
-    
-    const response = await fetch(`${BASE_URL}${numericAdminId}/password`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await makeApiRequest(
+      `${BASE_URL}${numericAdminId}/password`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(requestBody)
       },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Password change failed with status:', response.status, 'Error:', errorText);
-      // Use getErrorMessage to extract clean message from JSON response
-      const cleanErrorMessage = getErrorMessage(errorText);
-      throw new Error(cleanErrorMessage);
-    }
-
-    // Handle both JSON and text responses from backend
+      'Change Password'
+    );
+    
+    // Handle both JSON and text responses
     const contentType = response.headers.get('content-type');
-    let result;
-    
     if (contentType && contentType.includes('application/json')) {
-      result = await response.json();
+      return await response.json();
     } else {
-      // Backend returns plain text response
       const textResult = await response.text();
-      result = { message: textResult, success: true };
+      return { message: textResult, success: true };
     }
-    
-    console.log('Admin password changed successfully:', result);
-    return result;
-  } catch (error) {
-    console.error('Error changing admin password:', error);
-    throw new Error(`Failed to change password: ${error.message}`);
-  }
+  });
 };
 
 /**
@@ -213,54 +417,48 @@ export const changeAdminPassword = async (adminId, passwordData) => {
  * Uses the same pattern as existing login/register endpoints
  */
 export const updateAdminDetailsSimple = async (adminId, updateData) => {
-  try {
-    console.log('Simple update for admin ID:', adminId, 'with data:', updateData);
-    
+  return await retryRequest(async () => {
     // Validate adminId
     if (!adminId || adminId === 'undefined' || adminId === 'null') {
-      throw new Error('Invalid admin ID. Please ensure you are properly logged in.');
-    }
-
-    // Convert adminId to number for backend compatibility
-    const numericAdminId = parseInt(adminId, 10);
-    if (isNaN(numericAdminId)) {
-      throw new Error(`Admin ID must be a valid number, got: ${adminId}`);
+      throw new ApiError('Invalid admin ID. Please ensure you are properly logged in.', ErrorTypes.AUTHENTICATION);
     }
     
-    // Try PUT method instead of POST (based on backend logs)
-    const response = await fetch(`${BASE_URL}${numericAdminId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: updateData.username,
-        email: updateData.email
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      // Use getErrorMessage to extract clean message from JSON response
-      const cleanErrorMessage = getErrorMessage(errorText);
-      throw new Error(cleanErrorMessage);
+    // Validate update data
+    if (!updateData || typeof updateData !== 'object') {
+      throw new ApiError('Invalid update data provided', ErrorTypes.VALIDATION);
     }
-
+    
+    if (!updateData.username || !updateData.email) {
+      throw new ApiError('Username and email are required', ErrorTypes.VALIDATION);
+    }
+    
+    const numericAdminId = parseInt(adminId, 10);
+    if (isNaN(numericAdminId)) {
+      throw new ApiError(`Admin ID must be a valid number, received: ${adminId}`, ErrorTypes.VALIDATION);
+    }
+    
+    const response = await makeApiRequest(
+      `${BASE_URL}${numericAdminId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          username: updateData.username,
+          email: updateData.email
+        })
+      },
+      'Simple Admin Update'
+    );
+    
     // Handle both JSON and text responses
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      const result = normalizeAdminData(await response.json());
-      console.log('Admin updated (JSON response):', result);
-      return result;
+      const result = await response.json();
+      return normalizeAdminData(result);
     } else {
-      const result = await response.text();
-      console.log('Admin updated (text response):', result);
-      return { message: result, success: true };
+      const textResult = await response.text();
+      return { message: textResult, success: true };
     }
-  } catch (error) {
-    console.error('Error in simple admin update:', error);
-    throw error;
-  }
+  });
 };
 
 /**
@@ -268,14 +466,18 @@ export const updateAdminDetailsSimple = async (adminId, updateData) => {
  * @returns {Promise<string>} Success message
  */
 export const testApiConnection = async () => {
-  const response = await fetch(`${BASE_URL}test`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error('API connection test failed');
-  }
-  return await response.text();
+  return await retryRequest(async () => {
+    const response = await makeApiRequest(
+      `${BASE_URL}test`,
+      { method: 'GET' },
+      'Test API Connection'
+    );
+    
+    return await response.text();
+  }, 1); // Only retry once for connection tests
 };
+
+// Export error types and utilities for use in components
+export { ApiError, ErrorTypes, UserFriendlyMessages };
 
 

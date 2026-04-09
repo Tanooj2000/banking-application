@@ -37,7 +37,6 @@ public class AdminController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentAdminDetails(@RequestHeader("Authorization") String token) {
-        System.out.println("[CONTROLLER DEBUG] /me endpoint called with token: " + token.substring(0, Math.min(30, token.length())) + "...");
         return adminService.getCurrentAdminDetails(token);
     }
 
@@ -66,11 +65,6 @@ public class AdminController {
     @GetMapping("/applications/pending")
     @PreAuthorize("hasRole('ROOT_ADMIN')")
     public ResponseEntity<java.util.List<com.example.admin_service.entity.Admin>> getUnverifiedApplications() {
-        System.out.println("[CONTROLLER DEBUG] /applications/pending endpoint called - requires ROOT_ADMIN role");
-        System.out.println("[CONTROLLER DEBUG] Current authentication: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
-        if (org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null) {
-            System.out.println("[CONTROLLER DEBUG] User authorities: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        }
         return adminService.getUnverifiedApplications();
     }
 
@@ -80,8 +74,6 @@ public class AdminController {
     public ResponseEntity<String> approveApplication(
             @PathVariable Long adminId,
             @RequestBody ApplicationActionRequest request) {
-        System.out.println("[CONTROLLER DEBUG] /applications/approve endpoint called - requires ROOT_ADMIN role");
-        System.out.println("[CONTROLLER DEBUG] Current authentication: " + org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication());
         return adminService.approveApplication(adminId, request);
     }
 
