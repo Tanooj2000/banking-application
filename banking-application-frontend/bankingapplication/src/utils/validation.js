@@ -296,3 +296,87 @@ export const validateFullName = (name) => {
   
   return { isValid: true, message: '' };
 };
+
+/**
+ * Validates PAN Card Number (India)
+ * Must be in format: 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F)
+ */
+export const validatePAN = (pan) => {
+  if (!pan) return { isValid: false, message: 'PAN Card Number is required' };
+  
+  // Remove spaces and convert to uppercase
+  const cleanPan = pan.replace(/\s/g, '').toUpperCase();
+  
+  // PAN format: 5 letters + 4 digits + 1 letter
+  const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  
+  if (!panRegex.test(cleanPan)) {
+    return { 
+      isValid: false, 
+      message: 'PAN Card Number must be in valid format (e.g., ABCDE1234F). 5 letters, 4 digits, 1 letter.' 
+    };
+  }
+  
+  return { isValid: true, message: '' };
+};
+
+/**
+ * Validates Aadhaar Number (India)
+ * Must be exactly 12 digits
+ */
+export const validateAadhaar = (aadhaar) => {
+  if (!aadhaar) return { isValid: false, message: 'Aadhaar Number is required' };
+  
+  // Remove spaces and non-digit characters
+  const cleanAadhaar = aadhaar.replace(/\D/g, '');
+  
+  if (cleanAadhaar.length !== 12) {
+    return { 
+      isValid: false, 
+      message: 'Aadhaar Number must be exactly 12 digits' 
+    };
+  }
+  
+  return { isValid: true, message: '' };
+};
+
+/**
+ * Formats backend error messages to be more user-friendly
+ */
+export const formatBackendErrorMessage = (errorMessage) => {
+  if (!errorMessage) return 'An error occurred. Please try again.';
+  
+  // Remove "Account creation failed:" prefix if present
+  let formatted = errorMessage.replace(/^Account creation failed:\s*/i, '');
+  
+  // Replace \n with actual line breaks
+  formatted = formatted.replace(/\\n/g, '\n');
+  
+  // Split into sections and format nicely
+  const sections = formatted.split('\n\n');
+  let result = '';
+  
+  sections.forEach((section, index) => {
+    if (section.trim()) {
+      if (index > 0) result += '\n\n';
+      
+      // Handle section headers
+      if (section.includes('SECTION:')) {
+        const lines = section.split('\n');
+        lines.forEach((line, lineIndex) => {
+          if (line.includes('SECTION:')) {
+            result += `📋 ${line}\n`;
+          } else if (line.startsWith('•') || line.startsWith('-')) {
+            result += `   ${line}\n`;
+          } else if (line.trim()) {
+            result += `${line}\n`;
+          }
+        });
+      } else {
+        result += section;
+      }
+    }
+  });
+  
+  return result.trim();
+};

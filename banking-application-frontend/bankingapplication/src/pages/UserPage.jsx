@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 // Removed BlockedOverlay import as user page no longer hard-blocks after logout
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getUserBankAccounts } from '../api/accountApi';
+import { getUserBankAccounts, viewDocument, downloadDocument } from '../api/accountApi';
 import { getAvailableCountries, fetchBanks } from '../api/bankApi';
 import { updateUserDetails, changeUserPassword, getUserById } from '../api/userApi';
 import './UserPageClean.css';
 import Footer from '../components/Footer';
-import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt, FaGlobe, FaUniversity, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCircle, FaCreditCard, FaSignOutAlt, FaGlobe, FaUniversity, FaMapMarkerAlt, FaLock } from 'react-icons/fa';
 import { HiSun, HiMoon } from 'react-icons/hi';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 import { AuthGuard } from '../utils/authGuard';
@@ -437,6 +437,41 @@ const UserPage = () => {
     return account.status?.toLowerCase() === statusFilter.toLowerCase();
   });
 
+  // Document viewing functions using accountApi
+  const handleViewDocument = async (document) => {
+    try {
+      // Get the original document without any wrapper content
+      const viewUrl = `http://localhost:8085/api/accounts/documents/${document.id}/view`;
+      
+      // Open original document directly in new tab - no HTML wrapper
+      window.open(viewUrl, '_blank');
+    } catch (error) {
+      console.error('Error viewing document:', error);
+      setMessage(`Error: Unable to view document "${document.originalFilename}". Please check server connection.`);
+    }
+  };
+
+  // Document download function
+  const handleDownloadDocument = async (document) => {
+    try {
+      const response = await downloadDocument(document.id);
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = document.originalFilename || `document_${document.id}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      setMessage(`Error: Unable to download document "${document.originalFilename}". Please check server connection.`);
+    }
+  };
+
   // Enhanced Sidebar navigation items with professional styling
   const sidebarItems = [
     { id: 'Profile', label: 'My Profile', icon: <FaUserCircle /> },
@@ -483,7 +518,7 @@ const UserPage = () => {
             <FaUser /> Edit Details
           </button>
           <button className="action-btn secondary" onClick={handleChangePassword}>
-            🔐 Change Password
+            <FaLock /> Change Password
           </button>
           <button className="action-btn logout" onClick={handleLogout}>
             <FaSignOutAlt /> Logout
@@ -639,9 +674,9 @@ const UserPage = () => {
                       setShowCityDropdown(true);
                     }}
                     onFocus={() => setShowCityDropdown(true)}
-                    placeholder={!selectedCountry ? "Select country first" : "Search and select city..."}
+                    placeholder={!selectedCountry ? "Select country first" : availableCities.length === 0 ? "No cities available for selected country" : "Search and select city..."}
                     className="form-search-input"
-                    disabled={!selectedCountry}
+                    disabled={!selectedCountry || availableCities.length === 0}
                   />
                   {showCityDropdown && selectedCountry && availableCities.length > 0 && (
                     <div className="search-dropdown">
@@ -664,6 +699,17 @@ const UserPage = () => {
                           {availableCities.length === 0 ? 'Loading cities...' : 'No cities found'}
                         </div>
                       )}
+                    </div>
+                  )}
+                  
+                  {/* Recognition message when no cities available - shows on hover */}
+                  {selectedCountry && !isBanksLoading && availableCities.length === 0 && (
+                    <div className="no-cities-message">
+                      <span className="message-icon">⚠️</span>
+                      <div>
+                        <div style={{fontWeight: '700', marginBottom: '2px'}}>No Cities Available</div>
+                        <div style={{fontSize: '0.85rem', opacity: '0.9'}}>No cities found for {selectedCountry}. Try a different country or contact support.</div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -901,101 +947,203 @@ const UserPage = () => {
           {renderContent()}
         </div>
       </div>
-      {/* View Details Modal */}
-      {showViewModal && (
+      {/* Optimized Account Details Modal */}
+      {showViewModal && selectedAccount && (
         <div className="modal-backdrop" onClick={closeModals}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Application Details</h3>
-              <button className="modal-close" onClick={closeModals}>
+          <div className="professional-modal-container" onClick={(e) => e.stopPropagation()}>
+            <div className="professional-modal-header">
+              <div className="modal-title-section">
+                <h3>Account Details</h3>
+                <span className={`application-status-badge ${selectedAccount.status?.toLowerCase()}`}>
+                  {selectedAccount.status || 'UNKNOWN'}
+                </span>
+              </div>
+              <button className="professional-modal-close" onClick={closeModals}>
                 <FaTimes />
               </button>
             </div>
-    <div className="modal-content">
-        <div className="detail-item">
-            <span className="detail-label">Full Name</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.fullName || 'N/A'}</span>
-          </div>
-          {selectedAccount.status === 'APPROVED' && (
-    <div className="detail-item">
-      <span className="detail-label">Account Number</span>
-      <span className="detail-colon">:</span>
-      <span className="detail-value">{selectedAccount.accountNumber || 'N/A'}</span>
-    </div>
-  )}
-          <div className="detail-item">
-            <span className="detail-label">Gender</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.gender || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Date of Birth</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.dob || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Mobile</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.mobile || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Email</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.email || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Address</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.address || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Bank</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.bank || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Branch</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.branch || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Ifsc Code</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.ifscCode || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Account Type</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.accountType || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Deposit</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.deposit || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Status</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.status || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Aadhaar</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.aadhaar || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">PAN</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.pan || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Occupation</span>
-            <span className="detail-colon">:</span>
-            <span className="detail-value">{selectedAccount.occupation || 'N/A'}</span>
-          </div>
-          
-      </div>
+
+            <div className="professional-modal-content">
+              {/* Account Information Section */}
+              <div className="detail-section">
+                <h5 className="section-title">
+                  <FaCreditCard className="section-icon" />
+                  Account Information
+                </h5>
+                <div className="detail-grid">
+                  <div className="detail-row">
+                    <span className="detail-label">Application ID</span>
+                    <span className="detail-value">{selectedAccount.id}</span>
+                  </div>
+                  {selectedAccount.accountNumber && (
+                    <div className="detail-row">
+                      <span className="detail-label">Account Number</span>
+                      <span className="detail-value highlight">{selectedAccount.accountNumber}</span>
+                    </div>
+                  )}
+                  <div className="detail-row">
+                    <span className="detail-label">Bank</span>
+                    <span className="detail-value">{selectedAccount.bank}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Branch</span>
+                    <span className="detail-value">{selectedAccount.branch}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">IFSC Code</span>
+                    <span className="detail-value">{selectedAccount.ifscCode}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Account Type</span>
+                    <span className="detail-value">{selectedAccount.accountType}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Initial Deposit</span>
+                    <span className="detail-value currency">₹{selectedAccount.deposit?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Personal Details Section */}
+              {selectedAccount.personalDetails && (
+                <div className="detail-section">
+                  <h5 className="section-title">
+                    <FaUser className="section-icon" />
+                    Personal Information
+                  </h5>
+                  <div className="detail-grid">
+                    <div className="detail-row">
+                      <span className="detail-label">Full Name</span>
+                      <span className="detail-value">{selectedAccount.personalDetails.fullName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Email</span>
+                      <span className="detail-value">{selectedAccount.personalDetails.email}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Mobile</span>
+                      <span className="detail-value">{selectedAccount.personalDetails.mobile}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Date of Birth</span>
+                      <span className="detail-value">
+                        {new Date(selectedAccount.personalDetails.dateOfBirth).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Address</span>
+                      <span className="detail-value">{selectedAccount.personalDetails.address}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">PAN</span>
+                      <span className="detail-value">{selectedAccount.personalDetails.pan}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Employment Information - Simplified */}
+              {selectedAccount.incomeDetails && (
+                <div className="detail-section">
+                  <h5 className="section-title">
+                    <FaUniversity className="section-icon" />
+                    Employment Details
+                  </h5>
+                  <div className="detail-grid">
+                    <div className="detail-row">
+                      <span className="detail-label">Employer</span>
+                      <span className="detail-value">{selectedAccount.incomeDetails.employerName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Occupation</span>
+                      <span className="detail-value">{selectedAccount.incomeDetails.occupation}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Monthly Income</span>
+                      <span className="detail-value currency">
+                        ₹{selectedAccount.incomeDetails.monthlyIncome?.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Documents Section - Simplified */}
+              {selectedAccount.documents && selectedAccount.documents.length > 0 && (
+                <div className="detail-section">
+                  <h5 className="section-title">
+                    <FaGlobe className="section-icon" />
+                    Documents ({selectedAccount.documents.length})
+                  </h5>
+                  <div className="documents-simple-list">
+                    {selectedAccount.documents.map((doc, index) => (
+                      <div key={doc.id || index} className="document-item">
+                        <div className="document-info">
+                          <span className="document-name">
+                            <span>📄</span>
+                            <span>{doc.originalFilename}</span>
+                          </span>
+                          <span className={`document-status-simple ${doc.uploadStatus?.toLowerCase()}`}>
+                            {doc.uploadStatus}
+                          </span>
+                        </div>
+                        <div className="document-actions">
+                          <button 
+                            className="view-file-btn-simple"
+                            onClick={() => handleViewDocument(doc)}
+                          >
+                            <FaEye /> View
+                          </button>
+                          <button 
+                            className="download-file-btn-simple"
+                            onClick={() => handleDownloadDocument(doc)}
+                          >
+                            ⬇️ Download
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Application Status */}
+              <div className="detail-section">
+                <h5 className="section-title">
+                  <FaMapMarkerAlt className="section-icon" />
+                  Application Status
+                </h5>
+                <div className="status-timeline">
+                  <div className="status-item">
+                    <span className="status-label">Created:</span>
+                    <span className="status-value">
+                      {new Date(selectedAccount.createdDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="status-item">
+                    <span className="status-label">Stage:</span>
+                    <span className="status-value">{selectedAccount.applicationStage}</span>
+                  </div>
+                  {selectedAccount.nomineeDetails && (
+                    <div className="status-item">
+                      <span className="status-label">Nominee:</span>
+                      <span className="status-value">{selectedAccount.nomineeDetails.nomineeName}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="professional-modal-footer">
+              <button className="modal-action-btn secondary" onClick={closeModals}>
+                Close
+              </button>
+              {selectedAccount.status === 'PENDING' && (
+                <button className="modal-action-btn primary">
+                  Contact Support
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

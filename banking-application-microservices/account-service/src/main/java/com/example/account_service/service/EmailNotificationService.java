@@ -84,7 +84,8 @@ public class EmailNotificationService {
      * @param account The approved account
      */
     public void notifyAccountApproved(Account account) {
-        if (account == null || account.getEmail() == null) {
+        if (account == null || account.getPersonalDetails() == null || 
+            account.getPersonalDetails().getEmail() == null) {
             logger.warn("Cannot send approval notification - account or email information is null");
             return;
         }
@@ -96,7 +97,7 @@ public class EmailNotificationService {
             }
 
             // Validate account holder email
-            String accountEmail = account.getEmail().trim();
+            String accountEmail = account.getPersonalDetails().getEmail().trim();
             if (accountEmail.isEmpty() || !accountEmail.contains("@")) {
                 logger.error("Invalid account holder email: '{}' for account ID: {}", accountEmail, account.getId());
                 return;
@@ -125,7 +126,8 @@ public class EmailNotificationService {
      * @param account The rejected account
      */
     public void notifyAccountRejected(Account account) {
-        if (account == null || account.getEmail() == null) {
+        if (account == null || account.getPersonalDetails() == null || 
+            account.getPersonalDetails().getEmail() == null) {
             logger.warn("Cannot send rejection notification - account or email information is null");
             return;
         }
@@ -137,7 +139,7 @@ public class EmailNotificationService {
             }
 
             // Validate account holder email
-            String accountEmail = account.getEmail().trim();
+            String accountEmail = account.getPersonalDetails().getEmail().trim();
             if (accountEmail.isEmpty() || !accountEmail.contains("@")) {
                 logger.error("Invalid account holder email: '{}' for account ID: {}", accountEmail, account.getId());
                 return;
@@ -162,22 +164,34 @@ public class EmailNotificationService {
     }
 
     private String buildNotificationMessage(Account account) {
+        String fullName = account.getPersonalDetails() != null ? 
+            account.getPersonalDetails().getFullName() : "Unknown";
+        
         return String.format(
             "Dear Admin,\n\n" +
             "You got a new account application. Please check it.\n\n" +
             "Applicant: %s\n" +
             "Bank: %s\n" +
+            "Branch: %s\n" +
+            "Country: %s\n" +
+            "Account Type: %s\n" +
             "Account ID: %s\n\n" +
             "Please review and approve/reject the application.\n\n" +
             "Best regards,\n" +
             "Banking System",
-            account.getFullName(),
+            fullName,
             account.getBank(),
+            account.getBranch(),
+            account.getCountry(),
+            account.getAccountType() != null ? account.getAccountType().getDisplayName() : "Unknown",
             account.getId()
         );
     }
 
     private String buildApprovalMessage(Account account) {
+        String fullName = account.getPersonalDetails() != null ? 
+            account.getPersonalDetails().getFullName() : "Unknown";
+        
         return String.format(
             "Dear %s,\n\n" +
             "Congratulations! Your account application has been approved.\n\n" +
@@ -185,34 +199,41 @@ public class EmailNotificationService {
             "Account Number: %s\n" +
             "Bank: %s\n" +
             "Branch: %s\n" +
+            "Account Type: %s\n" +
             "Account Holder: %s\n\n" +
             "You can now start using your account for banking services.\n\n" +
             "Thank you for choosing our banking services.\n\n" +
             "Best regards,\n" +
             "Banking System",
-            account.getFullName(),
+            fullName,
             account.getAccountNumber(),
             account.getBank(),
             account.getBranch(),
-            account.getFullName()
+            account.getAccountType() != null ? account.getAccountType().getDisplayName() : "Unknown",
+            fullName
         );
     }
 
     private String buildRejectionMessage(Account account) {
+        String fullName = account.getPersonalDetails() != null ? 
+            account.getPersonalDetails().getFullName() : "Unknown";
+        
         return String.format(
             "Dear %s,\n\n" +
             "We regret to inform you that your account application has been rejected.\n\n" +
             "Application Details:\n" +
             "Bank: %s\n" +
             "Branch: %s\n" +
+            "Country: %s\n" +
             "Application ID: %s\n\n" +
             "Please contact our customer service for more information or to reapply.\n\n" +
             "Thank you for your interest in our banking services.\n\n" +
             "Best regards,\n" +
             "Banking System",
-            account.getFullName(),
+            fullName,
             account.getBank(),
             account.getBranch(),
+            account.getCountry(),
             account.getId()
         );
     }

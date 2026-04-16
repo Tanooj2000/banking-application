@@ -1,20 +1,136 @@
-/* Progress Train Indicator */
+/* ============================================================
+   CREATE ACCOUNT PAGE - PROFESSIONAL & ATTRACTIVE DESIGN
+   Enhanced with sophisticated layouts, animations, and styling
+   ============================================================ */
+
+/* Main Container */
+.create-account-container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient background similar to hero section */
+.create-account-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-surface-alt) 100%
+  );
+  z-index: 0;
+}
+
+.create-account-container::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 40%,
+    var(--gold-subtle) 0%,
+    transparent 70%
+  );
+  z-index: 0;
+}
+
+.create-account-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem;
+  background: var(--bg-surface);
+  backdrop-filter: blur(10px);
+}
+
+/* Enhanced Page Header */
+.createaccount-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.createaccount-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  font-family: var(--font-serif);
+  opacity: 0;
+  animation: fadeInUp 800ms 200ms ease forwards;
+}
+
+.createaccount-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.createaccount-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--text-secondary);
+  margin-bottom: 0;
+  font-weight: 300;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  opacity: 0;
+  animation: fadeInUp 700ms 400ms ease forwards;
+}
+
+/* Professional Info Line */
+.createaccount-info-line {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--gold);
+  font-weight: 500;
+  margin: 2rem 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  opacity: 0;
+  animation: fadeInUp 600ms 600ms ease forwards;
+}
+/* ============================================================
+   UNIFIED FORM CONTAINER - PROGRESS TRAIN INTEGRATED
+   ============================================================ */
 .progress-train {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-  margin: 20px 0;
-  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-alt) 100%);
-  border-radius: 15px;
-  box-shadow: var(--shadow-sm);
-  overflow-x: auto;
-  border: 1px solid var(--border-subtle);
+  justify-content: space-between;
+  padding: 1rem 0;
+  margin: 0 0 2rem 0;
+  background: transparent;
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.progress-train::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-hover) 50%, var(--gold) 100%);
 }
 
 .progress-step-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
 }
 
 .progress-step {
@@ -22,374 +138,696 @@
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 10px;
-  border-radius: 12px;
-  min-width: 120px;
+  transition: all var(--transition);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  flex: 1;
+  position: relative;
+  max-width: none;
+  min-width: 0;
 }
 
 .progress-step:hover {
-  background-color: rgba(57,73,171,0.05);
+  background-color: var(--gold-subtle);
   transform: translateY(-2px);
 }
 
 .step-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-  border: 3px solid #e2e8f0;
+  margin-bottom: 6px;
+  transition: all var(--transition);
+  border: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.step-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s;
+}
+
+.progress-step:hover .step-icon::before {
+  left: 100%;
 }
 
 .step-title {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   text-align: center;
-  line-height: 1.2;
-  color: #64748b;
-  transition: color 0.3s ease;
+  line-height: 1.1;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+  font-family: var(--font-body);
+  word-break: break-word;
+  max-width: 60px;
 }
 
 /* Progress Step States */
 .progress-step.pending .step-icon {
-  background-color: #f8fafc;
-  color: #94a3b8;
-  border-color: #e2e8f0;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  border-color: var(--border);
 }
 
 .progress-step.current .step-icon {
-  background-color: #3949ab;
-  color: white;
-  border-color: #3949ab;
+  background-color: var(--gold);
+  color: var(--text-inverse);
+  border-color: var(--gold);
   animation: pulse 2s infinite;
 }
 
 .progress-step.current .step-title {
-  color: #3949ab;
+  color: var(--gold);
   font-weight: 700;
 }
 
 .progress-step.completed .step-icon {
-  background-color: #10b981;
-  color: white;
-  border-color: #10b981;
+  background-color: var(--green);
+  color: var(--text-inverse);
+  border-color: var(--green);
 }
 
 .progress-step.completed .step-title {
-  color: #10b981;
+  color: var(--green);
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(57, 73, 171, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(57, 73, 171, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(57, 73, 171, 0); }
+  0% { box-shadow: 0 0 0 0 var(--gold-dim); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 /* Progress Connector */
 .progress-connector {
-  width: 60px;
-  height: 4px;
-  margin: 0 5px;
-  border-radius: 2px;
-  transition: background-color 0.3s ease;
+  flex: 1;
+  height: 2px;
+  margin: 0 0.2rem;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition);
+  min-width: 15px;
 }
 
 .progress-connector.pending {
-  background-color: #e2e8f0;
+  background-color: var(--border);
 }
 
 .progress-connector.completed {
-  background-color: #10b981;
+  background-color: var(--green);
 }
 
-/* Form Navigation */
+/* Professional Navigation - 50/50 Split */
 .form-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 30px;
-  gap: 15px;
-  flex-wrap: wrap;
+  margin-top: 3rem;
+  width: 100%;
+}
+
+.form-navigation-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 50%;
+  flex: 0 0 50%;
+}
+
+.form-navigation-right {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.5rem;
+  width: 50%;
+  flex: 0 0 50%;
 }
 
 .nav-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 0.875rem 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
   min-height: 48px;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s;
+}
+
+.nav-btn:hover::before {
+  left: 100%;
 }
 
 .prev-btn {
-  background-color: #64748b;
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border);
 }
 
 .prev-btn:hover {
-  background-color: #475569;
-  transform: translateX(-3px);
+  background-color: var(--text-secondary);
+  color: var(--text-inverse);
+  border-color: var(--text-secondary);
+  transform: translateX(-5px);
 }
 
 .next-btn {
-  background-color: #3949ab;
-  color: white;
+  background-color: var(--gold);
+  color: var(--text-inverse);
+  border-color: var(--gold);
 }
 
 .next-btn:hover {
-  background-color: #2563eb;
-  transform: translateX(3px);
+  background-color: var(--gold-hover);
+  border-color: var(--gold-hover);
+  transform: translateX(5px);
+  box-shadow: 0 4px 20px var(--gold-subtle);
 }
 
 .save-btn {
-  background-color: #10b981;
-  color: white;
+  background-color: var(--green);
+  color: var(--text-inverse);
+  border-color: var(--green);
 }
 
 .save-btn:hover {
-  background-color: #059669;
-  transform: translateY(-2px);
+  background-color: var(--green);
+  border-color: var(--green);
+  transform: translateY(-3px);
+  opacity: 0.9;
+  box-shadow: 0 6px 25px var(--green-bg);
 }
 
 .clear-btn {
-  background-color: #f59e0b;
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-muted);
+  border-color: var(--border);
 }
 
 .clear-btn:hover {
-  background-color: #d97706;
-  transform: translateY(-2px);
+  background-color: var(--text-muted);
+  color: var(--text-inverse);
+  border-color: var(--text-muted);
+  transform: translateY(-3px);
 }
 
 /* Required field indicator */
 .required {
-  color: #ef4444;
+  color: var(--gold);
   margin-left: 4px;
 }
 
 /* File upload styling */
 .file-selected {
   font-size: 12px;
-  color: #10b981;
+  color: var(--green);
   margin-top: 4px;
   padding: 4px 8px;
-  background-color: #f0fdf4;
-  border-radius: 4px;
-  border: 1px solid #10b981;
+  background-color: var(--green-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--green-border);
+  font-family: var(--font-body);
 }
 
 /* Info line for bank and country */
 .createaccount-info-line {
   text-align: center;
   font-size: 1.13rem;
-  color: #3949ab;
+  color: var(--gold);
   font-weight: 600;
   margin-top: 18px;
   margin-bottom: 18px;
   letter-spacing: 0.2px;
+  font-family: var(--font-body);
 }
 
 /* Section divider */
 .createaccount-section-divider {
   border: none;
-  border-top: 1.5px solid #e0e7ef;
+  border-top: 1.5px solid var(--border);
   margin: 32px 0 0 0;
 }
+
 /* Form section headings and group spacing */
 .createaccount-form-section {
   margin-bottom: 28px;
   padding-bottom: 10px;
-  border-bottom: 1.5px solid #e0e7ef;
+  border-bottom: 1.5px solid var(--border);
 }
+
 .createaccount-form-section:last-child {
   border-bottom: none;
   margin-bottom: 0;
 }
+
 .createaccount-section-title {
   font-size: 2.22rem;
-  color: white;
+  color: var(--text-inverse);
   font-weight: 700;
   margin-bottom: 18px;
   margin-top: 0;
   letter-spacing: 0.5px;
   text-align: left;
-  background-color: #15264a;
+  background-color: var(--gold);
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
 }
 
-
 .createaccount-title {
- font-size: 2.5rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: #3949ab;
+  color: var(--gold);
   margin-bottom: 8px;
   letter-spacing: 1.5px;
   text-align: center;
-  background: linear-gradient(90deg, #3949ab 30%, #1976d2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-serif);
 }
 
 .createaccount-subtitle {
   font-size: 1.18rem;
-  color: #232526;
+  color: var(--text-primary);
   margin-bottom: 0;
   text-align: center;
   display: flex;
   justify-content: center;
   gap: 32px;
   font-weight: 500;
-  background: rgba(57,73,171,0.07);
-  border-radius: 10px;
+  background: var(--gold-subtle);
+  border-radius: var(--radius-sm);
   padding: 8px 0 8px 0;
   margin-bottom: 10px;
+  font-family: var(--font-body);
 }
 
+/* Unified Container - No Separate Form Container */
 .createaccount-form {
- margin-top: 18px;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 12px #3949ab11;
-  padding: 18px 12px 10px 12px;
+  position: relative;
+  width: 100%;
 }
 
+/* Section Styling */
+.createaccount-form-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  animation: fadeInUp 500ms ease both;
+}
+
+.createaccount-form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.createaccount-section-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--text-primary);
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+  letter-spacing: -0.01em;
+  font-family: var(--font-serif);
+  position: relative;
+  padding-bottom: 0.75rem;
+}
+
+.createaccount-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--gold);
+}
+
+/* Enhanced Form Grid */
 .createaccount-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem 2.5rem;
 }
 
 .createaccount-form-group {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 0.75rem;
+  position: relative;
 }
 
+/* Professional Labels */
 .createaccount-form-group label {
-  font-size: 1rem;
-  color: #2563eb;
-  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.createaccount-form-group input {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #b6c2d6;
-  font-size: 1.08rem;
-  background: #FFFFFF !important;
-  color: #000000;
-  transition: border 0.18s;
-}
-.createaccount-form-group input::placeholder {
-  color: #9CA3A3 !important;
-}
+/* Enhanced Form Controls */
+.createaccount-form-group input,
+.createaccount-form-group select,
 .createaccount-form-group textarea {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #b6c2d6;
-  font-size: 1.08rem;
-  background: #FFFFFF !important;
-  color: #000000;
-  transition: border 0.18s;
-  resize: vertical;
-}
-.createaccount-form-group textarea::placeholder {
-  color: #9CA3A3 !important;
-}
-.createaccount-form-group textarea:focus {
-  border: 1.5px solid #2563eb;
-  background: #FFFFFF !important;
-  outline: none;
-}
-.createaccount-form-group select {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #b6c2d6;
-  font-size: 1.08rem;
-  background: #FFFFFF !important;
-  color: #000000;
-  transition: border 0.18s;
-}
-.createaccount-form-group select:focus {
-  border: 1.5px solid #2563eb;
-  background: #FFFFFF !important;
-  outline: none;
-}
-.createaccount-form-group input[type="file"] {
-  padding: 6px 0;
-  background: none;
-  border: none;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
   font-size: 1rem;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  transition: all var(--transition);
+  font-family: var(--font-body);
+  position: relative;
 }
+
+.createaccount-form-group input::placeholder,
+.createaccount-form-group textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.createaccount-form-group input:focus,
+.createaccount-form-group select:focus,
+.createaccount-form-group textarea:focus {
+  border: 2px solid var(--gold);
+  background: var(--bg-surface);
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px var(--gold-subtle);
+}
+
+.createaccount-form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Enhanced File Upload */
+.createaccount-form-group input[type="file"] {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.createaccount-form-group input[type="file"]:hover {
+  border-color: var(--gold);
+  background: var(--gold-subtle);
+}
+
+/* Enhanced Checkbox */
 .createaccount-form-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
-  accent-color: #3949ab;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  accent-color: var(--gold);
+  transform: scale(1.2);
 }
+
 .createaccount-form-group[style*="flexDirection: row"] {
   display: flex;
   flex-direction: row !important;
   align-items: center;
-  gap: 10px;
-}
-.createaccount-form-group input:focus {
-  border: 1.5px solid #2563eb;
-  background: #FFFFFF !important;
-  outline: none;
+  gap: 12px;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
 }
 
+/* Professional Submit Button */
 .createaccount-submit-btn {
-  margin: 32px auto 0 auto;
+  margin: 3rem auto 0 auto;
   display: block;
-  background: linear-gradient(90deg, #3949ab 0%, #232526 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+  color: var(--text-inverse);
   border: none;
-  border-radius: 1.2rem;
-  padding: 0.7rem 2.2rem;
-  font-size: 1.13rem;
+  border-radius: var(--radius-sm);
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 12px #23252622;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s;
-}
-.createaccount-submit-btn:hover, .createaccount-submit-btn:focus {
-  background: linear-gradient(90deg, #232526 0%, #3949ab 100%);
-  color: #fff;
-  box-shadow: 0 4px 24px #3949ab33;
-  transform: translateY(-2px) scale(1.04);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Success and error messages */
-.createaccount-success-msg {
-  color: #10b981; /* Green color for success */
-  background-color: #f0fdf4; /* Light green background */
-  border: 1px solid #10b981; /* Green border */
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
+.createaccount-submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s;
+}
+
+.createaccount-submit-btn:hover::before {
+  left: 100%;
+}
+
+.createaccount-submit-btn:hover,
+.createaccount-submit-btn:focus {
+  background: linear-gradient(135deg, var(--gold-hover) 0%, var(--gold) 100%);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+}
+
+/* Enhanced Messages */
+.createaccount-success-msg,
+.createaccount-error-msg {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-sm);
+  margin-top: 1.5rem;
   text-align: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border-left: 4px solid;
+  backdrop-filter: blur(10px);
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+  overflow: hidden;
+}
+
+.createaccount-success-msg {
+  background: linear-gradient(135deg, 
+    rgba(76, 175, 80, 0.15) 0%, 
+    rgba(76, 175, 80, 0.08) 100%);
+  border-left-color: #4caf50;
+  color: #2e7d32;
+  box-shadow: 
+    0 3px 10px rgba(76, 175, 80, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .createaccount-error-msg {
-  color: #ef4444; /* Red color for error */
-  background-color: #fef2f2; /* Light red background */
-  border: 1px solid #ef4444; /* Red border */
-  padding: 10px;
-  border-radius: 5px;
-  margin-top: 10px;
+  background: linear-gradient(135deg, 
+    rgba(255, 82, 82, 0.15) 0%, 
+    rgba(255, 82, 82, 0.08) 100%);
+  border-left-color: #ff5252;
+  color: #d32f2f;
+  box-shadow: 
+    0 3px 10px rgba(255, 82, 82, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced notification with professional shimmer effect */
+.createaccount-success-msg::before,
+.createaccount-error-msg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    currentColor 50%, 
+    transparent 100%);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Professional icons for messages */
+.createaccount-success-msg::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  right: 1.5rem;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+.createaccount-error-msg::after {
+  content: '⚠';
+  position: absolute;
+  top: 50%;
+  right: 1.5rem;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+/* No Cities/Branches Available Message */
+.no-branches-message {
   text-align: center;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg,
+    rgba(var(--gold-rgb), 0.12) 0%,
+    rgba(var(--gold-rgb), 0.06) 100%);
+  border: 1px solid rgba(var(--gold-rgb), 0.25);
+  border-radius: var(--radius-card);
+  margin: 2rem 0;
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  animation: fadeInUp 0.5s ease;
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.no-branches-message::before {
+  content: '🏦';
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+  filter: sepia(1) hue-rotate(35deg) brightness(1.2);
+}
+
+.no-branches-message p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Hover Validation Popups for Professional Field Feedback */
+.createaccount-form-group {
+  position: relative;
+}
+
+.createaccount-form-group:hover .field-validation-popup {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.field-validation-popup {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg,
+    var(--gold) 0%,
+    var(--gold-hover) 100%);
+  color: var(--bg-primary);
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-15px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 
+    0 8px 25px rgba(var(--gold-rgb), 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+}
+
+.field-validation-popup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--gold);
+}
+
+/* Dark mode enhancements */
+[data-theme="dark"] .createaccount-success-msg {
+  background: linear-gradient(135deg, 
+    rgba(76, 175, 80, 0.2) 0%, 
+    rgba(76, 175, 80, 0.1) 100%);
+  color: #81c784;
+}
+
+[data-theme="dark"] .createaccount-error-msg {
+  background: linear-gradient(135deg, 
+    rgba(255, 82, 82, 0.2) 0%, 
+    rgba(255, 82, 82, 0.1) 100%);
+  color: #ff8a80;
+}
+
+[data-theme="dark"] .no-branches-message {
+  background: linear-gradient(135deg,
+    rgba(var(--gold-rgb), 0.18) 0%,
+    rgba(var(--gold-rgb), 0.09) 100%);
+  border-color: rgba(var(--gold-rgb), 0.35);
+  color: var(--green);
+  background-color: var(--green-bg);
+  border-color: var(--green-border);
+  border-left-color: var(--green);
+}
+
+.createaccount-error-msg {
+  color: var(--gold);
+  background-color: var(--gold-subtle);
+  border-color: var(--gold-border);
+  border-left-color: var(--gold);
 }
 
 @media (max-width: 700px) {
@@ -398,37 +836,27 @@
     gap: 16px 0;
   }
 
-  /* Progress Train Mobile Styles */
-  .progress-train {
-    padding: 15px 10px;
-    margin: 15px 0;
-  }
-
-  .progress-step {
-    min-width: 80px;
-    padding: 5px;
-  }
-
-  .step-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-    margin-bottom: 6px;
-  }
-
-  .step-title {
-    font-size: 10px;
-  }
-
-  .progress-connector {
-    width: 30px;
-    height: 3px;
-  }
-
-  /* Navigation Mobile Styles */
+  /* Navigation Mobile Styles - 50/50 Split Maintained */
   .form-navigation {
+    flex-direction: row;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .form-navigation-left,
+  .form-navigation-right {
+    width: 50%;
+    flex: 0 0 50%;
+  }
+
+  .form-navigation-left {
+    justify-content: flex-start;
+  }
+
+  .form-navigation-right {
+    justify-content: space-evenly;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.5rem;
   }
 
   .nav-btn {
@@ -437,10 +865,7 @@
     padding: 14px 20px;
   }
 
-  .form-navigation .createaccount-submit-btn {
-    width: 100%;
-    margin: 0;
-  }
+
 }
 
 /* ============================================================
@@ -482,19 +907,19 @@
 .branch-select-dropdown {
   width: 100% !important;
   padding: 12px 16px !important;
-  border: 1px solid #b6c2d6 !important;
-  border-radius: 8px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
   font-size: 1.08rem !important;
-  background: #f8fafc !important;
-  transition: border 0.18s !important;
+  background: var(--bg-secondary) !important;
+  transition: border var(--transition) !important;
   font-family: var(--font-body) !important;
   color: var(--text-primary) !important;
 }
 
 .branch-select-dropdown:focus {
-  border: 1.5px solid #2563eb !important;
+  border: 1.5px solid var(--gold) !important;
   outline: none !important;
-  background: white !important;
+  background: var(--bg-surface) !important;
 }
 
 /* Selected Branch Info */
@@ -508,6 +933,7 @@
   border: 1px solid var(--border);
   padding: 1.25rem;
   border-left: 4px solid var(--gold);
+  border-radius: var(--radius-card);
 }
 
 .branch-info-card h5 {
@@ -574,6 +1000,7 @@
   cursor: pointer;
   transition: all var(--transition);
   font-family: var(--font-body);
+  border-radius: var(--radius-sm);
 }
 
 .back-btn:hover {
@@ -582,7 +1009,138 @@
   color: var(--gold);
 }
 
-/* Responsive Branch Selection */
+/* ============================================================
+   ANIMATIONS & KEYFRAMES
+   ============================================================ */
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 var(--gold-dim); }
+  70% { box-shadow: 0 0 0 15px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Staggered animation delays */
+.createaccount-form-section:nth-child(1) { animation-delay: 200ms; }
+.createaccount-form-section:nth-child(2) { animation-delay: 400ms; }
+.createaccount-form-section:nth-child(3) { animation-delay: 600ms; }
+.createaccount-form-section:nth-child(4) { animation-delay: 800ms; }
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .create-account-content {
+    padding: 1rem;
+  }
+
+  .createaccount-header {
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+  }
+
+  .createaccount-form {
+    padding: 0;
+  }
+
+  .createaccount-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Unified Progress Train Mobile Styles */
+  .progress-train {
+    padding: 1rem 0;
+    margin: 0 0 1.5rem 0;
+    width: 100%;
+    background: transparent;
+  }
+
+  .progress-step {
+    padding: 0.2rem;
+  }
+
+  .step-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .step-title {
+    font-size: 9px;
+    max-width: 50px;
+    line-height: 1;
+  }
+
+  .progress-connector {
+    min-width: 12px;
+    height: 2px;
+    margin: 0 0.1rem;
+  }
+
+  /* Navigation Mobile Styles - 50/50 Split */
+  .form-navigation {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .form-navigation-left,
+  .form-navigation-right {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .form-navigation-left {
+    justify-content: flex-start;
+  }
+
+  .form-navigation-right {
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: space-evenly;
+  }
+
+  .nav-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .createaccount-submit-btn {
+    width: 100%;
+    margin: 2rem 0 0 0;
+    padding: 1rem 2rem;
+  }
+
+  /* Typography Mobile */
+  .createaccount-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .createaccount-subtitle {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .createaccount-section-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Branch Selection Mobile */
 @media (max-width: 768px) {
   .simple-branch-selection {
     max-width: 100%;
@@ -590,29 +1148,202 @@
   }
   
   .branch-selection-header h4 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
   
   .branch-selection-header p {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
   
   .branch-info-card {
-    padding: 1rem;
+    padding: 1.5rem;
+  }
+
+  .branch-select-dropdown {
+    font-size: 1rem !important;
+    padding: 1rem !important;
   }
 }
 
 @media (max-width: 480px) {
-  .branch-selection-container {
+  .createaccount-header {
     padding: 0.5rem 0;
+  }
+  
+  .branch-selection-container {
+    padding: 1rem 0;
   }
   
   .branch-selection-header {
     margin-bottom: 1.5rem;
   }
+
+  .createaccount-form {
+    padding: 0;
+  }
+
+  .progress-train {
+    padding: 0.75rem 0;
+    margin: 0 0 1rem 0;
+    width: 100%;
+    background: transparent;
+  }
+
+  .step-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .step-title {
+    font-size: 8px;
+    max-width: 45px;
+  }
+
+  .progress-connector {
+    min-width: 10px;
+    height: 2px;
+  }
+
+  .nav-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================================
+   FIELD ERROR STYLES - FLOATING MESSAGES
+   ============================================================ */
+
+/* Field error highlighting */
+.field-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+  background-color: rgba(254, 242, 242, 0.3) !important;
+  animation: fieldErrorPulse 0.6s ease-out;
+}
+
+.field-error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
+  outline: none !important;
+}
+
+/* Floating error message */
+.field-error-message {
+  position: absolute;
+  bottom: -28px;
+  left: 0;
+  right: 0;
+  background: #dc2626;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  animation: errorSlideIn 0.3s ease-out;
+  transform-origin: top center;
+}
+
+/* Arrow pointing upward to the field */
+.field-error-message::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #dc2626;
+}
+
+/* Ensure form groups have relative positioning for absolute error messages */
+.createaccount-form-group {
+  position: relative;
+  padding-bottom: 32px; /* Extra space for error message */
+}
+
+/* Special handling for textarea and full-width elements */
+.createaccount-form-group[style*="gridColumn"] .field-error-message {
+  max-width: 100%;
+}
+
+/* Special handling for checkbox error messages */
+.createaccount-form-group input[type="checkbox"] + label + .field-error-message {
+  position: static;
+  margin-top: 4px;
+  margin-bottom: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* Animation for error message entrance */
+@keyframes errorSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation for field error highlighting */
+@keyframes fieldErrorPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  }
+}
+
+/* Branch selection error styling */
+.branch-select-dropdown.field-error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+  background-color: rgba(254, 242, 242, 0.3) !important;
+}
+
+/* Mobile responsive adjustments for error messages */
+@media (max-width: 768px) {
+  .field-error-message {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    bottom: -26px;
+  }
   
-  .branch-select-dropdown {
-    font-size: 1rem !important;
-    padding: 10px 14px !important;
+  .field-error-message::before {
+    left: 15px;
+    border-left-width: 6px;
+    border-right-width: 6px;
+    border-bottom-width: 6px;
+    top: -6px;
+  }
+  
+  .createaccount-form-group {
+    padding-bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .field-error-message {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.5rem;
+    bottom: -24px;
+  }
+  
+  .createaccount-form-group {
+    padding-bottom: 28px;
   }
 }
