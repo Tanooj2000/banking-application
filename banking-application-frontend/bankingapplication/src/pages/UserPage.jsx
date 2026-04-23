@@ -10,6 +10,7 @@ import { FaUser, FaTimes, FaEye, FaUserCircle, FaPlus, FaEnvelope, FaQuestionCir
 import { HiSun, HiMoon } from 'react-icons/hi';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, validateMobile, getErrorMessage } from '../utils/validation';
 import { AuthGuard } from '../utils/authGuard';
+import ChatBotButton from '../components/ChatBotButton';
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -87,8 +88,28 @@ const UserPage = () => {
 
   const fetchBankAccounts = async () => {
     try {
+      console.log('=== FETCHING BANK ACCOUNTS ===');
+      console.log('User ID:', userId);
       const accounts = await getUserBankAccounts(userId);
+      console.log('Fetched Accounts:', accounts);
+      console.log('Accounts Count:', accounts ? accounts.length : 0);
+      
+      if (accounts && accounts.length > 0) {
+        accounts.forEach((account, index) => {
+          console.log(`Fetched Account ${index} - FULL DETAILS:`, account);
+          console.log(`Fetched Account ${index} - KEY FIELDS:`, {
+            id: account.id,
+            bank: account.bank,
+            bankName: account.bankName,
+            country: account.country,
+            status: account.status,
+            allKeys: Object.keys(account)
+          });
+        });
+      }
+      
       setBankAccounts(accounts);
+      console.log('=== END FETCHING BANK ACCOUNTS ===');
     } catch (error) {
       console.error('Error fetching bank accounts:', error);
       setBankAccounts([]);
@@ -187,7 +208,6 @@ const UserPage = () => {
       setSelectedCity('');
       setAvailableCities([]);
       setBankSearchTerm('');
-      setCitySearchTerm('');
       
       try {
         const banksData = await fetchBanks(selectedCountry);
@@ -213,16 +233,13 @@ const UserPage = () => {
     if (!selectedCountry || !banks.length) {
       setAvailableCities([]);
       setSelectedCity('');
-      setCitySearchTerm('');
       return;
     }
     
     const countryBanks = banks.filter(bank => bank.country === selectedCountry);
     const uniqueCities = [...new Set(countryBanks.map(branch => branch.city))].filter(Boolean);
-    console.log('Cities for', selectedCountry, ':', uniqueCities);
     setAvailableCities(uniqueCities);
     setSelectedCity(''); // Reset city selection when country changes
-    setCitySearchTerm('');
   }, [selectedCountry, banks]);
 
   // Close dropdowns when clicking outside
@@ -243,6 +260,64 @@ const UserPage = () => {
   const handleCreateBankAccount = () => {
     if (!selectedBank || !selectedCity) {
       setBankSelectionError('Please select both bank and city before proceeding.');
+      return;
+    }
+    
+     
+    
+    // Check each account and log the comparison
+    bankAccounts.forEach((account, index) => {
+      console.log(`Account ${index}:`, {
+        fullAccount: account, // Show the complete account object
+        accountId: account.id,
+        accountBank: account.bank,
+        accountBankName: account.bankName, // Check if this field exists instead
+        accountCountry: account.country,
+        selectedBank: selectedBank,
+        selectedCountry: selectedCountry,
+        bankMatch: account.bank === selectedBank,
+        bankNameMatch: account.bankName === selectedBank, // Check this comparison too
+        countryMatch: account.country === selectedCountry,
+        // Case-insensitive comparisons
+        bankMatchCI: account.bank && selectedBank && account.bank.toLowerCase() === selectedBank.toLowerCase(),
+        countryMatchCI: account.country && selectedCountry && account.country.toLowerCase() === selectedCountry.toLowerCase(),
+        bothMatch: account.bank === selectedBank && account.country === selectedCountry,
+        bothMatchBankName: account.bankName === selectedBank && account.country === selectedCountry,
+        bothMatchCI: account.bank && account.country && selectedBank && selectedCountry &&
+                     account.bank.toLowerCase() === selectedBank.toLowerCase() && 
+                     account.country.toLowerCase() === selectedCountry.toLowerCase()
+      });
+    });
+    
+    // Check if user already has an account with this bank
+    // Check multiple possible field names for bank (bank, bankName) 
+    const existingAccount = bankAccounts.find(account => {
+      const accountBank = account.bank || account.bankName;
+      const accountCountry = account.country;
+      
+      // Case-insensitive comparison for both bank and country
+      const bankMatch = accountBank && selectedBank && 
+                       accountBank.toLowerCase() === selectedBank.toLowerCase();
+      const countryMatch = accountCountry && selectedCountry && 
+                          accountCountry.toLowerCase() === selectedCountry.toLowerCase();
+      
+      console.log('Checking account:', {
+        accountBank,
+        accountCountry,
+        selectedBank,
+        selectedCountry,
+        bankMatch,
+        countryMatch,
+        bothMatch: bankMatch && countryMatch
+      });
+      
+      return bankMatch && countryMatch;
+    });
+    
+    
+    
+    if (existingAccount) {
+      setBankSelectionError(`You already have an account with ${selectedBank} in ${selectedCountry}. Multiple accounts with the same bank are not allowed.`);
       return;
     }
     
@@ -269,6 +344,19 @@ const UserPage = () => {
   const handleLogout = async () => {
     // Use the proper AuthGuard logout method to ensure all data is cleared
     await AuthGuard.logout();
+  };
+
+  // Clear all error messages when switching sections
+  const handleSectionChange = (sectionId) => {
+    setActiveSection(sectionId);
+    setBankSelectionError(''); // Clear bank selection errors
+    setMessage(''); // Clear general form messages
+    
+    // Clear all form selections and search states
+    setSelectedBank('');
+    setSelectedCity('');
+    setBankSearchTerm('');
+    setShowBankDropdown(false);
   };
 
   const handleEditDetails = () => {
@@ -656,7 +744,10 @@ const UserPage = () => {
                 <select
                   id="country-select"
                   value={selectedCountry}
-                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCountry(e.target.value);
+                    setBankSelectionError(''); // Clear error when country changes
+                  }}
                   className="form-select"
                 >
                   <option value="">Select Country</option>
@@ -667,9 +758,31 @@ const UserPage = () => {
               </div>
 
               <div className="form-group city-group">
-                <label htmlFor="city-search" className="form-label">
+                <label htmlFor="city-select" className="form-label">
                   <FaMapMarkerAlt className="field-icon" /> City
                 </label>
+                {/* Simple dropdown for presentation - search functionality commented out */}
+                <select
+                  id="city-select"
+                  value={selectedCity}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setBankSelectionError(''); // Clear error when city changes
+                  }}
+                  className="form-select"
+                  disabled={!selectedCountry || availableCities.length === 0}
+                >
+                  <option value="">
+                    {!selectedCountry ? "Select country first" : 
+                     availableCities.length === 0 ? "No cities available" : 
+                     "Select a city"}
+                  </option>
+                  {availableCities.map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
+                
+                {/* SEARCH FUNCTIONALITY COMMENTED OUT FOR PRESENTATION
                 <div className="search-dropdown-container">
                   <input
                     id="city-search"
@@ -678,14 +791,23 @@ const UserPage = () => {
                     onChange={(e) => {
                       setCitySearchTerm(e.target.value);
                       setShowCityDropdown(true);
+                      setBankSelectionError('');
                     }}
-                    onFocus={() => setShowCityDropdown(true)}
+                    onFocus={() => {
+                      setShowCityDropdown(true);
+                      console.log('City field focused. State:', {
+                        showCityDropdown: true,
+                        selectedCountry,
+                        availableCities,
+                        availableCitiesLength: availableCities.length
+                      });
+                    }}
                     placeholder={!selectedCountry ? "Select country first" : availableCities.length === 0 ? "No cities available for selected country" : "Search and select city..."}
                     className="form-search-input"
                     disabled={!selectedCountry || availableCities.length === 0}
                   />
                   {showCityDropdown && selectedCountry && availableCities.length > 0 && (
-                    <div className="search-dropdown">
+                    <div className="search-dropdown" style={{background: 'red', border: '3px solid blue'}}>
                       {filteredCities.length > 0 ? (
                         filteredCities.map((city) => (
                           <div
@@ -695,38 +817,65 @@ const UserPage = () => {
                               setSelectedCity(city);
                               setCitySearchTerm(city);
                               setShowCityDropdown(false);
+                              setBankSelectionError('');
                             }}
                           >
                             {city}
                           </div>
                         ))
                       ) : (
-                        <div className="dropdown-item no-results">
-                          {availableCities.length === 0 ? 'Loading cities...' : 'No cities found'}
+                        <div className="dropdown-item disabled">
+                          No cities found matching "{citySearchTerm}"
                         </div>
                       )}
                     </div>
                   )}
-                  
-                  {/* Recognition message when no cities available - shows on hover */}
-                  {selectedCountry && !isBanksLoading && availableCities.length === 0 && (
-                    <div className="no-cities-message">
-                      <span className="message-icon">⚠️</span>
-                      <div>
-                        <div style={{fontWeight: '700', marginBottom: '2px'}}>No Cities Available</div>
-                        <div style={{fontSize: '0.85rem', opacity: '0.9'}}>No cities found for {selectedCountry}. Try a different country or contact support.</div>
-                      </div>
-                    </div>
-                  )}
                 </div>
+                */}
               </div>
             </div>
 
             <div className="selection-row" style={{marginBottom: '2rem'}}>
               <div className="form-group bank-full-width">
-                <label htmlFor="bank-search" className="form-label">
+                <label htmlFor="bank-select" className="form-label">
                   <FaUniversity className="field-icon" /> Bank {isBanksLoading ? '(Loading...)' : ''}
                 </label>
+                {/* Simple dropdown for presentation - search functionality commented out */}
+                <select
+                  id="bank-select"
+                  value={selectedBank}
+                  onChange={(e) => {
+                    setSelectedBank(e.target.value);
+                    setBankSelectionError(''); // Clear error when bank changes
+                  }}
+                  className="form-select"
+                  disabled={!selectedCountry || !selectedCity || isBanksLoading || availableBanks.length === 0}
+                >
+                  <option value="">
+                    {!selectedCountry ? "Select country first" : 
+                     !selectedCity ? "Select city first" :
+                     isBanksLoading ? "Loading banks..." :
+                     availableBanks.length === 0 ? "No banks available" : 
+                     "Select a bank"}
+                  </option>
+                  {availableBanks.map((bankName) => {
+                    const hasExistingAccount = bankAccounts.some(account => {
+                      const accountBank = account.bank || account.bankName;
+                      const accountCountry = account.country;
+                      return accountBank && accountCountry && 
+                             accountBank.toLowerCase() === bankName.toLowerCase() && 
+                             accountCountry.toLowerCase() === selectedCountry.toLowerCase();
+                    });
+                    
+                    return (
+                      <option key={bankName} value={bankName}>
+                        {bankName} {hasExistingAccount ? '(Account Exists)' : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+                
+                {/* SEARCH FUNCTIONALITY COMMENTED OUT FOR PRESENTATION
                 <div className="search-dropdown-container">
                   <input
                     id="bank-search"
@@ -735,34 +884,48 @@ const UserPage = () => {
                     onChange={(e) => {
                       setBankSearchTerm(e.target.value);
                       setShowBankDropdown(true);
+                      setBankSelectionError('');
                     }}
                     onFocus={() => setShowBankDropdown(true)}
                     placeholder={selectedCountry && selectedCity ? "Search and select bank..." : "Select country and city first"}
                     className={`form-search-input ${!selectedCountry || !selectedCity ? 'disabled-field' : ''}`}
-                    disabled={!selectedCountry || !selectedCity || isBanksLoading || filteredBanks.length === 0}
+                    disabled={!selectedCountry || !selectedCity || isBanksLoading}
                   />
                   {showBankDropdown && selectedCountry && selectedCity && (
                     <div className="search-dropdown">
                       {filteredBanks.length > 0 ? (
-                        filteredBanks.map((bankName) => (
-                          <div
-                            key={bankName}
-                            className={`dropdown-item ${selectedBank === bankName ? 'selected' : ''}`}
-                            onClick={() => {
-                              setSelectedBank(bankName);
-                              setBankSearchTerm(bankName);
-                              setShowBankDropdown(false);
-                            }}
-                          >
-                            {bankName}
-                          </div>
-                        ))
+                        filteredBanks.map((bankName) => {
+                          const hasExistingAccount = bankAccounts.some(account => {
+                            const accountBank = account.bank || account.bankName;
+                            const accountCountry = account.country;
+                            return accountBank && accountCountry && 
+                                   accountBank.toLowerCase() === bankName.toLowerCase() && 
+                                   accountCountry.toLowerCase() === selectedCountry.toLowerCase();
+                          });
+                          
+                          return (
+                            <div
+                              key={bankName}
+                              className={`dropdown-item ${selectedBank === bankName ? 'selected' : ''} ${hasExistingAccount ? 'existing-account' : ''}`}
+                              onClick={() => {
+                                setSelectedBank(bankName);
+                                setBankSearchTerm(bankName);
+                                setShowBankDropdown(false);
+                                setBankSelectionError('');
+                              }}
+                            >
+                              {bankName}
+                              {hasExistingAccount && <span className="account-exists-badge">✓ Account Exists</span>}
+                            </div>
+                          );
+                        })
                       ) : (
                         <div className="dropdown-item no-results">No banks found</div>
                       )}
                     </div>
                   )}
                 </div>
+                */}
               </div>
             </div>
 
@@ -779,6 +942,17 @@ const UserPage = () => {
                   </div>
                   <div>
                     <strong>Bank:</strong> {selectedBank}
+                    {bankAccounts.some(account => {
+                      const accountBank = account.bank || account.bankName;
+                      const accountCountry = account.country;
+                      return accountBank && accountCountry && selectedBank && selectedCountry &&
+                             accountBank.toLowerCase() === selectedBank.toLowerCase() && 
+                             accountCountry.toLowerCase() === selectedCountry.toLowerCase();
+                    }) && (
+                      <span style={{color: '#dc2626', fontWeight: 'bold', marginLeft: '8px'}}>
+                        (⚠️ Account Exists)
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -931,7 +1105,7 @@ const UserPage = () => {
               <button
                 key={item.id}
                 className={`sidebar-item ${activeSection === item.id ? 'active' : ''}`}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => handleSectionChange(item.id)}
               >
                 <span className="sidebar-icon">{item.icon}</span>
                 <span className="sidebar-label">{item.label}</span>
@@ -1272,6 +1446,10 @@ const UserPage = () => {
           </div>
         </div>
       )}
+      
+      {/* Banking Assistant ChatBot */}
+      <ChatBotButton userId={userId} />
+      
       <Footer />
     </>
   );

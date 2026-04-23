@@ -718,11 +718,6 @@ const CreateAccount = () => {
             📍 {selectedBranchInfo.city} - {selectedBranchInfo.code}
           </span>
         )}
-        {existingAccountData && (
-          <span style={{ marginLeft: '20px', color: '#10b981', fontWeight: '500' }}>
-            ✓ Existing account holder - Personal details were pre-filled 
-          </span>
-        )}
       </div>
 
       {/* Progress Indicator */}
