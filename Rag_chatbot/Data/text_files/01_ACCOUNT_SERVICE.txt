@@ -1,0 +1,704 @@
+# Account Service — Complete API Documentation
+
+## Overview
+
+| Property | Value |
+|---|---|
+| Service Name | account-service |
+| Base URL | `http://localhost:8085` |
+| Context Paths | `/api/accounts` and `/accounts` (both work identically) |
+| Database | MySQL — `accountdb` (auto-created) |
+| Port | **8085** |
+| Multipart max file size | 10 MB per file, 50 MB per request |
+| Document upload directory | `uploads/documents/` (relative to application root) |
+| Email notifications | Gmail SMTP — `noreplyinterbankinghub@gmail.com` |
+| Admin service dependency | `http://localhost:8083` |
+
+The Account Service handles the full lifecycle of bank account applications: creation with mandatory document uploads, admin review and approval/rejection, and document management. Accounts are never given an account number until an admin explicitly approves them.
+
+---
+
+## Data Models
+
+### Account Entity (`accounts` table)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| id | id | Long | PK, auto-increment | Internal identifier |
+| userId | user_id | String(50) | NOT NULL | References the user who owns this account |
+| accountNumber | account_number | String(20) | UNIQUE, nullable | Generated only after admin approval |
+| bank | bank | String(100) | NOT NULL | Bank name (e.g., "State Bank of India") |
+| branch | branch | String(100) | NOT NULL | Branch name |
+| ifscCode | ifsc_code | String(15) | nullable | IFSC / routing code |
+| country | country | String(10) | NOT NULL | One of: `INDIA`, `USA`, `UK` |
+| accountType | account_type | Enum(STRING) | NOT NULL | See AccountType section |
+| status | status | Enum(STRING) | NOT NULL, default PENDING | PENDING / APPROVED / REJECTED |
+| deposit | deposit_amount | BigDecimal(15,2) | NOT NULL, ≥ 0 | Initial deposit amount |
+| consent | consent | Boolean | NOT NULL | Must be true |
+| applicationStage | application_stage | Enum(STRING) | default PERSONAL | PERSONAL / EDUCATIONAL / INCOME / NOMINEE / DOCUMENTS / COMPLETE |
+| personalDetails | (embedded) | PersonalDetails | — | See below |
+| educationalDetails | (embedded) | EducationalDetails | — | See below |
+| incomeDetails | (embedded) | IncomeDetails | — | See below |
+| nomineeDetails | (embedded) | NomineeDetails | — | See below |
+| documents | (OneToMany) | List\<DocumentMetadata\> | LAZY | Associated uploaded documents |
+| createdDate | created_date | LocalDateTime | auto, not updatable | Creation timestamp |
+| updatedDate | updated_date | LocalDateTime | auto-updated | Last update timestamp |
+| createdBy | created_by | String(50) | nullable | Who created the record |
+
+**Indexes:** `idx_user_id`, `idx_account_number`, `idx_status`, `idx_country_status`
+
+### AccountStatus Enum
+
+| Value | Meaning |
+|---|---|
+| `PENDING` | Application submitted, awaiting admin review |
+| `APPROVED` | Admin approved; account number assigned |
+| `REJECTED` | Admin rejected the application |
+
+### AccountType Enum (Country-Specific)
+
+| Value | Display Name | Valid For Country |
+|---|---|---|
+| `SAVINGS` | Savings | INDIA |
+| `CURRENT` | Current | INDIA / UK |
+| `SALARY` | Salary | INDIA |
+| `FIXED_DEPOSIT` | Fixed Deposit | INDIA |
+| `CHECKING` | Checking | USA |
+| `SAVINGS` | Savings | USA / UK |
+| `MONEY_MARKET` | Money Market | USA |
+| `CERTIFICATE_OF_DEPOSIT` | Certificate of Deposit | USA |
+| `ISA` | ISA | UK |
+| `FIXED_TERM` | Fixed Term | UK |
+
+### ApplicationStage Enum
+
+| Value | Display Name | Description |
+|---|---|---|
+| `PERSONAL` | Personal Details | Stage 1 — personal info |
+| `EDUCATIONAL` | Educational Details | Stage 2 |
+| `INCOME` | Income Details | Stage 3 |
+| `NOMINEE` | Nominee Details | Stage 4 |
+| `DOCUMENTS` | Documents | Stage 5 |
+| `COMPLETE` | Complete | All stages done; newly created accounts are set to `COMPLETE` immediately |
+
+### PersonalDetails (Embedded)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| fullName | full_name | String(100) | NOT NULL, 2–100 chars | Full legal name |
+| dateOfBirth | date_of_birth | LocalDate | NOT NULL, must be in past | Date of birth |
+| gender | gender | Enum(STRING) | NOT NULL | Male / Female / Other |
+| email | email | String(100) | NOT NULL, valid email | Contact email |
+| address | address | TEXT | NOT NULL, 10–500 chars | Residential address |
+| aadhaar | aadhaar | String(12) | nullable, 12 digits | India only |
+| pan | pan | String(10) | nullable, pattern `[A-Z]{5}[0-9]{4}[A-Z]` | India only |
+| mobile | mobile | String(15) | nullable, pattern `^[6-9][0-9]{9}$` | India only (10-digit Indian mobile) |
+| ssn | ssn | String(11) | nullable, pattern `^[0-9]{3}-[0-9]{2}-[0-9]{4}$` | USA only |
+| phone | phone | String(15) | nullable, pattern `^\\+1[0-9]{10}$` | USA only |
+| nin | nin | String(9) | nullable, pattern `^[A-Z]{2}[0-9]{6}[A-Z]$` | UK only |
+
+### EducationalDetails (Embedded)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| educationLevel | education_level | Enum(STRING) | NOT NULL | See values below |
+| institutionName | institution_name | String(200) | NOT NULL, 2–200 chars | School/college/university name |
+| course | course | String(150) | NOT NULL, 2–150 chars | Name of course or degree |
+| yearOfCompletion | year_of_completion | Integer | NOT NULL, 1950–2030 | Year course was completed |
+| grade | grade | String(20) | optional | Grade or percentage |
+
+**EducationLevel values:** `High School`, `Diploma`, `Graduate`, `Post Graduate`, `Professional` (India & UK);  `Associate Degree`, `Bachelor Degree`, `Master Degree`, `Doctoral Degree` (USA); `GCSE`, `A-Levels`, `Undergraduate Degree`, `Postgraduate Degree`, `Professional Qualification` (UK)
+
+### IncomeDetails (Embedded)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| employmentStatus | employment_status | Enum(STRING) | NOT NULL | Employed / Self-Employed / Business / Business Owner / Student / Retired / Unemployed |
+| employerName | employer_name | String(200) | optional | Employer name if employed |
+| occupation | occupation | String(100) | NOT NULL, 2–100 chars | Job title or occupation |
+| monthlyIncome | monthly_income | BigDecimal(15,2) | NOT NULL, ≥ 0 | Monthly income in local currency |
+| annualIncome | annual_income | BigDecimal(15,2) | NOT NULL, ≥ 0 | Annual income |
+| incomeSource | income_source | Enum(STRING) | NOT NULL | Salary / Business / Investment / Pension / Social Security / Other |
+| currencyCode | currency_code | String(3) | NOT NULL, exactly 3 chars | `INR` (India), `USD` (USA), `GBP` (UK) |
+
+### NomineeDetails (Embedded)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| nomineeName | nominee_name | String(100) | NOT NULL, 2–100 chars | Full name of nominee |
+| nomineeRelation | nominee_relation | Enum(STRING) | NOT NULL | Spouse / Father / Mother / Son / Daughter / Brother / Sister / Other |
+| nomineeDob | nominee_dob | LocalDate | NOT NULL, must be in past | Nominee's date of birth |
+| nomineeContact | nominee_contact | String(15) | NOT NULL, pattern `^[+]?[0-9]{10,15}$` | Nominee's phone number |
+| nomineeAddress | nominee_address | TEXT | NOT NULL, 10–500 chars | Nominee's address |
+
+### DocumentMetadata Entity (`document_metadata` table)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| id | id | Long | PK, auto-increment | Internal identifier |
+| accountId | account_id | Long | NOT NULL | Foreign key to accounts.id |
+| documentType | document_type | Enum(STRING) | NOT NULL | ID_PROOF / ADDRESS_PROOF / INCOME_PROOF / PHOTO |
+| originalFilename | original_filename | String(255) | NOT NULL | Original name of uploaded file |
+| storedFilename | stored_filename | String(255) | NOT NULL | Name stored on disk |
+| filePath | file_path | String(500) | NOT NULL | Full disk path |
+| fileSize | file_size | Long | NOT NULL, ≥ 1 | Size in bytes |
+| contentType | content_type | String(100) | NOT NULL | MIME type (e.g., `application/pdf`, `image/jpeg`) |
+| uploadStatus | upload_status | Enum(STRING) | default UPLOADED | UPLOADED / FAILED / PENDING |
+| uploadedDate | (timestamp) | LocalDateTime | auto | Upload timestamp |
+
+### AccountCreationResponse (Response DTO)
+
+```json
+{
+  "accountNumber": null,              // null until admin approval
+  "applicationId": "APP-1",          // Always present — use this for tracking
+  "userId": "string",
+  "status": "PENDING",
+  "country": "INDIA",
+  "createdDate": "2026-04-24T10:30:00",
+  "validationResults": {              // Present only if validation errors
+    "PERSONAL": {
+      "isValid": false,
+      "errors": ["Mobile number is invalid"],
+      "warnings": []
+    }
+  },
+  "requiredDocuments": ["ID_PROOF", "ADDRESS_PROOF", "INCOME_PROOF", "PHOTO"],
+  "applicationStage": "Complete",
+  "completionPercentage": 100.0,
+  "message": "Application completed successfully...",
+  "warnings": [],
+  "nextSteps": ["Wait for admin approval", "Check application status using your Application ID", ...]
+}
+```
+
+---
+
+## API Endpoints
+
+### 1. Create India Account
+
+**POST** `/api/accounts/create/india`
+
+**Content-Type:** `multipart/form-data`
+
+**Description:** Creates a new bank account application for an Indian customer. All four documents are **mandatory**. Account is placed in PENDING status and requires admin approval before an account number is issued.
+
+**Form Fields (all required unless noted):**
+
+| Field | Type | Validation | Description |
+|---|---|---|---|
+| userId | String | NOT BLANK | User ID from user-service |
+| bank | String | NOT BLANK | Bank name |
+| branch | String | NOT BLANK | Branch name |
+| ifscCode | String | optional | IFSC code |
+| fullName | String | 2–100 chars | Full legal name |
+| dob | LocalDate | format `yyyy-MM-dd` | Date of birth |
+| gender | String | Male\|Female\|Other | Gender |
+| mobile | String | `^[6-9][0-9]{9}$` | 10-digit Indian mobile |
+| email | String | valid email | Email address |
+| address | String | min 10 chars | Residential address |
+| aadhaar | String | `^[0-9]{12}$` | 12-digit Aadhaar number |
+| pan | String | `^[A-Z]{5}[0-9]{4}[A-Z]{1}$` | PAN card number |
+| educationLevel | String | High School\|Diploma\|Graduate\|Post Graduate\|Professional | Education level |
+| institutionName | String | NOT BLANK | Institution attended |
+| course | String | NOT BLANK | Course/degree name |
+| yearOfCompletion | Integer | 1950–2030 | Year of graduation |
+| grade | String | optional | Grade or percentage |
+| employmentStatus | String | Employed\|Self-Employed\|Business\|Student\|Retired\|Unemployed | Employment status |
+| employerName | String | optional | Employer name |
+| occupation | String | NOT BLANK | Job title |
+| monthlyIncome | BigDecimal | ≥ 0 | Monthly income |
+| annualIncome | BigDecimal | ≥ 0 | Annual income |
+| incomeSource | String | Salary\|Business\|Investment\|Pension\|Other | Source of income |
+| nomineeName | String | NOT BLANK | Nominee full name |
+| nomineeRelation | String | Spouse\|Father\|Mother\|Son\|Daughter\|Brother\|Sister\|Other | Relation to nominee |
+| nomineeDob | LocalDate | format `yyyy-MM-dd` | Nominee date of birth |
+| nomineeContact | String | `^[0-9]{10}$` | Nominee phone number |
+| nomineeAddress | String | NOT BLANK | Nominee address |
+| accountType | Enum | SAVINGS\|CURRENT\|SALARY\|FIXED_DEPOSIT | Account type for India |
+| deposit | BigDecimal | ≥ 0 | Initial deposit amount |
+| consent | Boolean | must be true | Terms consent |
+
+**File Parameters (all required):**
+
+| Parameter Name | Description | Accepted Types |
+|---|---|---|
+| idProof | Aadhaar card, Passport, Voter ID | PDF, JPEG, PNG (max 10MB) |
+| addressProof | Utility bill, Bank statement, Lease agreement | PDF, JPEG, PNG (max 10MB) |
+| incomeProof | Salary slip, ITR, Bank statement | PDF, JPEG, PNG (max 10MB) |
+| photo | Passport-size photograph | JPEG, PNG (max 10MB) |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "accountNumber": null,
+  "applicationId": "APP-42",
+  "userId": "user123",
+  "status": "PENDING",
+  "country": "INDIA",
+  "createdDate": "2026-04-24T10:30:00",
+  "applicationStage": "Complete",
+  "completionPercentage": 100.0,
+  "message": "Application completed successfully with all documents uploaded. Your application ID is APP-42. Now pending admin verification and approval.",
+  "requiredDocuments": ["ID_PROOF", "ADDRESS_PROOF", "INCOME_PROOF", "PHOTO"],
+  "nextSteps": ["Wait for admin approval", "Check application status using your Application ID", "Admin will review your documents and approve", "Account number will be provided after approval"]
+}
+```
+
+**Validation Error Response — HTTP 400 Bad Request:**
+```json
+{
+  "applicationId": null,
+  "validationResults": {
+    "PERSONAL": {
+      "isValid": false,
+      "errors": ["Mobile number is invalid", "PAN format is incorrect"],
+      "warnings": []
+    }
+  },
+  "message": "Please correct the following errors:\n\nPERSONAL SECTION:\n• Mobile number is invalid\n..."
+}
+```
+
+**Duplicate Application Error — HTTP 400 Bad Request:**
+```json
+{
+  "message": "User already has an account in State Bank of India - Delhi Branch"
+}
+```
+
+**Error Response — HTTP 500:**
+```json
+{
+  "message": "Account creation failed: <error details>"
+}
+```
+
+---
+
+### 2. Create USA Account
+
+**POST** `/api/accounts/create/usa`
+
+**Content-Type:** `multipart/form-data`
+
+**Description:** Creates a bank account application for a US customer. Identical structure to India account but with USA-specific fields.
+
+**USA-specific differences vs India:**
+
+| Field | USA Format | Notes |
+|---|---|---|
+| phone | `^\\+1[0-9]{10}$` | e.g., `+12125551234` |
+| ssn | `^[0-9]{3}-[0-9]{2}-[0-9]{4}$` | Social Security Number |
+| educationLevel | High School\|Associate Degree\|Bachelor Degree\|Master Degree\|Doctoral Degree | USA education tiers |
+| employmentStatus | Employed\|Self-Employed\|Business Owner\|Student\|Retired\|Unemployed | |
+| incomeSource | Salary\|Business\|Investment\|Social Security\|Other | |
+| nomineeContact | `^\\+1[0-9]{10}$` | |
+| accountType | CHECKING\|SAVINGS\|MONEY_MARKET\|CERTIFICATE_OF_DEPOSIT | USA account types |
+
+All four documents (idProof, addressProof, incomeProof, photo) still required.
+
+Same success/error response format as India.
+
+---
+
+### 3. Create UK Account
+
+**POST** `/api/accounts/create/uk`
+
+**Content-Type:** `multipart/form-data`
+
+**Description:** Creates a bank account application for a UK customer.
+
+**UK-specific differences vs India:**
+
+| Field | UK Format | Notes |
+|---|---|---|
+| phone | `^\\+44[0-9]{10}$` | e.g., `+447700900123` |
+| nin | `^[A-Z]{2}[0-9]{6}[A-Z]{1}$` | National Insurance Number |
+| educationLevel | GCSE\|A-Levels\|Undergraduate Degree\|Postgraduate Degree\|Professional Qualification | UK specific |
+| employmentStatus | Employed\|Self-Employed\|Business Owner\|Student\|Retired\|Unemployed | |
+| incomeSource | Salary\|Business\|Investment\|Pension\|Other | |
+| nomineeContact | `^\\+44[0-9]{10}$` | |
+| accountType | CURRENT\|SAVINGS\|ISA\|FIXED_TERM | UK account types |
+
+---
+
+### 4. Upload Additional Document
+
+**POST** `/api/accounts/{accountNumber}/documents`
+
+**Content-Type:** `multipart/form-data`
+
+**Description:** Upload an additional or replacement document for an existing account.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| accountNumber | String | The account's account number |
+
+**Form Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| file | MultipartFile | Yes | The document file (max 10MB) |
+| documentType | String | Yes | One of: `ID_PROOF`, `ADDRESS_PROOF`, `INCOME_PROOF`, `PHOTO` |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "accountNumber": "ACC123456",
+  "documentType": "ID_PROOF",
+  "originalFilename": "aadhaar.pdf",
+  "storedFilename": "1_1776096552192.pdf",
+  "fileSize": 27132,
+  "contentType": "application/pdf",
+  "message": "Document uploaded successfully",
+  "valid": true
+}
+```
+
+**Error Response — HTTP 400:**
+```json
+{
+  "accountNumber": "ACC123456",
+  "message": "Upload failed: invalid document type",
+  "valid": false
+}
+```
+
+---
+
+### 5. Get Application Status
+
+**GET** `/api/accounts/status/{applicationId}`
+
+**Description:** Check the status of an account application using the Application ID (format: `APP-{id}`).
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| applicationId | String | Application ID returned at creation, e.g., `APP-42` |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "accountNumber": null,
+  "applicationId": "APP-42",
+  "userId": "user123",
+  "status": "PENDING",
+  "country": "INDIA",
+  "createdDate": "2026-04-24T10:30:00",
+  "applicationStage": "Complete",
+  "completionPercentage": 100.0,
+  "message": "Application is currently pending admin review."
+}
+```
+
+After approval:
+```json
+{
+  "accountNumber": "IND20260424001",
+  "applicationId": "APP-42",
+  "status": "APPROVED",
+  "message": "Account approved."
+}
+```
+
+**Not Found — HTTP 400:**
+```json
+{
+  "message": "Application not found"
+}
+```
+
+---
+
+### 6. Get Pending Applications (Admin)
+
+**GET** `/api/accounts/admin/pending`
+
+**Description:** Returns all accounts currently in PENDING status for admin review.
+
+**Response — HTTP 200 OK:**
+```json
+[
+  {
+    "id": 42,
+    "userId": "user123",
+    "accountNumber": null,
+    "bank": "State Bank of India",
+    "branch": "Chennai Branch",
+    "country": "INDIA",
+    "accountType": "SAVINGS",
+    "status": "PENDING",
+    "deposit": 5000.00,
+    "consent": true,
+    "applicationStage": "COMPLETE",
+    "createdDate": "2026-04-24T10:30:00",
+    "personalDetails": { ... },
+    "educationalDetails": { ... },
+    "incomeDetails": { ... },
+    "nomineeDetails": { ... }
+  }
+]
+```
+
+**Empty — HTTP 204 No Content** (when no pending applications)
+
+---
+
+### 7. Get Account Details (Admin)
+
+**GET** `/api/accounts/admin/details/{accountId}`
+
+**Description:** Retrieves full details of a specific account by its internal database ID.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| accountId | Long | Internal database ID of the account |
+
+**Success Response — HTTP 200 OK:** Full `AccountCreationResponse` with all nested details.
+
+**Not Found — HTTP 400**
+
+---
+
+### 8. Approve Account
+
+**POST** `/api/accounts/approve/{accountId}`
+
+**Description:** Admin approves a pending account application. An account number is **generated** during this step and assigned. A notification email is sent to the applicant.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| accountId | Long | Internal database ID of the account to approve |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "accountNumber": "IND20260424001",
+  "applicationId": "APP-42",
+  "userId": "user123",
+  "status": "APPROVED",
+  "message": "✅ Account approved successfully! Account Number: IND20260424001"
+}
+```
+
+**Error — HTTP 400:** `{ "message": "Account not found" }`
+
+---
+
+### 9. Reject Account
+
+**POST** `/api/accounts/reject/{accountId}`
+
+**Description:** Admin rejects a pending account application with an optional reason.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| accountId | Long | Internal database ID of the account |
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| reason | String | No | Rejection reason text |
+
+**Success Response — HTTP 200 OK:**
+```text
+Account rejected successfully
+```
+
+**Error — HTTP 400:** Plain text error string.
+
+---
+
+### 10. Get Accounts by User ID
+
+**GET** `/api/accounts/user/{userId}`
+
+**Description:** Returns all accounts (any status) belonging to a specific user.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| userId | String | The user ID (as stored in `userId` field on account) |
+
+**Success Response — HTTP 200 OK:** Array of Account objects.
+
+**Empty — HTTP 204 No Content**
+
+---
+
+### 11. Get Accounts by Bank Name
+
+**GET** `/api/accounts/bank/{bankName}`
+
+**Description:** Returns all accounts opened with a specific bank.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| bankName | String | Bank name to search for |
+
+**Success Response — HTTP 200:** Array of Account objects.
+
+**Empty — HTTP 204 No Content**
+
+---
+
+### 12. Get Accounts by Status
+
+**GET** `/api/accounts/status/{status}`
+
+**Description:** Returns all accounts with a given status.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| status | String | One of: `PENDING`, `APPROVED`, `REJECTED` (case-insensitive) |
+
+**Success Response — HTTP 200:** Array of Account objects.
+
+**Invalid status — HTTP 400**
+
+---
+
+### 13. Get Account by Account Number
+
+**GET** `/api/accounts/account/{accountNumber}`
+
+**Description:** Fetches a single account by its account number.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| accountNumber | String | The generated account number (only for approved accounts) |
+
+**Success Response — HTTP 200:** Single Account object.
+
+**Not Found — HTTP 404**
+
+---
+
+### 14. Get Account Types for Country
+
+**GET** `/api/accounts/countries/{country}/account-types`
+
+**Description:** Returns the list of valid account types for a given country.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| country | String | One of: `INDIA`, `USA`, `UK` (case-insensitive) |
+
+**Success Response — HTTP 200:**
+```json
+["SAVINGS", "CURRENT", "SALARY", "FIXED_DEPOSIT"]
+```
+
+---
+
+### 15. Get Documents for Account
+
+**GET** `/api/accounts/account/{accountNumber}/documents`
+
+**Description:** Lists all uploaded documents for a given account number.
+
+**Success Response — HTTP 200:** Array of `DocumentMetadata` objects.
+
+---
+
+### 16. Get Documents for User
+
+**GET** `/api/accounts/user/{userId}/documents`
+
+**Description:** Lists all documents uploaded by a specific user across all their accounts.
+
+**Success Response — HTTP 200:** Array of `DocumentMetadata` objects.
+
+**Empty — HTTP 204 No Content**
+
+---
+
+### 17. Download Document
+
+**GET** `/api/accounts/documents/{documentId}/download`
+
+**Description:** Downloads a document file as an attachment.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| documentId | Long | Internal document ID from `DocumentMetadata.id` |
+
+**Success Response — HTTP 200:**
+- `Content-Disposition: attachment; filename="original_filename.pdf"`
+- Body: Binary file content
+
+**Not Found — HTTP 404**
+
+---
+
+### 18. View Document (Inline)
+
+**GET** `/api/accounts/documents/{documentId}/view`
+
+**Description:** Opens/views a document inline in the browser (suitable for PDFs and images).
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| documentId | Long | Internal document ID |
+
+**Success Response — HTTP 200:**
+- `Content-Disposition: inline; filename="original_filename.pdf"`
+- Body: Binary file content
+
+---
+
+## Business Rules
+
+1. **Account number is NOT generated at creation.** It is only generated upon admin approval.
+2. **Duplicate check:** A user cannot have more than one account in the same bank+branch combination.
+3. **All four documents (ID Proof, Address Proof, Income Proof, Photo) are mandatory at account creation.** The old JSON-only endpoint (`POST /api/accounts/create/{country}`) is disabled and returns a 400 with guidance.
+4. **Application ID format:** `APP-{internal_database_id}` — always return this to the user immediately after creation for tracking.
+5. **Email notification:** On successful application submission, `EmailNotificationService.notifyAdminAccountCreated()` is called to notify relevant admins.
+6. **Account number format (on approval):** Three-character country prefix (`IND`, `USA`, `GBP`) + date (YYYYMMDD) + sequential number, e.g., `IND20260424001`.
+
+---
+
+## CORS Configuration
+
+Allowed origins: `http://localhost:5173`, `http://localhost:3000`
+
+Allowed methods: GET, POST, PUT, DELETE, OPTIONS
+
+---
+
+## Error Handling Summary
+
+| HTTP Code | Scenario |
+|---|---|
+| 200 | Success |
+| 204 | Empty result (no records found) |
+| 400 | Validation failure, duplicate account, invalid enum value, missing required field |
+| 404 | Document or resource not found |
+| 500 | Internal server error (database failure, file system issue, etc.) |

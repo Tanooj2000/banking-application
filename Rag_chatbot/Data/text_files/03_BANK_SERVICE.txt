@@ -1,0 +1,375 @@
+# Bank Service — Complete API Documentation
+
+## Overview
+
+| Property | Value |
+|---|---|
+| Service Name | bank-service |
+| Base URL | `http://localhost:8082` |
+| Context Path | `/api/banks` |
+| Database | MySQL — `bankdb` (auto-created) |
+| Port | **8082** |
+
+The Bank Service is the master registry of all banks and their branches. It stores information about each bank's physical locations (country, city, branch) and provides lookup and validation APIs used by the account-service and front-end during account creation. Admins use this service to register new branches, and users use it to select their preferred bank and branch when opening an account.
+
+---
+
+## Data Model
+
+### Bank Entity (`banks` table)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| id | id | Long | PK, auto-increment | Internal ID |
+| country | country | String | NOT BLANK, 2–50 chars | Country the bank operates in (e.g., `INDIA`, `USA`, `UK`) |
+| city | city | String | NOT BLANK, 2–50 chars | City where this branch is located |
+| bankName | bank_name | String | NOT BLANK, 2–100 chars | Full name of the bank |
+| branch | branch | String | NOT BLANK, 2–100 chars | Branch name |
+| code | code | String | NOT BLANK, pattern `^[A-Z0-9]{3,10}$` | Unique alphanumeric branch code (IFSC-like identifier) |
+
+**Validations on `code`:** Must be 3–10 characters, all uppercase alphanumeric characters only (e.g., `SBIN0001`, `HDFC002`).
+
+---
+
+## API Endpoints
+
+### 1. Get Banks by Country
+
+**GET** `/api/banks/country/{country}`
+
+**Description:** Returns all bank branches operating in the specified country. Used by the frontend to populate bank selection dropdowns.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| country | String | Country name (e.g., `INDIA`, `USA`, `UK`) — case-sensitive as stored in DB |
+
+**Success Response — HTTP 200:**
+```json
+[
+  {
+    "id": 1,
+    "country": "INDIA",
+    "city": "Chennai",
+    "bankName": "State Bank of India",
+    "branch": "Chennai Main Branch",
+    "code": "SBIN0001"
+  },
+  {
+    "id": 2,
+    "country": "INDIA",
+    "city": "Mumbai",
+    "bankName": "HDFC Bank",
+    "branch": "Bandra Branch",
+    "code": "HDFC002"
+  }
+]
+```
+
+**Empty Result:** Returns empty array `[]` if no banks found for that country.
+
+---
+
+### 2. Get Banks by Country and City
+
+**GET** `/api/banks/country/{country}/city/{city}`
+
+**Description:** Returns all bank branches in a specific country and city. Used to narrow down bank selection when the user picks their city.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| country | String | Country name |
+| city | String | City name |
+
+**Success Response — HTTP 200:**
+```json
+[
+  {
+    "id": 1,
+    "country": "INDIA",
+    "city": "Chennai",
+    "bankName": "State Bank of India",
+    "branch": "Chennai Main Branch",
+    "code": "SBIN0001"
+  }
+]
+```
+
+**Empty Result:** Returns empty array `[]`.
+
+---
+
+### 3. Add Bank (Standard)
+
+**POST** `/api/banks/add`
+
+**Content-Type:** `application/json`
+
+**Description:** Adds a new bank branch to the registry. Performs two uniqueness checks:
+1. No duplicate branch in the same country+city+bankName combination.
+2. No duplicate branch code across all banks.
+
+**Request Body:**
+```json
+{
+  "country": "INDIA",
+  "city": "Hyderabad",
+  "bankName": "State Bank of India",
+  "branch": "Hitech City Branch",
+  "code": "SBIN0015"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Validation | Description |
+|---|---|---|---|---|
+| country | String | Yes | 2–50 chars | Country name |
+| city | String | Yes | 2–50 chars | City name |
+| bankName | String | Yes | 2–100 chars | Bank name |
+| branch | String | Yes | 2–100 chars | Branch name |
+| code | String | Yes | `^[A-Z0-9]{3,10}$`, UNIQUE | Branch code |
+
+**Success Response — HTTP 200:**
+```json
+{
+  "id": 10,
+  "country": "INDIA",
+  "city": "Hyderabad",
+  "bankName": "State Bank of India",
+  "branch": "Hitech City Branch",
+  "code": "SBIN0015"
+}
+```
+
+**Duplicate Branch — HTTP 400:**
+```
+Branch already exists in that area.
+```
+
+**Duplicate Code — HTTP 400:**
+```
+A branch with that code already exists. Use correct branch code.
+```
+
+---
+
+### 4. Add Banks in Bulk
+
+**POST** `/api/banks/bulk-add`
+
+**Content-Type:** `application/json`
+
+**Description:** Adds multiple bank branches in a single request. The list must not be empty.
+
+**Request Body:**
+```json
+[
+  {
+    "country": "USA",
+    "city": "New York",
+    "bankName": "Chase Bank",
+    "branch": "Manhattan Branch",
+    "code": "CHAS001"
+  },
+  {
+    "country": "USA",
+    "city": "Los Angeles",
+    "bankName": "Bank of America",
+    "branch": "LA Central Branch",
+    "code": "BOFA001"
+  }
+]
+```
+
+**Validation:** `@NotEmpty` — list cannot be empty.
+
+**Success Response — HTTP 200:** Array of saved Bank objects.
+
+**Empty List — HTTP 400:** Constraint violation error.
+
+---
+
+### 5. Add Bank (Enhanced Validation)
+
+**POST** `/api/banks/add-enhanced`
+
+**Content-Type:** `application/json`
+
+**Description:** Same as standard add bank but with stricter JSR-303 bean validation applied before business checks. Returns structured error messages.
+
+**Request Body:** Same as standard add bank.
+
+**Success Response — HTTP 201 Created:**
+```json
+{
+  "message": "Bank added successfully",
+  "bank": {
+    "id": 11,
+    "country": "UK",
+    "city": "London",
+    "bankName": "Barclays",
+    "branch": "Canary Wharf Branch",
+    "code": "BARC001"
+  }
+}
+```
+
+**Validation Error — HTTP 400:**
+```json
+{
+  "errors": [
+    "Country is required",
+    "Code must be 3-10 characters, alphanumeric uppercase only"
+  ]
+}
+```
+
+---
+
+### 6. Validate Bank Data (Without Saving)
+
+**POST** `/api/banks/validate`
+
+**Content-Type:** `application/json`
+
+**Description:** Validates a bank object's data (uniqueness + field rules) without persisting it. Useful for frontend pre-validation.
+
+**Request Body:** Same structure as add bank.
+
+**Valid Response — HTTP 200:**
+```json
+{
+  "valid": true,
+  "message": "Bank data is valid"
+}
+```
+
+**Invalid Response — HTTP 400:**
+```json
+{
+  "valid": false,
+  "errors": ["Branch already exists in that area."]
+}
+```
+
+---
+
+### 7. Check Bank Code Availability
+
+**GET** `/api/banks/check-code/{code}`
+
+**Description:** Checks whether a given bank code is already in use.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| code | String | Bank/branch code to check |
+
+**Success Response — HTTP 200:**
+```json
+{
+  "available": true
+}
+```
+
+Or if already taken:
+```json
+{
+  "available": false
+}
+```
+
+---
+
+### 8. Check Branch Existence
+
+**GET** `/api/banks/check-branch`
+
+**Description:** Checks whether a specific branch already exists at a given location (country + city + bank name + branch name). Used by forms to give real-time feedback.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| country | String | Yes | Country name |
+| city | String | Yes | City name |
+| bankName | String | Yes | Bank name |
+| branch | String | Yes | Branch name |
+
+**Example:** `GET /api/banks/check-branch?country=INDIA&city=Chennai&bankName=State+Bank+of+India&branch=Main+Branch`
+
+**Success Response — HTTP 200:**
+```json
+{
+  "exists": true
+}
+```
+
+Or:
+```json
+{
+  "exists": false
+}
+```
+
+---
+
+### 9. Get All Banks
+
+**GET** `/api/banks/all`
+
+**Description:** Returns all bank branches in the system, across all countries. Intended for admin dashboards and seeding/verification.
+
+**Success Response — HTTP 200:**
+```json
+[
+  {
+    "id": 1,
+    "country": "INDIA",
+    "city": "Chennai",
+    "bankName": "State Bank of India",
+    "branch": "Chennai Main Branch",
+    "code": "SBIN0001"
+  },
+  {
+    "id": 2,
+    "country": "USA",
+    "city": "New York",
+    "bankName": "Chase Bank",
+    "branch": "Manhattan Branch",
+    "code": "CHAS001"
+  }
+]
+```
+
+---
+
+## CORS Configuration
+
+Allowed origins: `http://localhost:5173`
+
+---
+
+## Business Rules
+
+1. **Branch uniqueness:** The combination of `(country, city, bankName, branch)` must be unique. Two records cannot represent the same branch in the same city.
+2. **Code uniqueness:** The `code` field must be globally unique across all records in the `banks` table. This is equivalent to an IFSC or routing code.
+3. **Code format:** Must match `^[A-Z0-9]{3,10}$` — uppercase letters and digits only, 3 to 10 characters.
+4. **No authentication required** on read endpoints (`GET /country/...`, `GET /all`, `GET /check-code/...`, `GET /check-branch`).
+5. **Write endpoints** (`/add`, `/bulk-add`, `/add-enhanced`) should be restricted to authenticated admins in production but currently have no auth-guard.
+
+---
+
+## Error Handling Summary
+
+| HTTP Code | Scenario |
+|---|---|
+| 200 | Success (GET and standard POST) |
+| 201 | Created (enhanced add endpoint) |
+| 400 | Duplicate branch, duplicate code, empty list, validation failure |
+| 500 | Internal server error |

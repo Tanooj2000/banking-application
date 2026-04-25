@@ -1,0 +1,263 @@
+# Root Admin Service — Complete API Documentation
+
+## Overview
+
+| Property | Value |
+|---|---|
+| Service Name | root-admin-service |
+| Base URL | `http://localhost:8084` |
+| Context Path | `/api/root` |
+| Database | **None** (stateless — no own database) |
+| Port | **8084** |
+| JWT Secret | `myAdminSecretKeyForBankingAdminService123456789` **(Same as admin-service)** |
+| JWT Expiration | `86400000` ms = 24 hours |
+
+The Root Admin Service is the top-level authority in the banking system. It is a **stateless** authentication/authorization service — it does not have its own database. Instead, it uses hardcoded credentials (configurable) for the root admin user. The root admin oversees all bank admins: they approve or reject admin applications, and they can verify admins.
+
+The JWT secret is **intentionally the same as admin-service** so that a root admin token is also valid when presented to admin-service endpoints that require the `ROOT_ADMIN` role.
+
+---
+
+## Credentials
+
+The root admin credentials are hardcoded/configured in the service. In a production system, these would be environment variables or a secrets manager. The root admin has the special role `ROOT_ADMIN` which grants elevated privileges across admin-service endpoints.
+
+---
+
+## Data Models
+
+### SignInRequest (Request DTO)
+
+```json
+{
+  "username": "rootadmin",
+  "password": "rootpassword"
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | Root admin username |
+| password | String | Yes | Root admin password |
+
+### SignInResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "Sign in successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| success | boolean | Whether authentication succeeded |
+| message | String | Human-readable status message |
+| token | String | JWT token for subsequent requests (null on failure) |
+
+### AdminVerificationRequest (Request DTO)
+
+```json
+{
+  "adminUsername": "sbi_admin",
+  "rootUsername": "rootadmin",
+  "rootPassword": "rootpassword"
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| adminUsername | String | Yes | Username of the admin to verify |
+| rootUsername | String | Yes | Root admin's username for verification |
+| rootPassword | String | Yes | Root admin's password for verification |
+
+---
+
+## API Endpoints
+
+### 1. Root Admin Sign In
+
+**POST** `/api/root/signin`
+
+**Content-Type:** `application/json`
+
+**Description:** Authenticates the root admin and returns a JWT token. This token can be used on both root-admin-service AND admin-service endpoints (because they share the same JWT secret). The token includes the `ROOT_ADMIN` role, giving access to privileged admin-service operations.
+
+**Request Body:**
+```json
+{
+  "username": "rootadmin",
+  "password": "rootpassword"
+}
+```
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "Sign in successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyb290YWRtaW4iLCJyb2xlIjoiUk9PVF9BRE1JTiIsImlhdCI6MTcxNDAwMDAwMH0.signature"
+}
+```
+
+**Invalid Credentials — HTTP 401:**
+```json
+{
+  "success": false,
+  "message": "Invalid credentials",
+  "token": null
+}
+```
+
+**How to use the token:**
+After receiving the token, include it in all subsequent requests:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+### 2. Verify Admin
+
+**POST** `/api/root/verify-admin`
+
+**Auth:** Requires JWT with role `ROOT_ADMIN` (from Step 1 above)
+
+**Content-Type:** `application/json`
+
+**Description:** Verifies a bank admin by providing the admin's username along with root admin credentials. Sets the admin's `verifiedByRoot` flag to `true` in the admin-service database and updates their `applicationStatus` to `APPROVED`.
+
+**Headers:**
+
+| Header | Value | Required |
+|---|---|---|
+| Authorization | `Bearer <root_admin_jwt>` | Yes |
+
+**Request Body:**
+```json
+{
+  "adminUsername": "sbi_admin",
+  "rootUsername": "rootadmin",
+  "rootPassword": "rootpassword"
+}
+```
+
+**Success Response — HTTP 200 OK:**
+```
+Admin verified successfully
+```
+
+**Admin Not Found:**
+```
+Admin not found: sbi_admin
+```
+
+**Wrong Root Credentials:**
+```
+Invalid root admin credentials
+```
+
+**Unauthorized (no/invalid JWT) — HTTP 403**
+
+---
+
+### 3. Test JWT (Debug Endpoint)
+
+**GET** `/api/root/test-jwt`
+
+**Auth:** Requires JWT with role `ROOT_ADMIN`
+
+**Description:** A debugging endpoint to verify that the JWT authentication is working correctly. Returns the currently authenticated user's information extracted from the JWT.
+
+**Headers:**
+
+| Header | Value | Required |
+|---|---|---|
+| Authorization | `Bearer <root_admin_jwt>` | Yes |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "message": "JWT Authentication successful!",
+  "user": "rootadmin",
+  "roles": ["ROLE_ROOT_ADMIN"],
+  "timestamp": "2026-04-24T10:30:00"
+}
+```
+
+**Unauthorized — HTTP 403** (missing or invalid JWT)
+
+---
+
+## How Root Admin Workflow Works
+
+### Typical Root Admin Workflow (Step by Step)
+
+**Step 1: Root admin signs in:**
+```
+POST /api/root/signin
+Body: { "username": "rootadmin", "password": "rootpassword" }
+→ Receive JWT token
+```
+
+**Step 2: Use JWT to view pending admin applications (admin-service):**
+```
+GET http://localhost:8083/api/admin/applications/pending
+Header: Authorization: Bearer <jwt_from_step_1>
+→ List of admins with applicationStatus = PENDING
+```
+
+**Step 3a: Approve an admin (admin-service):**
+```
+POST http://localhost:8083/api/admin/applications/{adminId}/approve
+Header: Authorization: Bearer <jwt_from_step_1>
+Body: { "reason": "Verified" }
+→ Admin is now APPROVED and can log in
+```
+
+**Step 3b: Reject an admin (admin-service):**
+```
+POST http://localhost:8083/api/admin/applications/{adminId}/reject
+Header: Authorization: Bearer <jwt_from_step_1>
+Body: { "reason": "Invalid credentials" }
+→ Admin is now REJECTED
+```
+
+**Step 4 (Alternative via root-admin-service):**
+```
+POST /api/root/verify-admin
+Header: Authorization: Bearer <jwt_from_step_1>
+Body: { "adminUsername": "sbi_admin", "rootUsername": "rootadmin", "rootPassword": "rootpassword" }
+→ Admin is verified
+```
+
+---
+
+## JWT Details
+
+- **Algorithm:** HMAC-SHA (HS256)
+- **Secret:** `myAdminSecretKeyForBankingAdminService123456789` (same as admin-service)
+- **Token payload includes:** username, role `ROOT_ADMIN`, issued-at, expiration
+- **Expiration:** 24 hours
+- **Cross-service use:** The root admin JWT is valid on admin-service because they share the secret key
+
+---
+
+## Business Rules
+
+1. **The root admin does not have a database record.** Credentials are statically configured in the service.
+2. **JWT secret is shared with admin-service.** This allows the root admin token to be used on admin-service endpoints protected with `@PreAuthorize("hasRole('ROOT_ADMIN')")`.
+3. **The root admin is the single highest authority** — they can approve or reject any bank admin's application.
+4. **There is only one root admin** — the service is designed for a single global root admin account.
+
+---
+
+## Error Handling Summary
+
+| HTTP Code | Scenario |
+|---|---|
+| 200 | Success |
+| 401 | Invalid root admin credentials (wrong username/password) |
+| 403 | Missing or invalid JWT, or insufficient role |
+| 500 | Internal server error |

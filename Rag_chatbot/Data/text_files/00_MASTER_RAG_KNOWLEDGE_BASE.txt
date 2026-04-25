@@ -1,0 +1,401 @@
+# Banking Application Microservices — Master RAG Knowledge Base
+
+This document is the **master reference** for all microservices in the Inter-Banking Hub application. It is optimized for Retrieval-Augmented Generation (RAG) training — every question a user might ask about the system can be answered from this file or from the individual service documentation files it references.
+
+---
+
+## System Architecture Overview
+
+The Banking Application is built as a set of independent Spring Boot microservices. Each service runs on a dedicated port, has its own MySQL database (except the chatbot and root-admin services), and communicates with other services via HTTP REST calls.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     FRONTEND LAYER                              │
+│  React App (port 5173)       Root Admin UI (port 3000+)        │
+└──────────────────────────┬──────────────────┬───────────────────┘
+                           │                  │
+          ┌────────────────▼──────────────────▼────────────────┐
+          │                 MICROSERVICES LAYER                  │
+          │                                                       │
+          │  ┌──────────────┐  ┌──────────────────────────────┐  │
+          │  │ user-service  │  │      admin-service           │  │
+          │  │  Port: 8081   │  │      Port: 8083              │  │
+          │  │  DB: userdb   │  │      DB: admindb             │  │
+          │  └──────────────┘  └──────────────────────────────┘  │
+          │                                                       │
+          │  ┌──────────────┐  ┌──────────────────────────────┐  │
+          │  │ bank-service  │  │    account-service           │  │
+          │  │  Port: 8082   │  │    Port: 8085                │  │
+          │  │  DB: bankdb   │  │    DB: accountdb             │  │
+          │  └──────────────┘  └──────────────────────────────┘  │
+          │                                                       │
+          │  ┌──────────────────┐  ┌─────────────────────────┐   │
+          │  │root-admin-service│  │    chatbot-service       │   │
+          │  │  Port: 8084      │  │    Port: 8086            │   │
+          │  │  No DB           │  │    DB: H2 in-memory      │   │
+          │  └──────────────────┘  └─────────────────────────┘   │
+          └───────────────────────────────────────────────────────┘
+                           │
+          ┌────────────────▼────────────────────────────────────┐
+          │                DATABASE LAYER                        │
+          │  MySQL: userdb | admindb | bankdb | accountdb        │
+          └──────────────────────────────────────────────────────┘
+```
+
+---
+
+## Service Quick Reference
+
+| Service | Port | Database | Base URL | Auth Method |
+|---|---|---|---|---|
+| user-service | 8081 | MySQL `userdb` | `http://localhost:8081/api/user` | JWT (HS256) |
+| bank-service | 8082 | MySQL `bankdb` | `http://localhost:8082/api/banks` | None on read |
+| admin-service | 8083 | MySQL `admindb` | `http://localhost:8083/api/admin` | JWT (HS256) |
+| root-admin-service | 8084 | None | `http://localhost:8084/api/root` | JWT (HS256) |
+| account-service | 8085 | MySQL `accountdb` | `http://localhost:8085/api/accounts` | None (CORS only) |
+| chatbot-service | 8086 | H2 in-memory | `http://localhost:8086/api/v1/chatbot` | None |
+
+---
+
+## JWT Secrets and Roles Summary
+
+| Service | JWT Secret | Roles Issued |
+|---|---|---|
+| user-service | `myVerySecretJWTKeyForBankingApplicationThatIsLongEnough` | `USER` |
+| admin-service | `myAdminSecretKeyForBankingAdminService123456789` | `ADMIN` |
+| root-admin-service | `myAdminSecretKeyForBankingAdminService123456789` **(same as admin-service)** | `ROOT_ADMIN` |
+| chatbot-service | `mySecretKey123456789012345678901234567890` | — (token optional) |
+
+**Important:** Root-admin and admin-service share the same JWT secret intentionally. This means a `ROOT_ADMIN` JWT from root-admin-service is accepted by admin-service for `@PreAuthorize("hasRole('ROOT_ADMIN')")` protected endpoints.
+
+---
+
+## Email Notification System
+
+Multiple services send emails through Gmail SMTP:
+
+| Service | Sender Email | Events Triggering Email |
+|---|---|---|
+| account-service | `noreplyinterbankinghub@gmail.com` | New account application created (notifies admins) |
+| admin-service | `noreplyinterbankinghub@gmail.com` | Admin application approved, Admin application rejected |
+| user-service | `noreplyinterbankinghub@gmail.com` | User registration, password change |
+
+**SMTP Config:** Gmail, host `smtp.gmail.com`, port `587`, STARTTLS enabled.
+
+---
+
+## Complete Endpoint Index
+
+### user-service (Port 8081)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/user/register` | None | Register a new user |
+| POST | `/api/user/login` | None | Login and get JWT token |
+| POST | `/api/user/logout` | JWT (USER) | Invalidate JWT token |
+| GET | `/api/user/{id}` | None | Get user by database ID |
+| GET | `/api/user` | None | Get all users |
+| PUT | `/api/user/{id}` | None | Update user profile |
+| PUT | `/api/user/{id}/password` | None | Change user password |
+| GET | `/api/user/me` | JWT (USER) | Get current user from token |
+
+---
+
+### bank-service (Port 8082)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/banks/country/{country}` | None | Get all banks in country |
+| GET | `/api/banks/country/{country}/city/{city}` | None | Get banks in country+city |
+| POST | `/api/banks/add` | None | Add single bank branch |
+| POST | `/api/banks/bulk-add` | None | Add multiple banks at once |
+| POST | `/api/banks/add-enhanced` | None | Add bank with strict validation |
+| POST | `/api/banks/validate` | None | Validate bank data without saving |
+| GET | `/api/banks/check-code/{code}` | None | Check if branch code is available |
+| GET | `/api/banks/check-branch` | None | Check if branch exists (query params) |
+| GET | `/api/banks/all` | None | Get all bank branches |
+
+---
+
+### admin-service (Port 8083)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/admin/register` | None | Register admin account |
+| POST | `/api/admin/login` | None | Admin login, get JWT |
+| POST | `/api/admin/logout` | JWT (ADMIN) | Invalidate admin JWT |
+| GET | `/api/admin/me` | JWT (ADMIN) | Get current admin profile |
+| POST | `/api/admin/verify` | None | Legacy: verify admin via query params |
+| PUT | `/api/admin/{id}` | None | Update admin details |
+| PUT | `/api/admin/{id}/password` | None | Change admin password |
+| GET | `/api/admin/applications/pending` | JWT (ROOT_ADMIN) | Get pending admin registrations |
+| POST | `/api/admin/applications/{adminId}/approve` | JWT (ROOT_ADMIN) | Approve admin application |
+| POST | `/api/admin/applications/{adminId}/reject` | JWT (ROOT_ADMIN) | Reject admin application |
+| GET | `/api/admin/application-status` | None | Check own application status |
+| GET | `/api/admin/emails/by-bank` | None | Get admin emails by bank name |
+
+---
+
+### root-admin-service (Port 8084)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/root/signin` | None | Root admin login, get JWT |
+| POST | `/api/root/verify-admin` | JWT (ROOT_ADMIN) | Verify a bank admin |
+| GET | `/api/root/test-jwt` | JWT (ROOT_ADMIN) | Debug JWT authentication |
+
+---
+
+### account-service (Port 8085)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/accounts/create/india` | None | Create India account (multipart) |
+| POST | `/api/accounts/create/usa` | None | Create USA account (multipart) |
+| POST | `/api/accounts/create/uk` | None | Create UK account (multipart) |
+| POST | `/api/accounts/{accountNumber}/documents` | None | Upload additional document |
+| GET | `/api/accounts/status/{applicationId}` | None | Get application status by ID |
+| GET | `/api/accounts/admin/pending` | None | Get all pending applications |
+| GET | `/api/accounts/admin/details/{accountId}` | None | Get account details by DB ID |
+| POST | `/api/accounts/approve/{accountId}` | None | Approve account (admin action) |
+| POST | `/api/accounts/reject/{accountId}` | None | Reject account (admin action) |
+| GET | `/api/accounts/user/{userId}` | None | Get all accounts by user ID |
+| GET | `/api/accounts/bank/{bankName}` | None | Get accounts by bank name |
+| GET | `/api/accounts/status/{status}` | None | Get accounts by status |
+| GET | `/api/accounts/account/{accountNumber}` | None | Get account by account number |
+| GET | `/api/accounts/countries/{country}/account-types` | None | Get account types for country |
+| GET | `/api/accounts/account/{accountNumber}/documents` | None | List documents for account |
+| GET | `/api/accounts/user/{userId}/documents` | None | List all user documents |
+| GET | `/api/accounts/documents/{documentId}/download` | None | Download document file |
+| GET | `/api/accounts/documents/{documentId}/view` | None | View document inline |
+
+---
+
+### chatbot-service (Port 8086)
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/v1/chatbot/chat` | None | Send message, get response |
+| GET | `/api/v1/chatbot/health` | None | Service health check |
+| GET | `/api/v1/chatbot/capabilities` | None | What the chatbot can do |
+| GET | `/api/v1/chatbot/status` | None | Service status and features |
+| GET | `/api/v1/chatbot/services-health` | None | Status of all microservices |
+
+---
+
+## Common Data Flow Scenarios
+
+### Scenario 1: New User Registration and Account Creation
+
+```
+Step 1: User registers
+POST /api/user/register
+Body: { username, email, phonenumber, password }
+→ Returns "User registered successfully"
+
+Step 2: User selects a bank
+GET /api/banks/country/INDIA
+→ Returns list of banks
+
+Step 3: User creates account application
+POST /api/accounts/create/india (multipart/form-data)
+Form fields: userId (from step 1), bank, branch, fullName, dob, aadhaar, pan, mobile, email, ...
+File uploads: idProof, addressProof, incomeProof, photo
+→ Returns { applicationId: "APP-42", status: "PENDING", message: "Application submitted..." }
+
+Step 4: User checks status
+GET /api/accounts/status/APP-42
+→ Returns { status: "PENDING", applicationStage: "Complete", ... }
+```
+
+---
+
+### Scenario 2: Admin Reviews and Approves an Account
+
+```
+Step 1: Admin logs in
+POST /api/admin/login
+Body: { usernameOrEmail, password }
+→ Returns { token: "eyJ...", admin: { bankname, country, verifiedByRoot: true }, ... }
+
+Step 2: Admin views pending applications (note: account-service endpoint, no admin JWT needed)
+GET /api/accounts/admin/pending
+→ Returns list of accounts with status = PENDING
+
+Step 3: Admin views full application details
+GET /api/accounts/admin/details/42
+→ Returns full AccountCreationResponse with all nested personal/educational/income/nominee details
+
+Step 4: Admin downloads applicant's ID proof
+GET /api/accounts/documents/{documentId}/view
+→ Returns document file inline
+
+Step 5: Admin approves the application
+POST /api/accounts/approve/42
+→ Returns { accountNumber: "IND20260424001", status: "APPROVED", message: "Account approved successfully!" }
+```
+
+---
+
+### Scenario 3: Root Admin Verifies a New Bank Admin
+
+```
+Step 1: Root admin signs in to root-admin-service
+POST /api/root/signin
+Body: { username: "rootadmin", password: "rootpassword" }
+→ Returns { token: "eyJ..." }
+
+Step 2: Root admin checks which admins are pending
+GET http://localhost:8083/api/admin/applications/pending
+Header: Authorization: Bearer <token_from_step_1>
+→ Returns list of admin applications with status = PENDING
+
+Step 3: Root admin approves one
+POST http://localhost:8083/api/admin/applications/5/approve
+Header: Authorization: Bearer <token_from_step_1>
+Body: { reason: "Verified" }
+→ Returns "Admin approved successfully"
+
+Step 4: Admin (now approved) logs in successfully
+POST /api/admin/login
+Body: { usernameOrEmail: "hdfc_admin", password: "..." }
+→ Returns { token: "...", admin: { verifiedByRoot: true, applicationStatus: "APPROVED" } }
+```
+
+---
+
+## Key Business Concepts
+
+### Account Number Generation
+Account numbers are **NOT generated when the application is submitted**. They are only generated when an admin runs the approve action. The format is: `{3-CHAR-COUNTRY-CODE}{YYYYMMDD}{SEQUENCE}`.
+
+Examples:
+- `IND20260424001` — India, April 24 2026, first account that day
+- `USA20260424001` — USA, April 24 2026, first account that day
+
+### Application ID vs Account Number
+- **Application ID (e.g., `APP-42`):** Always available immediately after submission. Format: `APP-{database_id}`. Used to track pending applications.
+- **Account Number (e.g., `IND20260424001`):** Only exists after admin approval. This is the real banking account number.
+
+### Document Types
+All four document types are mandatory at account creation:
+1. `ID_PROOF` — Aadhaar (India), Passport/Driver's License (USA/UK)
+2. `ADDRESS_PROOF` — Utility bill, Bank statement
+3. `INCOME_PROOF` — Salary slip, ITR, Bank statement
+4. `PHOTO` — Passport-size photograph
+
+Accepted file formats: PDF, JPEG, PNG. Max per file: 10 MB.
+
+### Country-Specific Identity Numbers
+| Country | Field | Format | Example |
+|---|---|---|---|
+| India | aadhaar | 12 digits `^[0-9]{12}$` | `123456789012` |
+| India | pan | `^[A-Z]{5}[0-9]{4}[A-Z]{1}$` | `ABCDE1234F` |
+| India | mobile | `^[6-9][0-9]{9}$` | `9876543210` |
+| USA | ssn | `^[0-9]{3}-[0-9]{2}-[0-9]{4}$` | `123-45-6789` |
+| USA | phone | `^\\+1[0-9]{10}$` | `+12125551234` |
+| UK | nin | `^[A-Z]{2}[0-9]{6}[A-Z]{1}$` | `AB123456C` |
+| UK | phone | `^\\+44[0-9]{10}$` | `+447700900123` |
+
+### Account Types by Country
+| Country | Available Account Types |
+|---|---|
+| India | SAVINGS, CURRENT, SALARY, FIXED_DEPOSIT |
+| USA | CHECKING, SAVINGS, MONEY_MARKET, CERTIFICATE_OF_DEPOSIT |
+| UK | CURRENT, SAVINGS, ISA, FIXED_TERM |
+
+### Admin vs Root Admin
+- **Admin (`applicationStatus = APPROVED`, `verifiedByRoot = true`):** Manages one specific bank. Can view and approve/reject user account applications.
+- **Root Admin:** Global superuser. Approves or rejects bank admin applications. Has `ROOT_ADMIN` role in JWT.
+
+---
+
+## Chatbot Capabilities and Limitations
+
+### What the Chatbot CAN Help With (Live)
+1. Account creation guidance (India, USA, UK)
+2. Document requirements
+3. Application status checking
+4. Bank/branch finder
+5. Profile update help
+6. Password change help
+7. Admin login guidance
+
+### What the Chatbot CANNOT Do Yet (Not Implemented)
+1. **Balance inquiry** — not yet available
+2. **Money transfer** — not yet available
+3. **Loan services** — not yet available
+4. **Card services** — not yet available
+5. **Transaction history/statements** — not yet available
+
+---
+
+## Validation Reference
+
+### Common Field Patterns
+| Field | Regex / Rule | Used In |
+|---|---|---|
+| Indian Mobile | `^[6-9][0-9]{9}$` | India account, user service |
+| PAN | `^[A-Z]{5}[0-9]{4}[A-Z]{1}$` | India account |
+| Aadhaar | `^[0-9]{12}$` | India account |
+| SSN | `^[0-9]{3}-[0-9]{2}-[0-9]{4}$` | USA account |
+| US Phone | `^\\+1[0-9]{10}$` | USA account |
+| NIN | `^[A-Z]{2}[0-9]{6}[A-Z]{1}$` | UK account |
+| UK Phone | `^\\+44[0-9]{10}$` | UK account |
+| Email | Valid email format | All services |
+| Bank Code | `^[A-Z0-9]{3,10}$` | Bank service |
+| Deposit | `≥ 0.00`, BigDecimal(15,2) | Account service |
+| Monthly/Annual Income | `≥ 0.00`, BigDecimal(15,2) | Account service |
+
+### Required vs Optional Fields in Account Creation
+| Section | Required Fields | Optional Fields |
+|---|---|---|
+| System | userId, bank, branch, accountType, deposit, consent | accountNumber (generated), ifscCode |
+| Personal | fullName, dob, gender, email, address, + country-specific ID/phone | — |
+| Educational | educationLevel, institutionName, course, yearOfCompletion | grade |
+| Income | employmentStatus, occupation, monthlyIncome, annualIncome, incomeSource | employerName |
+| Nominee | nomineeName, nomineeRelation, nomineeDob, nomineeContact, nomineeAddress | — |
+| Documents | idProof, addressProof, incomeProof, photo (ALL REQUIRED) | — |
+
+---
+
+## Error Response Patterns
+
+### Standard Spring HTTP Error Codes
+
+| Code | Meaning | Example Scenario |
+|---|---|---|
+| 200 | OK | Successful operation |
+| 201 | Created | Bank added via enhanced endpoint |
+| 204 | No Content | Query returned empty list |
+| 400 | Bad Request | Validation failure, duplicate data, bad enum, missing required field |
+| 401 | Unauthorized | Missing or expired JWT token |
+| 403 | Forbidden | JWT present but role insufficient, or admin account not yet approved |
+| 404 | Not Found | Document, user, or account not found |
+| 500 | Internal Server Error | Database error, file system issue, unexpected exception |
+
+---
+
+## Configuration Summary
+
+| Service | application.yml / application.properties location |
+|---|---|
+| account-service | `account-service/src/main/resources/application.yml` |
+| admin-service | `admin-service/src/main/resources/application.yml` |
+| bank-service | `bank-service/src/main/resources/application.yml` |
+| user-service | `user-service/src/main/resources/application.yml` |
+| root-admin-service | `root-admin-service/src/main/resources/application.yml` |
+| chatbot-service | `chatbot-service/src/main/resources/application.properties` |
+
+---
+
+## Individual Service Documentation Files
+
+| File | Details |
+|---|---|
+| [01_ACCOUNT_SERVICE.md](./01_ACCOUNT_SERVICE.md) | Full account creation, approval, document APIs |
+| [02_ADMIN_SERVICE.md](./02_ADMIN_SERVICE.md) | Admin register, login, application management |
+| [03_BANK_SERVICE.md](./03_BANK_SERVICE.md) | Bank/branch registry APIs |
+| [04_USER_SERVICE.md](./04_USER_SERVICE.md) | User register, login, profile management |
+| [05_ROOT_ADMIN_SERVICE.md](./05_ROOT_ADMIN_SERVICE.md) | Root admin authentication and admin verification |
+| [06_CHATBOT_SERVICE.md](./06_CHATBOT_SERVICE.md) | Chatbot API, intents, quick replies, integrations |

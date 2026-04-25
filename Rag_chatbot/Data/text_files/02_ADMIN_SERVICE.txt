@@ -1,0 +1,517 @@
+# Admin Service — Complete API Documentation
+
+## Overview
+
+| Property | Value |
+|---|---|
+| Service Name | admin-service |
+| Base URL | `http://localhost:8083` |
+| Context Path | `/api/admin` |
+| Database | MySQL — `admindb` (auto-created) |
+| Port | **8083** |
+| JWT Secret | `myAdminSecretKeyForBankingAdminService123456789` (configurable via env `JWT_SECRET`) |
+| JWT Expiration | `86400000` ms = 24 hours (configurable via env `JWT_EXPIRATION`) |
+| Email | Gmail SMTP — `noreplyinterbankinghub@gmail.com` |
+
+The Admin Service manages bank administrators. Admins register themselves, but they must be verified by the Root Admin before they gain full access. An admin is associated with one specific bank and country. Once verified, admins can approve or reject user account applications in the account-service.
+
+---
+
+## Data Models
+
+### Admin Entity (`admins` table)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| id | id | Long | PK, auto-increment | Internal database ID |
+| username | username | String | UNIQUE, NOT NULL | Admin's login username |
+| email | email | String | UNIQUE, NOT NULL | Admin's email address |
+| bankname | bankname | String | nullable | The bank the admin manages |
+| country | country | String | nullable | Country the admin operates in |
+| password | password | String | NOT NULL, `@JsonIgnore` | BCrypt-hashed password (never returned in API responses) |
+| verifiedByRoot | verified_by_root | Boolean | NOT NULL | Whether root admin has verified this admin |
+| applicationStatus | application_status | Enum(STRING) | NOT NULL, default PENDING | PENDING / APPROVED / REJECTED |
+| createdDate | created_date | LocalDateTime | NOT NULL | Registration timestamp |
+| rejectionReason | rejection_reason | String | nullable | Reason when application is rejected |
+
+### ApplicationStatus Enum
+
+| Value | Meaning |
+|---|---|
+| `PENDING` | Admin registered but not yet reviewed by root admin |
+| `APPROVED` | Root admin approved — admin is active |
+| `REJECTED` | Root admin rejected the application |
+
+### AdminLoginResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 86400000,
+  "admin": {
+    "id": 1,
+    "username": "sbi_admin",
+    "email": "admin@sbi.com",
+    "bankname": "State Bank of India",
+    "country": "INDIA",
+    "verifiedByRoot": true,
+    "applicationStatus": "APPROVED"
+  }
+}
+```
+
+---
+
+## API Endpoints
+
+### 1. Register Admin
+
+**POST** `/api/admin/register`
+
+**Content-Type:** `application/json`
+
+**Description:** Registers a new admin account. Newly registered admins are set to `PENDING` status with `verifiedByRoot = false`. They cannot perform admin operations until the root admin approves them.
+
+**Request Body:**
+```json
+{
+  "username": "sbi_admin",
+  "email": "admin@sbi.com",
+  "bankname": "State Bank of India",
+  "country": "INDIA",
+  "password": "SecurePassword123"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | Unique username for login |
+| email | String | Yes | Unique email address |
+| bankname | String | Yes | Name of the bank this admin manages |
+| country | String | Yes | Country of operation (e.g., `INDIA`, `USA`, `UK`) |
+| password | String | Yes | Plain text password (will be BCrypt hashed) |
+
+**Success Response — HTTP 200 OK:**
+```
+Admin registered successfully. Awaiting root admin verification.
+```
+
+**Duplicate Username/Email — HTTP 400:**
+```
+Username or email already exists.
+```
+
+---
+
+### 2. Admin Login
+
+**POST** `/api/admin/login`
+
+**Content-Type:** `application/json`
+
+**Description:** Authenticates an admin and returns a JWT token. The admin must be `APPROVED` and `verifiedByRoot = true` to successfully log in. Blocked/pending admins receive a specific error message.
+
+**Request Body:**
+```json
+{
+  "usernameOrEmail": "sbi_admin",
+  "password": "SecurePassword123"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| usernameOrEmail | String | Yes | Can be the admin's username OR email address |
+| password | String | Yes | Plain text password |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 86400000,
+  "admin": {
+    "id": 1,
+    "username": "sbi_admin",
+    "email": "admin@sbi.com",
+    "bankname": "State Bank of India",
+    "country": "INDIA",
+    "verifiedByRoot": true,
+    "applicationStatus": "APPROVED"
+  }
+}
+```
+
+**Invalid Credentials — HTTP 401:**
+```json
+{
+  "success": false,
+  "message": "Invalid username/email or password",
+  "token": null,
+  "expiresIn": null,
+  "admin": null
+}
+```
+
+**Pending Verification — HTTP 403:**
+```json
+{
+  "success": false,
+  "message": "Your account is pending root admin verification.",
+  "token": null
+}
+```
+
+**Rejected Admin — HTTP 403:**
+```json
+{
+  "success": false,
+  "message": "Your admin application has been rejected. Reason: <reason>",
+  "token": null
+}
+```
+
+---
+
+### 3. Admin Logout
+
+**POST** `/api/admin/logout`
+
+**Description:** Invalidates the admin's JWT token (server-side token blacklisting).
+
+**Headers:**
+
+| Header | Value | Description |
+|---|---|---|
+| Authorization | `Bearer <jwt_token>` | The admin's JWT token |
+
+**Success Response — HTTP 200 OK:**
+```
+Logged out successfully
+```
+
+**Invalid Token — HTTP 400 or 401**
+
+---
+
+### 4. Get Current Admin Details
+
+**GET** `/api/admin/me`
+
+**Description:** Returns the full profile of the currently authenticated admin.
+
+**Headers:**
+
+| Header | Value | Description |
+|---|---|---|
+| Authorization | `Bearer <jwt_token>` | The admin's JWT token |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "id": 1,
+  "username": "sbi_admin",
+  "email": "admin@sbi.com",
+  "bankname": "State Bank of India",
+  "country": "INDIA",
+  "verifiedByRoot": true,
+  "applicationStatus": "APPROVED",
+  "createdDate": "2026-04-24T09:00:00"
+}
+```
+
+**Invalid/Expired Token — HTTP 401**
+
+---
+
+### 5. Verify Admin (Legacy Endpoint)
+
+**POST** `/api/admin/verify`
+
+**Description:** Alternative verification endpoint (legacy). Verifies an admin registration by providing root admin credentials directly as query parameters.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | Username of the admin to verify |
+| rootUsername | String | Yes | Root admin's username |
+| rootPassword | String | Yes | Root admin's password |
+
+**Success Response — HTTP 200:** Plain text confirmation.
+
+**Failure Response — HTTP 400:** Plain text error.
+
+> **Note:** This endpoint is considered legacy. The preferred flow is root admin using their JWT via the `/api/admin/applications/{adminId}/approve` endpoint.
+
+---
+
+### 6. Update Admin Details
+
+**PUT** `/api/admin/{id}`
+
+**Content-Type:** `application/json`
+
+**Description:** Updates an admin's profile information. The `id` must match an existing admin.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| id | Long | Internal admin database ID |
+
+**Request Body:**
+```json
+{
+  "username": "sbi_admin_updated",
+  "email": "newemail@sbi.com",
+  "bankname": "State Bank of India",
+  "country": "INDIA",
+  "password": null
+}
+```
+
+**Success Response — HTTP 200:** Updated Admin object.
+
+**Not Found — HTTP 404**
+
+---
+
+### 7. Update Admin Password
+
+**PUT** `/api/admin/{id}/password`
+
+**Content-Type:** `application/json`
+
+**Description:** Changes the password for a specific admin.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| id | Long | Internal admin database ID |
+
+**Request Body:**
+```json
+{
+  "oldPassword": "CurrentPassword123",
+  "newPassword": "NewPassword456"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| oldPassword | String | Yes | Current password for verification |
+| newPassword | String | Yes | New password to set |
+
+**Success Response — HTTP 200:** Success message.
+
+**Incorrect Old Password — HTTP 400:** Error message.
+
+---
+
+### 8. Get Unverified Admin Applications (Root Admin Only)
+
+**GET** `/api/admin/applications/pending`
+
+**Auth:** Requires JWT with role `ROOT_ADMIN`
+
+**Description:** Returns all admin registrations that have not yet been reviewed by the root admin (`verifiedByRoot = false` and `applicationStatus = PENDING`).
+
+**Headers:**
+
+| Header | Value | Required |
+|---|---|---|
+| Authorization | `Bearer <root_admin_jwt>` | Yes |
+
+**Success Response — HTTP 200:**
+```json
+[
+  {
+    "id": 5,
+    "username": "hdfc_admin",
+    "email": "admin@hdfc.com",
+    "bankname": "HDFC Bank",
+    "country": "INDIA",
+    "verifiedByRoot": false,
+    "applicationStatus": "PENDING",
+    "createdDate": "2026-04-20T14:00:00",
+    "rejectionReason": null
+  }
+]
+```
+
+**Unauthorized — HTTP 403** (if not root admin)
+
+---
+
+### 9. Approve Admin Application (Root Admin Only)
+
+**POST** `/api/admin/applications/{adminId}/approve`
+
+**Auth:** Requires JWT with role `ROOT_ADMIN`
+
+**Content-Type:** `application/json`
+
+**Description:** Root admin approves a pending admin's application. The admin's `applicationStatus` is set to `APPROVED` and `verifiedByRoot` to `true`. An approval email is sent to the admin.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| adminId | Long | Internal database ID of the admin to approve |
+
+**Request Body:**
+```json
+{
+  "reason": "Verified bank credentials and documents"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| reason | String | No | Optional reason or notes for the approval |
+
+**Success Response — HTTP 200:**
+```
+Admin approved successfully
+```
+
+**Not Found — HTTP 400:** Admin not found error.
+
+**Unauthorized — HTTP 403**
+
+---
+
+### 10. Reject Admin Application (Root Admin Only)
+
+**POST** `/api/admin/applications/{adminId}/reject`
+
+**Auth:** Requires JWT with role `ROOT_ADMIN`
+
+**Content-Type:** `application/json`
+
+**Description:** Root admin rejects a pending admin application with a mandatory reason. The `applicationStatus` is set to `REJECTED` and the reason is stored. A rejection email is sent to the admin.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| adminId | Long | Internal database ID of the admin to reject |
+
+**Request Body:**
+```json
+{
+  "reason": "Incomplete bank credentials provided"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| reason | String | Yes | Reason for rejection (stored in `rejectionReason`) |
+
+**Success Response — HTTP 200:**
+```
+Admin application rejected
+```
+
+---
+
+### 11. Check Application Status
+
+**GET** `/api/admin/application-status`
+
+**Description:** Allows an admin (or prospective admin) to check the current status of their application without needing a JWT token.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| usernameOrEmail | String | Yes | Admin's username or email |
+
+**Success Response — HTTP 200:**
+```json
+{
+  "username": "sbi_admin",
+  "email": "admin@sbi.com",
+  "applicationStatus": "PENDING",
+  "verifiedByRoot": false,
+  "bankname": "State Bank of India",
+  "country": "INDIA",
+  "createdDate": "2026-04-24T09:00:00",
+  "rejectionReason": null
+}
+```
+
+**Not Found — HTTP 404**
+
+---
+
+### 12. Get Admin Emails by Bank Name
+
+**GET** `/api/admin/emails/by-bank`
+
+**Description:** Returns the email addresses of all approved admins managing a specific bank. Used internally by other services (e.g., account-service) to send notifications when a new account application is submitted for that bank.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| bankName | String | Yes | Exact bank name to search for |
+
+**Success Response — HTTP 200:**
+```json
+{
+  "bankname": "State Bank of India",
+  "adminEmails": ["admin@sbi.com", "admin2@sbi.com"]
+}
+```
+
+**Not Found — HTTP 404:** No admins found for that bank.
+
+---
+
+## JWT Authentication Details
+
+- **Algorithm:** HMAC-SHA (HS256)
+- **Token format:** `Bearer <token>` in `Authorization` header
+- **Token contains:** admin ID, username, roles (`ADMIN` or `ROOT_ADMIN`)
+- **Expiration:** 24 hours (86400000 ms)
+- **Token blacklisting:** Logout invalidates the token server-side
+
+---
+
+## Business Rules
+
+1. **Admin must be verified by root admin** before they can log in. Attempting to login as PENDING admin returns HTTP 403.
+2. **Each admin is linked to one bank and one country.** The `bankname` and `country` fields determine which accounts/operations they can access.
+3. **Password is BCrypt-hashed.** Raw passwords are never stored or returned.
+4. **`verifiedByRoot` and `applicationStatus`** are separate but related fields. An admin is fully active only when both `verifiedByRoot = true` and `applicationStatus = APPROVED`.
+5. **Email notifications** are sent on both approval and rejection of admin applications.
+6. **The `password` field** is annotated with `@JsonIgnore` and is never included in any API response.
+
+---
+
+## Error Handling Summary
+
+| HTTP Code | Scenario |
+|---|---|
+| 200 | Success |
+| 400 | Bad request, duplicate username/email, admin not found, wrong password |
+| 401 | Unauthorized — invalid or missing JWT token |
+| 403 | Forbidden — correct JWT but insufficient role, or account in PENDING/REJECTED state |
+| 404 | Resource not found |
+| 500 | Internal server error |
