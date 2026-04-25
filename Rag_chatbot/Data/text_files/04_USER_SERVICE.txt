@@ -1,0 +1,451 @@
+# User Service — Complete API Documentation
+
+## Overview
+
+| Property | Value |
+|---|---|
+| Service Name | user-service |
+| Base URL | `http://localhost:8081` |
+| Context Path | `/api/user` |
+| Database | MySQL — `userdb` (auto-created) |
+| Port | **8081** |
+| JWT Secret | `myVerySecretJWTKeyForBankingApplicationThatIsLongEnough` |
+| JWT Expiration | `86400000` ms = 24 hours |
+| Email | Gmail SMTP — `noreplyinterbankinghub@gmail.com` |
+
+The User Service handles end-user authentication and profile management. A "user" is a bank customer (as opposed to an admin). Users register, log in, and manage their own profiles. The JWT token issued here is used by other services (like account-service) to identify the user.
+
+---
+
+## Data Models
+
+### User Entity (`users` table)
+
+| Field | DB Column | Type | Constraints | Description |
+|---|---|---|---|---|
+| id | id | Long | PK, auto-increment | Internal user ID |
+| username | username | String | UNIQUE, NOT NULL | Login username |
+| email | email | String | UNIQUE, NOT NULL | Email address |
+| phonenumber | phonenumber | long | UNIQUE, NOT NULL, max 10 digits | Phone number |
+| password | password | String | NOT NULL, `@JsonIgnore` | BCrypt-hashed password — never exposed in responses |
+
+### LoginResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 86400000,
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+### UserDetailsResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "User found",
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+### AllUsersResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "Users retrieved",
+  "users": [
+    {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "phonenumber": 9876543210
+    }
+  ]
+}
+```
+
+### UpdateUserResponse (Response DTO)
+
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "user": {
+    "id": 1,
+    "username": "john_doe_updated",
+    "email": "john_new@example.com",
+    "phonenumber": 9876543211
+  }
+}
+```
+
+---
+
+## API Endpoints
+
+### 1. Register User
+
+**POST** `/api/user/register`
+
+**Content-Type:** `application/json`
+
+**Description:** Creates a new user account. The password is BCrypt-hashed before storage. A welcome/verification email may be sent.
+
+**Request Body:**
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "phonenumber": 9876543210,
+  "password": "SecurePass123!"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | Unique username (used for login) |
+| email | String | Yes | Unique email address |
+| phonenumber | long | Yes | 10-digit phone number (must be unique) |
+| password | String | Yes | Plain text (BCrypt-hashed before storage) |
+
+**Success Response — HTTP 200 OK:**
+```
+User registered successfully
+```
+
+**Duplicate Username — HTTP 400:**
+```
+Username already exists
+```
+
+**Duplicate Email — HTTP 400:**
+```
+Email already exists
+```
+
+**Duplicate Phone — HTTP 400:**
+```
+Phone number already exists
+```
+
+---
+
+### 2. User Login
+
+**POST** `/api/user/login`
+
+**Content-Type:** `application/json`
+
+**Description:** Authenticates a user and returns a JWT token. The user can log in with either their username or email.
+
+**Request Body:**
+```json
+{
+  "usernameOrEmail": "john_doe",
+  "password": "SecurePass123!"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| usernameOrEmail | String | Yes | Can be username OR email address |
+| password | String | Yes | Plain text password |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 86400000,
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+**Invalid Credentials — HTTP 401:**
+```json
+{
+  "success": false,
+  "message": "Invalid username/email or password",
+  "token": null,
+  "expiresIn": null,
+  "user": null
+}
+```
+
+---
+
+### 3. User Logout
+
+**POST** `/api/user/logout`
+
+**Description:** Invalidates the user's JWT token (server-side blacklisting).
+
+**Headers:**
+
+| Header | Value | Required |
+|---|---|---|
+| Authorization | `Bearer <jwt_token>` | Yes |
+
+**Success Response — HTTP 200 OK:**
+```
+Logged out successfully
+```
+
+**Invalid Token — HTTP 400 / 401**
+
+---
+
+### 4. Get User by ID
+
+**GET** `/api/user/{id}`
+
+**Description:** Returns the profile details for a specific user by their internal database ID.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| id | Long | Internal user database ID |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "User found",
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+**Not Found — HTTP 404:**
+```json
+{
+  "success": false,
+  "message": "User not found",
+  "user": null
+}
+```
+
+---
+
+### 5. Get All Users
+
+**GET** `/api/user`
+
+**Description:** Returns a list of all registered users. Intended for admin dashboards.
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully",
+  "users": [
+    {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "phonenumber": 9876543210
+    },
+    {
+      "id": 2,
+      "username": "jane_smith",
+      "email": "jane@example.com",
+      "phonenumber": 9876543211
+    }
+  ]
+}
+```
+
+---
+
+### 6. Update User Details
+
+**PUT** `/api/user/{id}`
+
+**Content-Type:** `application/json`
+
+**Description:** Updates a user's username, email, and/or phone number. All three fields are typically sent together.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| id | Long | Internal user database ID |
+
+**Request Body:**
+```json
+{
+  "username": "john_doe_new",
+  "email": "john_updated@example.com",
+  "phonenumber": 9876543299
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | New username (must be unique) |
+| email | String | Yes | New email (must be unique) |
+| phonenumber | long | Yes | New phone number (must be unique) |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "user": {
+    "id": 1,
+    "username": "john_doe_new",
+    "email": "john_updated@example.com",
+    "phonenumber": 9876543299
+  }
+}
+```
+
+**Not Found — HTTP 404**
+
+**Duplicate Field — HTTP 400:** Conflict error.
+
+---
+
+### 7. Change Password
+
+**PUT** `/api/user/{id}/password`
+
+**Content-Type:** `application/json`
+
+**Description:** Changes the user's password after verifying the current password.
+
+**Path Parameters:**
+
+| Parameter | Type | Description |
+|---|---|---|
+| id | Long | Internal user database ID |
+
+**Request Body:**
+```json
+{
+  "oldPassword": "CurrentPass123!",
+  "newPassword": "NewSecurePass456!"
+}
+```
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| oldPassword | String | Yes | Current password for verification |
+| newPassword | String | Yes | New password to set |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "Password changed successfully",
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+**Wrong Old Password — HTTP 400:**
+```json
+{
+  "success": false,
+  "message": "Current password is incorrect",
+  "user": null
+}
+```
+
+---
+
+### 8. Get Current User (from JWT)
+
+**GET** `/api/user/me`
+
+**Description:** Returns the profile of the currently authenticated user by parsing their JWT token. No path parameter needed — identity is extracted from the token.
+
+**Headers:**
+
+| Header | Value | Required |
+|---|---|---|
+| Authorization | `Bearer <jwt_token>` | Yes |
+
+**Success Response — HTTP 200 OK:**
+```json
+{
+  "success": true,
+  "message": "User found",
+  "user": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "phonenumber": 9876543210
+  }
+}
+```
+
+**Invalid/Expired Token — HTTP 401**
+
+---
+
+## JWT Authentication Details
+
+- **Algorithm:** HMAC-SHA
+- **Token format:** `Bearer <token>` in `Authorization` header
+- **Token contains:** user ID, username, role (`USER`)
+- **Expiration:** 24 hours (86400000 ms)
+
+---
+
+## Business Rules
+
+1. **Username, email, and phone number must all be unique** across all users. Registering with any existing value returns HTTP 400.
+2. **Password is BCrypt-hashed.** The `password` field is `@JsonIgnore` — never returned in any API response.
+3. **Login is flexible:** Users can log in using either username or email alongside their password.
+4. **User ID** — the `id` field (Long, database auto-increment) is the primary key used in account-service to track which user owns which accounts. The `userId` field in account-service references this `id`.
+5. **The `/me` endpoint** extracts user identity from the JWT — it does not require the user to know their numeric ID.
+
+---
+
+## Error Handling Summary
+
+| HTTP Code | Scenario |
+|---|---|
+| 200 | Success |
+| 400 | Duplicate username/email/phone, wrong old password |
+| 401 | Unauthorized — invalid or missing JWT token |
+| 404 | User not found by ID |
+| 500 | Internal server error |
