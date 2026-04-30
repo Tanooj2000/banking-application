@@ -28,13 +28,20 @@ Last updated: 2026-04-23
 - `npm run preview`
 - `npm run lint`
 
-## Backend Port Expectations
+## Local Dev Server Port Map (Canonical)
+### Frontend Dev Servers
+- Main app (`bankingapplication`): `5173` (via Vite default, explicit in vite.config.mjs)
+- Root-admin app (`root-admin`): `5174` (explicit in vite.config.js)
+
+### Backend Microservices
 - User: `8081`
 - Bank: `8082`
 - Admin: `8083`
 - Root-admin auth: `8084`
 - Account: `8085`
 - Chatbot: `8086`
+
+**Note**: All hardcoded API base URLs in frontend code use these backend ports. Frontend components connect to http://localhost:808x endpoints directly; no proxy configured.
 
 ## Common Issues and Quick Fixes
 1. Symptom: `Failed to fetch` across pages

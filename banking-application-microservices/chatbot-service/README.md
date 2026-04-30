@@ -106,8 +106,8 @@ GET /api/v1/chatbot/status
 ```
 
 3. **Access the service:**
-- API Base URL: `http://localhost:8085/api/v1/chatbot`
-- H2 Database Console: `http://localhost:8085/h2-console`
+- API Base URL: `http://localhost:8086/api/v1/chatbot`
+- H2 Database Console: `http://localhost:8086/h2-console`
 
 ### Configuration
 

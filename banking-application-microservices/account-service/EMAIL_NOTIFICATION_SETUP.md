@@ -32,7 +32,7 @@ Set the following environment variables or modify application.yml:
 - `MAIL_PASSWORD`: Your app password (not regular password for Gmail)
 
 ### 3. Admin Service Configuration
-Ensure your admin microservice is running on `http://localhost:8080` and provides the endpoint:
+Ensure your admin microservice is running on `http://localhost:8083` and provides the endpoint:
 ```
 GET /api/admin/emails/by-bank?bankName={bankName}
 ```

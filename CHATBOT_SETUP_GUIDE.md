@@ -56,11 +56,12 @@ I've created a **realistic** chatbot solution that integrates with your **actual
 ### Prerequisites:
 - Java 17+, Maven 3.6+
 - **ALL microservices should be running**:
-  - account-service (Port 8080)
+  - account-service (Port 8085)
   - user-service (Port 8081)
   - bank-service (Port 8082)
   - admin-service (Port 8083)
   - root-admin-service (Port 8084)
+  - chatbot-service (Port 8086)
 
 ### Step 1: Start All Microservices (Required)
 
@@ -109,10 +110,10 @@ npm run dev
 
 1. **Check service health:**
    ```
-   http://localhost:8085/api/v1/chatbot/services-health
+   http://localhost:8086/api/v1/chatbot/services-health
    ```
 
-2. **Open application:** http://localhost:5173
+2. **Open application:** http://localhost:5173 (main app) or http://localhost:5174 (root-admin)
 3. **Click the chat button (💬)** and try realistic queries
 
 ## Sample Realistic Conversations
@@ -171,7 +172,7 @@ You can test the chatbot API directly using tools like Postman or curl:
 
 ### Send Chat Message
 ```bash
-curl -X POST http://localhost:8085/api/v1/chatbot/chat \
+curl -X POST http://localhost:8086/api/v1/chatbot/chat \
   -H "Content-Type: application/json" \
   -d '{
     "message": "What is my account balance?",
@@ -183,12 +184,12 @@ curl -X POST http://localhost:8085/api/v1/chatbot/chat \
 
 ### Health Check
 ```bash
-curl http://localhost:8085/api/v1/chatbot/health
+curl http://localhost:8086/api/v1/chatbot/health
 ```
 
 ### Get Capabilities
 ```bash
-curl http://localhost:8085/api/v1/chatbot/capabilities
+curl http://localhost:8086/api/v1/chatbot/capabilities
 ```
 
 ## Architecture
@@ -238,7 +239,7 @@ frontend/src/
 
 ### Backend Configuration (application.properties)
 ```properties
-server.port=8085
+server.port=8086
 spring.application.name=chatbot-service
 chatbot.response.timeout=30000
 chatbot.max.message.length=1000
@@ -246,7 +247,7 @@ chatbot.max.message.length=1000
 
 ### Frontend API Configuration (chatBotApi.js)
 ```javascript
-const CHATBOT_BASE_URL = 'http://localhost:8085/api/v1/chatbot';
+const CHATBOT_BASE_URL = 'http://localhost:8086/api/v1/chatbot';
 ```
 
 ## Troubleshooting
@@ -267,15 +268,15 @@ const CHATBOT_BASE_URL = 'http://localhost:8085/api/v1/chatbot';
    - Ensure components are properly exported/imported
 
 4. **Service not responding:**
-   - Check that the service is running on port 8085
-   - Verify the health endpoint: http://localhost:8085/api/v1/chatbot/health
+   - Check that the service is running on port 8086
+   - Verify the health endpoint: http://localhost:8086/api/v1/chatbot/health
    - Check application logs for errors
 
 ### Debug Steps:
 
 1. **Check service status:**
    ```bash
-   curl http://localhost:8085/api/v1/chatbot/health
+   curl http://localhost:8086/api/v1/chatbot/health
    ```
 
 2. **Check frontend API connection:**

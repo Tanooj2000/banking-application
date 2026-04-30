@@ -9,7 +9,7 @@
 ### **📋 Account Application Status (Real API Integration)**
 
 **👤 User:** "Check my application status for user ID 123"
-**🏦 Assistant:** *[Makes real API call to account-service:8080]*
+**🏦 Assistant:** *[Makes real API call to account-service:8085]*
 - **If Found:** "✅ Found account information for user 123! Your accounts are linked to user ID: 123. Account service is responding. For detailed status, please log into your account or contact customer service."
 - **If Not Found:** "I couldn't find any accounts for user ID: 123. This could mean: • No accounts have been created yet • Account applications are still pending approval • Invalid user ID provided"
 
@@ -146,8 +146,8 @@ All require: ID Proof, Address Proof, Income Proof, and Photo."
 
 ## 🚀 **Testing Your Real Chatbot**
 
-1. **Start all microservices** (account, user, bank, admin services)
-2. **Start chatbot service** on port 8085
+1. **Start all microservices** (account 8085, user 8081, bank 8082, admin 8083, root-admin 8084)
+2. **Start chatbot service** on port 8086
 3. **Open your application** and click the chat button
 4. **Try these realistic queries:**
    - "Check status for user 123" (uses real API)
