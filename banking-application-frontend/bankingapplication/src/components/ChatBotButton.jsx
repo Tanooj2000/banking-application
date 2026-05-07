@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ChatBotButton.css';
-import ChatBot from './ChatBot';
+import RagChatbotModern from './rag_chatbot_modern';
 import robotIcon from '../assets/robot.png';
 
 const ChatBotButton = ({ userId }) => {
@@ -31,11 +31,11 @@ const ChatBotButton = ({ userId }) => {
       </button>
 
       {/* Chat Component */}
-      <ChatBot 
-        isOpen={isChatOpen} 
-        onClose={handleCloseChat} 
-        userId={userId}
-      />
+      {isChatOpen && (
+        <div style={{position: 'fixed', bottom: 100, right: 24, zIndex: 10000}}>
+          <RagChatbotModern onClose={handleCloseChat} />
+        </div>
+      )}
     </>
   );
 };

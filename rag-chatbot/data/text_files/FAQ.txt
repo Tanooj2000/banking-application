@@ -1,0 +1,42 @@
+BANKINGAPPLICATION FAQ
+
+1. How do I register as a new user?
+To register, navigate to the Sign Up page at /signup. Fill in all required fields, including your username, email, phone number, password, country, and bank (if applicable). The system will check for unique and valid data. If any field is invalid or already in use, you’ll see an error message. Once all information is correct, submit the form. If registration is successful, you’ll be redirected to the login page where you can sign in with your new credentials.
+
+2. What should I do if I forget my password?
+Currently, the application does not provide a password reset or recovery feature. If you forget your password, you will not be able to access your account through self-service. Please contact our support team at support@bankingapplication.com with your registered email and details. Our team will verify your identity and assist you in regaining access to your account.
+
+3. How do I edit my profile information?
+After logging in, go to your dashboard at /userpage. Locate your profile section, usually accessible from the sidebar or top menu. Click the edit button or open the profile edit modal. Update your username, email, or phone number as needed. The system will validate your changes for required fields and uniqueness. Save your changes, and you’ll see a confirmation message if the update is successful. If there are errors, correct the highlighted fields and try again.
+
+4. How can I change my password?
+On your dashboard (/userpage), go to your profile section and select the option to change your password. You will need to enter your current password for verification, then enter and confirm your new password. The system will check the strength and validity of your new password. Save your changes. If the update is successful, you’ll receive a confirmation message. If not, review the error message and try again.
+
+5. How do I create a new bank account?
+After logging in, go to the “Create Account” page at /createaccount. The account creation process is a multi-step form:
+• Select your preferred branch.
+• Enter your personal details (name, DOB, gender, mobile, email, address, Aadhaar, PAN).
+• Provide educational and income details as prompted.
+• Add nominee information and upload required documents.
+Each step validates your input before you can proceed. After completing all steps, review your information and submit the form. You’ll see a confirmation message if your application is successful. If there are errors, correct them and resubmit.
+
+6. Where can I see my linked bank accounts?
+Once logged in, your dashboard at /userpage displays a list of all your linked bank accounts. Each account entry provides summary information. Click on any account to view detailed information, including account status and associated documents. This helps you keep track of all your banking relationships within the application.
+
+7. How do I browse available banks and branches?
+Navigate to the “Browse Bank” page at /browsebank. Use the search and filter options to find banks by country, city, or branch. The page displays a list of available banks and branches, along with details and images for each. If you are logged in, you can also see which banks you already have accounts with. This feature helps you explore banking options before opening a new account.
+
+8. How do I log out?
+To log out, click the “Logout” button located in the navigation bar or user menu on any page. This will clear your session and authentication data, ensuring your account security. After logging out, you’ll be redirected to the login page (/signin). Always log out after using the application, especially on shared or public devices.
+
+9. How do admins approve or reject account applications?
+Admins should log in at /signin (select Admin as user type), then access the admin dashboard at /adminpage. In the Accounts or Applications section, admins can view all pending, approved, or rejected account applications. Click on an application to review its details. Use the provided buttons to approve or reject the application. The system will update the status and notify the user accordingly.
+
+10. What should I do if I encounter a validation or server error?
+If you see a validation error, carefully read the message and ensure all required fields are filled out correctly. Correct any highlighted fields and resubmit. For server errors (such as failed requests or unexpected issues), try logging out and back in, or refreshing the page. If the problem persists, contact support at support@bankingapplication.com with details about the error and steps to reproduce it.
+
+11. Is my data secure?
+Yes. The application uses industry-standard security practices, including JWT authentication for secure sessions, strong password hashing, and proper session management. Sensitive information is never stored in plain text. Always log out after use, especially on shared or public devices, to protect your account. If you suspect any security issue, contact support immediately.
+
+12. Who do I contact for support?
+For any assistance, please contact our support team at: support@bankingapplication.com. Provide your registered email and a detailed description of your issue for faster resolution. Our team is here to help with account access, technical problems, or general questions about the application.

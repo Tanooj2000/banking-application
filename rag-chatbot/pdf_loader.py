@@ -33,7 +33,7 @@ def process_all_texts(text_directory):
     return all_documents
 
 # --- Text Splitting ---
-def split_documents(documents, chunk_size=1000, chunk_overlap=200):
+def split_documents(documents, chunk_size=800, chunk_overlap=100):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
@@ -133,12 +133,22 @@ class RAGRetriever:
         return retrieved_docs
 
 # --- Ollama RAG Response ---
-def ollama_rag_response(query, rag_retriever, ollama_url="http://localhost:11434/api/generate", model_name="llama3.2:3b", top_k=5):
+
+# --- Unified LLM Response (API + RAG Context) ---
+def ollama_unified_response(query, rag_retriever, api_context=None, ollama_url="http://localhost:11434/api/generate", model_name="llama3.2:3b", top_k=5):
+    """
+    Compose a unified prompt for the LLM using both API and RAG context.
+    api_context: str or None - formatted API response (if available)
+    """
     retrieved_docs = rag_retriever.retrieve(query, top_k=top_k)
-    context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
-    if not context:
-        return "No relevant context found to answer the question."
-    prompt = f"""Context:\n{context}\n\nQuestion: {query}\nAnswer:"""
+    rag_context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
+    # Compose prompt
+    prompt = ""
+    if api_context:
+        prompt += f"API Context:\n{api_context}\n\n"
+    if rag_context:
+        prompt += f"Document Context:\n{rag_context}\n\n"
+    prompt += f"User Question:\n{query}\n\nAnswer:"
     payload = {
         "model": model_name,
         "prompt": prompt
@@ -154,6 +164,10 @@ def ollama_rag_response(query, rag_retriever, ollama_url="http://localhost:11434
             except Exception:
                 continue
     return answer if answer else "No response from LLM."
+
+# --- Original RAG-only LLM Response (kept for backward compatibility) ---
+def ollama_rag_response(query, rag_retriever, ollama_url="http://localhost:11434/api/generate", model_name="llama3.2:3b", top_k=5):
+    return ollama_unified_response(query, rag_retriever, api_context=None, ollama_url=ollama_url, model_name=model_name, top_k=top_k)
 
 # --- Pipeline Initialization ---
 all_text_documents = process_all_texts("./data")

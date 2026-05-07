@@ -6,6 +6,7 @@ import BrowseBank from './pages/BrowseBank';
 import CreateAccount from './pages/CreateAccount';
 import AdminPage from './pages/AdminPage';
 import './App.css'
+
 import HomePage from './pages/HomePage.jsx'
 import AboutPage from './pages/AboutPage.jsx';
 import UserPage from './pages/UserPage.jsx';
@@ -29,6 +30,7 @@ function App() {
         <Route path="/adminpage" element={<AdminPage />} />
         <Route path="/createaccount" element={<CreateAccount />} />
       </Routes>
+      {/* Removed global RagChatbot overlay. Use ChatBotButton for toggled chat UI. */}
     </Router>
   );
 }

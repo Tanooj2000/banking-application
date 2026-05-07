@@ -1,0 +1,153 @@
+USER-SERVICE
+The User Service is a backend microservice responsible for user registration, authentication, profile management, and password changes in the banking application. It provides endpoints for user CRUD operations, secure login/logout, and retrieval of user details.
+
+Key Features:
+- User registration and login
+- JWT-based authentication for secure endpoints
+- User profile retrieval and update
+- Password change functionality
+- List all users (for admin/support)
+- Strict validation for unique username/email and required fields
+
+Technology Stack:
+- Java 17, Spring Boot 3.x
+- Spring Data JPA (MySQL backend)
+- Spring Security (JWT)
+- Lombok
+- Maven
+
+-----------------------------
+API ENDPOINTS (Complete List)
+
+1. Register User
+   POST /api/user/register
+   - Registers a new user. Requires JSON body with username, email, phonenumber, password.
+
+2. Login User
+   POST /api/user/login
+   - Authenticates a user and returns a JWT token.
+
+3. Logout User
+   POST /api/user/logout
+   - Logs out the user (token-based).
+
+4. Get User by ID
+   GET /api/user/{id}
+   - Returns details for the specified user ID.
+
+5. Get All Users
+   GET /api/user
+   - Returns all users in the system.
+
+6. Update User Details
+   PUT /api/user/{id}
+   - Updates user profile details.
+
+7. Change User Password
+   PUT /api/user/{id}/password
+   - Changes the user's password.
+
+8. Get Current User
+   GET /api/user/me
+   - Returns details of the currently authenticated user.
+
+-----------------------------
+
+DETAILED ENDPOINTS
+
+1. Register User
+Method & Path: POST /api/user/register
+Description: Registers a new user. Sets up user profile and credentials.
+Request Body (JSON):
+  - username (string, required)
+  - email (string, required)
+  - phonenumber (long, required)
+  - password (string, required)
+Responses:
+  Success (200): "Registration successful."
+  Errors:
+    400 Bad Request: {"message": "Username or email already exists."}
+    500 Internal Server Error: {"message": "Unexpected error occurred."}
+
+2. Login User
+Method & Path: POST /api/user/login
+Description: Authenticates a user and returns a JWT token.
+Request Body (JSON):
+  - usernameOrEmail (string, required)
+  - password (string, required)
+Responses:
+  Success (200): {"success": true, "token": "<jwt>", "user": {...}}
+  Errors:
+    400 Bad Request: {"message": "Invalid credentials."}
+    500 Internal Server Error: {"message": "Unexpected error occurred."}
+
+3. Logout User
+Method & Path: POST /api/user/logout
+Headers:
+  - Authorization: Bearer <token>
+Description: Logs out the user (token-based).
+Responses:
+  Success (200): "Logout successful."
+  Errors:
+    401 Unauthorized: {"message": "Invalid or missing token."}
+
+4. Get User by ID
+Method & Path: GET /api/user/{id}
+Description: Returns details for the specified user ID.
+Parameters:
+  Path:
+    - id (long, required)
+Responses:
+  Success (200): {"success": true, "user": {...}}
+  Errors:
+    404 Not Found: {"message": "User not found."}
+
+5. Get All Users
+Method & Path: GET /api/user
+Description: Returns all users in the system.
+Responses:
+  Success (200): {"users": [...]}
+
+6. Update User Details
+Method & Path: PUT /api/user/{id}
+Request Body (JSON):
+  - username, email, phonenumber (all required)
+Description: Updates user profile details.
+Responses:
+  Success (200): {"success": true, "user": {...}}
+  Errors:
+    400 Bad Request: {"message": "Invalid input."}
+    404 Not Found: {"message": "User not found."}
+
+7. Change User Password
+Method & Path: PUT /api/user/{id}/password
+Request Body (JSON):
+  - password (string, required)
+Description: Changes the user's password.
+Responses:
+  Success (200): {"success": true, "message": "Password updated successfully."}
+  Errors:
+    400 Bad Request: {"message": "Invalid input."}
+    404 Not Found: {"message": "User not found."}
+
+8. Get Current User
+Method & Path: GET /api/user/me
+Headers:
+  - Authorization: Bearer <token>
+Description: Returns details of the currently authenticated user.
+Responses:
+  Success (200): {"success": true, "user": {...}}
+  Errors:
+    401 Unauthorized: {"message": "Invalid or missing token."}
+
+-----------------------------
+Important Points:
+Usernames and emails must be unique across the entire system. During registration and profile updates, the service performs strict validation to ensure that no two users can share the same username or email address. If a duplicate is detected, the operation is rejected with a clear error message, preventing conflicts and ensuring each user can be reliably identified.
+
+JWT authentication is enforced for all endpoints that access or modify sensitive user data, such as profile retrieval, updates, and password changes. Only authenticated users with a valid JWT token can perform these operations. The service checks the token's validity and expiration on every request, ensuring that unauthorized access is blocked and user data remains secure.
+
+Passwords are never stored in plain text. Instead, the service uses secure hashing algorithms to store password hashes in the database. When a user logs in or changes their password, the provided password is hashed and compared to the stored hash, ensuring that even if the database is compromised, actual passwords remain protected.
+
+All error responses from the user-service are returned in a standardized JSON format containing a message field. This consistency allows client applications and chatbots to easily parse and display meaningful error messages to users, improving the overall user experience and making troubleshooting straightforward.
+
+User profile data managed by this service is foundational for other parts of the banking application, such as account creation and transaction processing. Accurate and up-to-date user information is essential for regulatory compliance, fraud prevention, and seamless integration with account and transaction services. Any inconsistency or error in user data can have significant downstream impacts, making robust validation and security practices critical.

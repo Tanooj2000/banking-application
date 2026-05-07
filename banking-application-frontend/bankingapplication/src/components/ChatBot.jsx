@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ChatBot.css';
-import { sendChatMessage, getChatBotHealth, generateSessionId } from '../api/chatBotApi';
+// import { sendChatMessage, getChatBotHealth, generateSessionId } from '../api/chatBotApi';
 import robotImage from '../assets/robot.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -23,139 +23,16 @@ import {
   faEllipsisH
 } from '@fortawesome/free-solid-svg-icons';
 
-const ChatBot = ({ isOpen, onClose, userId }) => {
-  // Debug log for robot image
-  console.log('Robot image import:', robotImage);
-  console.log('Robot image type:', typeof robotImage);
-  
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState(null);
-  const [isServiceAvailable, setIsServiceAvailable] = useState(true);
-  const [quickReplies, setQuickReplies] = useState([]);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
+// This component is deprecated. Please use RagChatbot instead.
+const ChatBot = () => {
+  return (
+    <div style={{ padding: 32, color: 'red', textAlign: 'center' }}>
+      <strong>This chatbot is disabled. Please use the new RAG Chatbot.</strong>
+    </div>
+  );
+};
 
-  // Initialize chat session
-  useEffect(() => {
-    if (isOpen && !sessionId) {
-      initializeChat();
-    }
-  }, [isOpen]);
-
-  // Scroll to bottom when new messages arrive
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Focus input when chat opens
-  useEffect(() => {
-    if (isOpen && inputRef.current && !isMinimized) {
-      inputRef.current.focus();
-    }
-  }, [isOpen, isMinimized]);
-
-  const initializeChat = async () => {
-    try {
-      const isHealthy = await getChatBotHealth();
-      setIsServiceAvailable(isHealthy);
-
-      if (isHealthy) {
-        const newSessionId = generateSessionId();
-        setSessionId(newSessionId);
-        
-        const welcomeMessage = {
-          id: Date.now(),
-          text: "Hello! I'm SecureBot, your intelligent banking assistant. How can I help you today?",
-          sender: 'bot',
-          timestamp: new Date(),
-          quickReplies: [
-            "Account Services",
-            "Application Status",
-            "Find Branch",
-            "Settings"
-          ]
-        };
-        
-        setMessages([welcomeMessage]);
-        setQuickReplies(welcomeMessage.quickReplies);
-      } else {
-        setMessages([{
-          id: Date.now(),
-          text: "I'm temporarily offline for maintenance. Please contact support at 1-800-SECUREBANK or visit our website.",
-          sender: 'bot',
-          timestamp: new Date(),
-          isError: true
-        }]);
-      }
-    } catch (error) {
-      console.error('Failed to initialize chat:', error);
-      setIsServiceAvailable(false);
-    }
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSendMessage = async (message = inputMessage) => {
-    if (!message.trim() || !isServiceAvailable) return;
-
-    const userMessage = {
-      id: Date.now(),
-      text: message.trim(),
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsLoading(true);
-    setQuickReplies([]);
-
-    try {
-      const authToken = localStorage.getItem('authToken');
-      
-      const response = await sendChatMessage({
-        message: message.trim(),
-        userId: userId || 'anonymous',
-        sessionId,
-        context: 'banking-app',
-        authToken: authToken
-      });
-
-      if (response.success && response.data) {
-        const responseText = response.data.data.response || 'I apologize, but I encountered an issue. Please try again.';
-        const botMessage = {
-          id: Date.now() + 1,
-          text: responseText,
-          sender: 'bot',
-          timestamp: new Date(),
-          quickReplies: response.data.data.quickReplies || [],
-          messageId: response.data.data.messageId
-        };
-
-        setMessages(prev => [...prev, botMessage]);
-        setQuickReplies(response.data.data.quickReplies || []);
-      } else {
-        throw new Error(response.error || 'Failed to get response');
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: "I'm experiencing technical difficulties. Please try again or contact support.",
-        sender: 'bot',
-        timestamp: new Date(),
-        isError: true
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export default ChatBot;
 
   const handleQuickReply = (reply) => {
     // Handle both string format (legacy) and object format (new emoji format)
@@ -181,7 +58,8 @@ const ChatBot = ({ isOpen, onClose, userId }) => {
     setIsMinimized(!isMinimized);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen)
+     return null;
 
   return (
     <div className="chatbot-overlay">
@@ -372,6 +250,7 @@ const ChatBot = ({ isOpen, onClose, userId }) => {
       </div>
     </div>
   );
-};
+
+
 
 export default ChatBot;

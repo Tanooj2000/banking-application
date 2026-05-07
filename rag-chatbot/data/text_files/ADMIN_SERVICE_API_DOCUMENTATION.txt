@@ -1,0 +1,218 @@
+ADMIN-SERVICE
+The Admin Service is a backend microservice responsible for managing admin user registration, authentication, and the approval workflow for admin accounts in the banking application. It supports registration and login for new admins, root-admin approval/rejection of admin applications, password management, and admin account queries. The service enforces unique usernames/emails and tracks application status for each admin.
+
+Key Features:
+- Admin registration and login
+- JWT-based authentication for secure endpoints
+- Root-admin approval/rejection workflow for admin applications
+- Password management and admin profile updates
+- Query endpoints for admin status and emails by bank
+- Strict validation for unique username/email and required fields
+- Auditable admin actions
+
+Technology Stack:
+- Java 17, Spring Boot 3.x
+- Spring Data JPA (MySQL backend)
+- Spring Security (JWT)
+- Lombok
+- Maven
+
+-----------------------------
+API ENDPOINTS (Complete List)
+
+1. Register Admin
+   POST /api/admin/register
+   - Registers a new admin. Requires JSON body with username, email, bankname, country, password.
+
+2. Login Admin
+   POST /api/admin/login
+   - Authenticates an admin and returns a JWT token.
+
+3. Logout Admin
+   POST /api/admin/logout
+   - Logs out the admin (token-based).
+
+4. Get Current Admin Details
+   GET /api/admin/me
+   - Returns details of the currently authenticated admin.
+
+5. Verify Admin (Root Admin Only)
+   POST /api/admin/verify
+   - Verifies an admin using root admin credentials.
+
+6. Update Admin Details
+   PUT /api/admin/{id}
+   - Updates admin profile details.
+
+7. Update Admin Password
+   PUT /api/admin/{id}/password
+   - Updates admin password.
+
+8. List Pending Admin Applications (Root Admin Only)
+   GET /api/admin/applications/pending
+   - Lists all admin applications pending root-admin approval.
+
+9. Approve Admin Application (Root Admin Only)
+   POST /api/admin/applications/{adminId}/approve
+   - Approves an admin application.
+
+10. Reject Admin Application (Root Admin Only)
+    POST /api/admin/applications/{adminId}/reject
+    - Rejects an admin application.
+
+11. Check Application Status
+    GET /api/admin/application-status?usernameOrEmail=...
+    - Checks the status of an admin application.
+
+12. Get Admin Emails by Bank Name
+    GET /api/admin/emails/by-bank?bankName=...
+    - Returns emails of admins for a given bank.
+
+-----------------------------
+
+DETAILED ENDPOINTS
+
+1. Register Admin
+Method & Path: POST /api/admin/register
+Description: Registers a new admin. Sets status to PENDING until root-admin approval.
+Request Body (JSON):
+  - username (string, required)
+  - email (string, required)
+  - bankname (string, required)
+  - country (string, required)
+  - password (string, required)
+Responses:
+  Success (200):
+    "Registration successful. Awaiting root-admin approval."
+  Errors:
+    400 Bad Request: {"message": "Username or email already exists."}
+    500 Internal Server Error: {"message": "Unexpected error occurred."}
+
+2. Login Admin
+Method & Path: POST /api/admin/login
+Description: Authenticates an admin and returns a JWT token.
+Request Body (JSON):
+  - usernameOrEmail (string, required)
+  - password (string, required)
+Responses:
+  Success (200):
+    {"success": true, "token": "<jwt>", "admin": {...}}
+  Errors:
+    400 Bad Request: {"message": "Invalid credentials."}
+    500 Internal Server Error: {"message": "Unexpected error occurred."}
+
+3. Logout Admin
+Method & Path: POST /api/admin/logout
+Headers:
+  - Authorization: Bearer <token>
+Description: Logs out the admin (token-based).
+Responses:
+  Success (200): "Logout successful."
+  Errors:
+    401 Unauthorized: {"message": "Invalid or missing token."}
+
+4. Get Current Admin Details
+Method & Path: GET /api/admin/me
+Headers:
+  - Authorization: Bearer <token>
+Description: Returns details of the currently authenticated admin.
+Responses:
+  Success (200): {"id": 1, "username": "admin1", ...}
+  Errors:
+    401 Unauthorized: {"message": "Invalid or missing token."}
+
+5. Verify Admin (Root Admin Only)
+Method & Path: POST /api/admin/verify
+Query Params:
+  - username (string, required)
+  - rootUsername (string, required)
+  - rootPassword (string, required)
+Description: Verifies an admin using root admin credentials.
+Responses:
+  Success (200): "Admin verified successfully."
+  Errors:
+    400 Bad Request: {"message": "Invalid credentials."}
+    403 Forbidden: {"message": "Not authorized."}
+
+6. Update Admin Details
+Method & Path: PUT /api/admin/{id}
+Request Body (JSON):
+  - username, email, bankname, country (all required)
+Description: Updates admin profile details.
+Responses:
+  Success (200): {"id": 1, "username": "admin1", ...}
+  Errors:
+    400 Bad Request: {"message": "Invalid input."}
+    404 Not Found: {"message": "Admin not found."}
+
+7. Update Admin Password
+Method & Path: PUT /api/admin/{id}/password
+Request Body (JSON):
+  - password (string, required)
+Description: Updates admin password.
+Responses:
+  Success (200): "Password updated successfully."
+  Errors:
+    400 Bad Request: {"message": "Invalid input."}
+    404 Not Found: {"message": "Admin not found."}
+
+8. List Pending Admin Applications (Root Admin Only)
+Method & Path: GET /api/admin/applications/pending
+Description: Lists all admin applications pending root-admin approval.
+Responses:
+  Success (200): [ {"id": 1, "username": "admin1", ...}, ... ]
+  Errors:
+    403 Forbidden: {"message": "Not authorized."}
+
+9. Approve Admin Application (Root Admin Only)
+Method & Path: POST /api/admin/applications/{adminId}/approve
+Request Body (JSON):
+  - reason (string, optional)
+Description: Approves an admin application.
+Responses:
+  Success (200): "Admin application approved."
+  Errors:
+    404 Not Found: {"message": "Admin not found."}
+    409 Conflict: {"message": "Already approved/rejected."}
+
+10. Reject Admin Application (Root Admin Only)
+Method & Path: POST /api/admin/applications/{adminId}/reject
+Request Body (JSON):
+  - reason (string, optional)
+Description: Rejects an admin application.
+Responses:
+  Success (200): "Admin application rejected."
+  Errors:
+    404 Not Found: {"message": "Admin not found."}
+    409 Conflict: {"message": "Already approved/rejected."}
+
+11. Check Application Status
+Method & Path: GET /api/admin/application-status?usernameOrEmail=...
+Description: Checks the status of an admin application.
+Responses:
+  Success (200): {"username": "admin1", "status": "PENDING"}
+  Errors:
+    404 Not Found: {"message": "Admin not found."}
+
+12. Get Admin Emails by Bank Name
+Method & Path: GET /api/admin/emails/by-bank?bankName=...
+Description: Returns emails of admins for a given bank.
+Responses:
+  Success (200): ["admin1@bank.com", "admin2@bank.com"]
+  Errors:
+    404 Not Found: {"message": "Bank not found."}
+
+-----------------------------
+Important Points:
+Usernames and emails must be unique across all admins. When a new admin registers, the service checks for existing records with the same username or email. If a duplicate is found, registration is rejected and a clear error message is returned. This prevents conflicts and ensures each admin account is uniquely identifiable.
+Admin registration does not grant immediate access to admin features. All new admin accounts are created with a status of PENDING. Pending admins cannot log in or perform any admin actions until a root-admin reviews and explicitly approves their application. This approval process is mandatory for onboarding and prevents unauthorized access.
+Only users with the ROOT_ADMIN role have the authority to approve or reject admin applications. This separation of duties ensures that no regular admin can escalate their own privileges or approve other admins, reducing the risk of privilege escalation and enforcing strong access control.
+JWT authentication is required for all sensitive endpoints, including profile updates, password changes, and application approval/rejection. Clients must include a valid JWT token in the Authorization header using the format 'Bearer <token>'. If the token is missing, expired, or invalid, the service returns a 401 Unauthorized error and denies access.
+Passwords are never stored in plain text. When an admin registers or changes their password, the service hashes the password using secure, industry-standard algorithms before saving it to the database. This protects admin credentials even if the database is compromised.
+The application status for each admin is always tracked and can be queried at any time. Status values include PENDING (awaiting approval), APPROVED (active admin), and REJECTED (application denied). If an application is rejected, the rejection reason is recorded and included in the response to provide transparency.
+All error responses are returned in JSON format with a 'message' field that describes the error. Whether the issue is a validation failure, authentication problem, or business rule violation, the response is clear and actionable, making it easy for clients and chatbots to handle errors programmatically.
+Every admin action—such as registration, approval, rejection, and profile updates—is logged and auditable. This audit trail supports compliance requirements, enables security investigations, and helps organizations meet regulatory standards for administrative access.
+After approval, admins can update their profile information and change their password using dedicated endpoints. These operations require valid JWT authentication to ensure only the account owner can make changes to their own data.
+The service provides endpoints to list all pending admin applications (for root-admin review), check the status of any admin application by username or email, and retrieve admin emails by bank. These features support notification workflows, escalation procedures, and efficient admin management.
+The admin approval workflow is a critical security control for onboarding new admins. Only root-admins can grant or revoke admin privileges, ensuring that administrative access is tightly controlled and monitored at all times.
+The admin-service is designed for seamless integration with other microservices in the banking application. Its architecture allows for future extension, such as supporting additional admin roles, multi-step approval processes, or integration with external identity providers.

@@ -1,0 +1,166 @@
+BANK-SERVICE
+The Bank Service is a backend microservice responsible for managing bank and branch information in the banking application. It supports adding, validating, and querying banks and branches by country, city, and code. The service enforces strict validation rules for all bank data and supports both single and bulk operations.
+
+Key Features:
+- Add new banks and branches (single or bulk)
+- Validate bank and branch data before saving
+- Query banks by country, city, or code
+- Check branch existence in a location
+- Retrieve all banks for reference
+- Strict validation for all fields (country, city, bank name, branch, code)
+
+Technology Stack:
+- Java 17, Spring Boot 3.x
+- Spring Data JPA (MySQL backend)
+- Lombok
+- Maven
+
+-----------------------------
+API ENDPOINTS (Complete List)
+
+1. Get Banks by Country
+   GET /api/banks/country/{country}
+   - Returns all banks for the specified country.
+
+2. Get Banks by Country and City
+   GET /api/banks/country/{country}/city/{city}
+   - Returns all banks for the specified country and city.
+
+3. Add Bank
+   POST /api/banks/add
+   - Adds a new bank. Requires JSON body with all fields.
+
+4. Add Banks in Bulk
+   POST /api/banks/bulk-add
+   - Adds multiple banks at once. Requires JSON array of banks.
+
+5. Add Bank with Enhanced Validation
+   POST /api/banks/add-enhanced
+   - Adds a new bank with enhanced validation.
+
+6. Validate Bank Data (No Save)
+   POST /api/banks/validate
+   - Validates bank data without saving.
+
+7. Check Bank Code Availability
+   GET /api/banks/check-code/{code}
+   - Checks if a bank code is available.
+
+8. Check Branch Exists in Location
+   GET /api/banks/check-branch?country=...&city=...&bankName=...&branch=...
+   - Checks if a branch exists in the specified location.
+
+9. Get All Banks
+   GET /api/banks/all
+   - Returns all banks in the system.
+
+-----------------------------
+
+DETAILED ENDPOINTS
+
+1. Get Banks by Country
+Method & Path: GET /api/banks/country/{country}
+Description: Returns all banks for the specified country.
+Parameters:
+  Path:
+    - country (string, required)
+Responses:
+  Success (200): [ {"bankName": "HDFC", ...}, ... ]
+  Errors:
+    404 Not Found: {"message": "No banks found for country."}
+
+2. Get Banks by Country and City
+Method & Path: GET /api/banks/country/{country}/city/{city}
+Description: Returns all banks for the specified country and city.
+Parameters:
+  Path:
+    - country (string, required)
+    - city (string, required)
+Responses:
+  Success (200): [ {"bankName": "HDFC", ...}, ... ]
+  Errors:
+    404 Not Found: {"message": "No banks found for country and city."}
+
+3. Add Bank
+Method & Path: POST /api/banks/add
+Description: Adds a new bank. Requires all fields in JSON body.
+Request Body (JSON):
+  - country (string, required)
+  - city (string, required)
+  - bankName (string, required)
+  - branch (string, required)
+  - code (string, required, 3-10 uppercase alphanumeric)
+Responses:
+  Success (201): {"message": "Bank added successfully."}
+  Errors:
+    400 Bad Request: {"message": "Validation failed."}
+    409 Conflict: {"message": "Bank code already exists."}
+
+4. Add Banks in Bulk
+Method & Path: POST /api/banks/bulk-add
+Description: Adds multiple banks at once. Requires JSON array of banks.
+Request Body: [ {bank}, {bank}, ... ]
+Responses:
+  Success (201): {"message": "Banks added successfully."}
+  Errors:
+    400 Bad Request: {"message": "Validation failed for one or more banks."}
+
+5. Add Bank with Enhanced Validation
+Method & Path: POST /api/banks/add-enhanced
+Description: Adds a new bank with enhanced validation.
+Request Body (JSON): Same as Add Bank.
+Responses:
+  Success (201): {"message": "Bank added with enhanced validation."}
+  Errors:
+    400 Bad Request: {"message": "Validation failed."}
+
+6. Validate Bank Data (No Save)
+Method & Path: POST /api/banks/validate
+Description: Validates bank data without saving.
+Request Body (JSON): Same as Add Bank.
+Responses:
+  Success (200): {"message": "Validation successful."}
+  Errors:
+    400 Bad Request: {"message": "Validation failed."}
+
+7. Check Bank Code Availability
+Method & Path: GET /api/banks/check-code/{code}
+Description: Checks if a bank code is available.
+Parameters:
+  Path:
+    - code (string, required)
+Responses:
+  Success (200): {"available": true}
+
+8. Check Branch Exists in Location
+Method & Path: GET /api/banks/check-branch?country=...&city=...&bankName=...&branch=...
+Description: Checks if a branch exists in the specified location.
+Query Params:
+  - country (string, required)
+  - city (string, required)
+  - bankName (string, required)
+  - branch (string, required)
+Responses:
+  Success (200): {"exists": true}
+
+9. Get All Banks
+Method & Path: GET /api/banks/all
+Description: Returns all banks in the system.
+Responses:
+  Success (200): [ {"bankName": "HDFC", ...}, ... ]
+
+-----------------------------
+Important Points:
+Every field—country, city, bankName, branch, and code—is strictly required when adding a new bank. The service enforces this at both the API and validation layer, ensuring that incomplete or malformed requests are immediately rejected. This guarantees that all bank records are complete and consistent, which is essential for downstream processes.
+
+The bank code is a critical identifier and must be unique across all banks in the system. It is validated to be between 3 and 10 characters, consisting only of uppercase alphanumeric characters. Any attempt to add a bank with a duplicate or invalid code will result in a clear error response, preventing conflicts and ensuring reliable identification of banks.
+
+Validation is rigorously applied to all endpoints that accept input, including single and bulk add operations. The service checks for required fields, correct formats, and business rules before any data is persisted. This reduces the risk of invalid data entering the system and helps maintain high data quality.
+
+When adding banks in bulk, each bank object in the array is individually validated. If any bank in the batch fails validation, the entire operation is rejected with a detailed error message. This approach ensures that only fully valid data is accepted, and users are informed exactly which records caused the failure.
+
+The check-code and check-branch endpoints are designed to help clients proactively prevent duplicate entries. By allowing users to verify the availability of a bank code or the existence of a branch before attempting to add new records, these endpoints reduce errors and improve the user experience during data entry or migration.
+
+All error responses from the service are returned in a consistent JSON format containing a message field. This standardization makes it easy for client applications to handle errors programmatically and provide meaningful feedback to users, regardless of the type of validation or business rule violation encountered.
+
+Maintaining data integrity in the bank-service is crucial because other services, such as account and transaction management, depend on accurate and reliable bank and branch information. Any inconsistency or error in bank data can have cascading effects on account creation, transaction processing, and regulatory compliance, making robust validation and error handling essential for the overall health of the banking application.
