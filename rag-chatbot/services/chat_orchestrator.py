@@ -16,6 +16,18 @@ ACCOUNT_STATUS_TERMS = [
     "check my account",
     "my account status",
     "account details",
+    "bank status",
+    "my bank status",
+    "check my bank",
+    "status of my bank",
+    "check account",
+    "view account",
+    "see my account",
+    "account info",
+    "account information",
+    "my banking status",
+    "my account details",
+    "check my bank status",
 ]
 
 

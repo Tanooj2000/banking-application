@@ -2,6 +2,10 @@ from fastapi import FastAPI, HTTPException
 import uvicorn
 import requests
 import asyncio
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -34,6 +38,7 @@ async def ask_rag(request: QueryRequest):
     except requests.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"Account/LLM upstream error: {e}")
     except Exception as e:
+        logger.error("500 error in /rag/ask:\n%s", traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 

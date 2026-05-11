@@ -1,5 +1,5 @@
 // RAG Chatbot API integration for Spring Boot chatbot-service (port 8086)
-const CHATBOT_URL = 'http://localhost:8086/api/v1/chatbot/chat';
+const CHATBOT_URL = 'http://localhost:8086/chat';
 
 /**
  * Send a message to the Spring Boot chatbot-service.
@@ -15,10 +15,10 @@ const CHATBOT_URL = 'http://localhost:8086/api/v1/chatbot/chat';
  */
 export async function sendRagChatMessage({ message, userId, sessionId, selectedAccountId, modelName }) {
   const body = { message };
-  if (userId)            body.userId            = userId;
-  if (sessionId)         body.sessionId         = sessionId;
-  if (selectedAccountId) body.selectedAccountId = selectedAccountId;
-  if (modelName)         body.modelName         = modelName;
+  if (userId)            body.user_id             = userId;
+  if (sessionId)         body.session_id          = sessionId;
+  if (selectedAccountId) body.selected_account_id = selectedAccountId;
+  if (modelName)         body.model_name          = modelName;
 
   const res = await fetch(CHATBOT_URL, {
     method: 'POST',
@@ -31,12 +31,11 @@ export async function sendRagChatMessage({ message, userId, sessionId, selectedA
   }
 
   const json = await res.json();
-  // Spring Boot wraps everything in { success, data: { response, responseType, sessionId, options, ... } }
   const data = json.data || json;
   return {
-    response:     data.response     || data.reply || '',
-    responseType: data.responseType || 'final_answer',
-    sessionId:    data.sessionId    || null,
-    options:      data.options      || null,
+    response:     data.response      || '',
+    responseType: data.response_type || 'final_answer',
+    sessionId:    data.session_id    || null,
+    options:      data.options       || null,
   };
 }
