@@ -1,0 +1,524 @@
+# InterBankHub - Admin Guide
+
+Complete guide for bank administrators using InterBankHub.
+
+---
+
+## What is an Admin?
+
+An Admin (Bank Administrator) is a staff member of a bank who manages account applications from customers. Admins review, approve, or reject account applications on behalf of their bank.
+
+**Admin vs User Roles:**
+- **User:** Customer who creates bank accounts
+- **Admin:** Bank staff who processes and approves accounts
+
+---
+
+## Getting Started as an Admin
+
+### Step 1: Sign Up as Admin
+
+1. Go to home page and click "Sign Up"
+2. Select "Admin" as account type
+3. Fill in your information:
+   - Email address
+   - Password (strong password recommended)
+   - Confirm password
+   - Username
+   - Phone number
+   - **Bank Name** (select from available banks)
+   - **Country** (India, USA, or UK)
+4. Click "Sign Up"
+5. You'll be redirected to Sign In Page
+
+### Step 2: Log In to Admin Dashboard
+
+1. Click "Sign In"
+2. Enter email and password
+3. Click "Sign In"
+4. You'll see the Admin Dashboard
+
+---
+
+## Admin Dashboard Overview
+
+Your dashboard has several sections:
+
+**Main Sections:**
+1. **Applications** - View pending, approved, and rejected applications
+2. **Profile** - Edit your personal information
+3. **Security** - Change your password
+
+**Key Information:**
+- Your bank name
+- Your country
+- Your admin username
+- Number of pending applications
+
+---
+
+## Managing Applications
+
+### View All Applications
+
+1. **Go to Admin Dashboard**
+2. **You'll see a list of applications**
+3. **Each application shows:**
+   - Applicant name
+   - Account type requested
+   - Application date
+   - Current status (Pending/Approved/Rejected)
+   - Bank and branch
+
+### Filter Applications
+
+**By Status:**
+- Click on "Pending" to see waiting applications
+- Click on "Approved" to see approved applications
+- Click on "Rejected" to see rejected applications
+
+**All statuses are important:**
+- **Pending:** Waiting for your decision
+- **Approved:** Successfully processed
+- **Rejected:** Did not meet requirements
+
+---
+
+## Reviewing an Application
+
+### Step 1: Click on Application
+
+1. From application list, click on any application
+2. You'll see the complete application details
+
+### Step 2: View Applicant Information
+
+You'll see all sections the applicant filled out:
+
+**Personal Details:**
+- Full name
+- Date of birth
+- Gender
+- Contact information (email, phone)
+- Address
+- ID numbers (Aadhaar for India, SSN for USA, NIN for UK)
+
+**Educational Details:**
+- Education level
+- Institution name
+- Course/degree
+- Completion year
+- Grade/GPA (if provided)
+
+**Income Details:**
+- Employment status
+- Employer name (if applicable)
+- Occupation
+- Monthly income
+- Annual income
+- Income source
+
+**Nominee Information:**
+- Nominee name
+- Relationship to applicant
+- Nominee date of birth
+- Nominee contact
+- Nominee address
+
+**Account Information:**
+- Account type requested
+- Initial deposit amount
+- Currency
+
+---
+
+## Reviewing Documents
+
+### View Uploaded Documents
+
+1. **In the application detail page, scroll to "Documents" section**
+2. **You'll see 4 uploaded documents:**
+   - ID Proof
+   - Address Proof
+   - Income Proof
+   - Passport Photo
+
+### Check Each Document
+
+For each document, verify:
+
+**ID Proof:**
+- ✓ All fields readable
+- ✓ Photo is clear
+- ✓ Signature visible
+- ✓ Not expired
+- ✓ Matches applicant's name
+- ✓ Country appropriate (Aadhaar for India, SSN for USA, Passport/License for USA/UK, etc.)
+
+**Address Proof:**
+- ✓ Clearly shows address
+- ✓ Document is recent (within 3-6 months)
+- ✓ From recognized source (utility company, government, bank, etc.)
+- ✓ Applicant's name visible
+- ✓ Complete address shown
+- ✓ Matches address on ID
+
+**Income Proof:**
+- ✓ Shows salary/income amount
+- ✓ Recent (within 3 months)
+- ✓ From recognized employer or institution
+- ✓ Matches stated occupation
+- ✓ Income matches or exceeds stated income
+- ✓ Clear and readable
+
+**Passport Photo:**
+- ✓ Applicant clearly visible
+- ✓ Recent photo
+- ✓ Professional quality
+- ✓ Plain background
+- ✓ No sunglasses or extreme expressions
+- ✓ Matches applicant name
+
+---
+
+## Making a Decision
+
+### Approve an Application
+
+**When to approve:**
+- All documents are clear and valid
+- Information is consistent and complete
+- Income is sufficient for account type
+- No red flags or inconsistencies
+- All requirements met
+
+**To approve:**
+1. Review all information and documents
+2. Make sure everything is in order
+3. Click "Approve" button
+4. Confirm your action
+5. Application is approved
+6. Customer receives approval notification
+
+---
+
+### Reject an Application
+
+**When to reject:**
+- Documents are unclear or incomplete
+- Information is inconsistent or doesn't match
+- Income insufficient for account type
+- Documents expired or invalid
+- Required information is missing
+- Red flags detected
+
+**To reject:**
+1. Review all information and documents
+2. Identify the reason for rejection
+3. Click "Reject" button
+4. You may optionally add a rejection reason/note
+5. Confirm your action
+6. Application is rejected
+7. Customer receives rejection notification with details
+
+**Common rejection reasons:**
+- "Documents are not clear or readable"
+- "Address on ID does not match provided address"
+- "Aadhaar/SSN/NIN is invalid or expired"
+- "Income is insufficient for this account type"
+- "Missing required documents"
+- "Information is inconsistent"
+- "Employment verification failed"
+
+---
+
+## Managing Your Profile
+
+### View Your Profile
+
+1. **Go to Admin Dashboard**
+2. **Click on "Profile" section**
+3. **You'll see:**
+   - Username
+   - Email
+   - Phone number
+   - Bank name
+   - Country
+   - Account creation date
+
+### Edit Your Profile
+
+1. **Click on "Profile" section**
+2. **Click "Edit Profile" button**
+3. **Update your information:**
+   - Username
+   - Email
+4. **Click "Save Changes"**
+5. Changes are saved immediately
+
+---
+
+## Change Your Password
+
+### Step 1: Go to Security Section
+
+1. **Go to Admin Dashboard**
+2. **Click on "Change Password" or "Security" option**
+
+### Step 2: Enter Passwords
+
+1. **Enter your current password**
+2. **Enter your new password** (must be different from current)
+3. **Confirm new password** (must match exactly)
+4. **Click "Update"**
+
+### Password Requirements
+
+- Minimum 8 characters
+- Must contain letters
+- Must contain numbers
+- Should contain special characters for security
+- Cannot be same as previous password
+
+### Tips for Strong Passwords
+
+✅ Use mix of uppercase and lowercase
+✅ Include numbers (0-9)
+✅ Include special characters (@, #, $, !, &, etc.)
+✅ Make it at least 12 characters for better security
+✅ Don't use easily guessable words
+✅ Don't share your password
+
+---
+
+## Application Workflow
+
+### The Complete Process:
+
+1. **Application Submitted**
+   - Customer submits account application
+   - Status: "Pending"
+   - Admin sees it in dashboard
+
+2. **Review & Verification** (Your role)
+   - You review documents
+   - You verify information
+   - You make decision
+
+3. **Decision Made** (Your action)
+   - **APPROVE:** Application approved
+   - **REJECT:** Application rejected with reason
+
+4. **Customer Notified**
+   - Customer receives email about decision
+   - For approval: Customer can now use account
+   - For rejection: Reason provided, can resubmit
+
+5. **Record Kept**
+   - Approved applications stay in "Approved" section
+   - Rejected applications in "Rejected" section
+   - You can always review past decisions
+
+---
+
+## Daily Admin Tasks
+
+### Morning Routine:
+1. Log in to Admin Dashboard
+2. Check number of pending applications
+3. Review "Pending" applications
+4. Process applications one by one
+
+### During Day:
+1. Review new applications as they come in
+2. Verify documents and information
+3. Approve or reject applications
+4. Keep notes on decisions if needed
+
+### End of Day:
+1. Review what was processed
+2. Ensure all pending applications are addressed
+3. Log out when done
+
+---
+
+## Best Practices for Admins
+
+### Document Verification:
+✓ Carefully review each document
+✓ Check for authenticity and validity
+✓ Compare information across documents
+✓ Note any inconsistencies
+✓ Verify addresses match
+
+### Decision Making:
+✓ Be consistent in your decisions
+✓ Follow your bank's policies
+✓ Document your reasoning
+✓ Treat all applications fairly
+✓ Take time to review carefully
+
+### Communication:
+✓ Provide clear rejection reasons
+✓ Be professional and courteous
+✓ Document your actions
+✓ Follow up if needed
+✓ Maintain confidentiality
+
+---
+
+## Common Scenarios
+
+### Scenario 1: Clear Application
+
+**Situation:** All documents are clear, information is complete and consistent
+
+**Action:**
+- All information matches
+- Income is sufficient
+- No inconsistencies
+- Documents are valid
+
+**Decision:** APPROVE ✓
+
+---
+
+### Scenario 2: Unclear Documents
+
+**Situation:** Photos are blurry or incomplete
+
+**Action:**
+- Cannot verify document authenticity
+- Information cannot be confirmed
+- Risk of fraud
+
+**Decision:** REJECT (Reason: "Documents are not clear or readable")
+
+---
+
+### Scenario 3: Address Mismatch
+
+**Situation:** Address on ID doesn't match application address
+
+**Action:**
+- Addresses must match for verification
+- Could indicate fraud or error
+- Cannot proceed without matching addresses
+
+**Decision:** REJECT (Reason: "Address mismatch between documents")
+
+---
+
+### Scenario 4: Insufficient Income
+
+**Situation:** Stated income is too low for account type
+
+**Action:**
+- Check bank's minimum income requirements
+- Current account typically requires higher income
+- Savings account has lower requirements
+
+**Decision:** REJECT (Reason: "Income insufficient for this account type")
+
+---
+
+### Scenario 5: Missing Information
+
+**Situation:** One field was left blank
+
+**Action:**
+- Application is incomplete
+- Cannot process without all information
+- Need to request resubmission
+
+**Decision:** REJECT (Reason: "Missing required information")
+
+---
+
+## Troubleshooting
+
+### "I can't see all applications"
+- Refresh your browser
+- Log out and log back in
+- Try a different browser
+- Check if you're viewing the right status filter
+
+### "Documents are not loading"
+- Try a different browser
+- Refresh the page
+- Clear browser cache
+- Check your internet connection
+
+### "I accidentally approved/rejected an application"
+- Contact support immediately: support@interbankshub.com
+- Explain the situation
+- They may be able to help correct it
+
+### "Application status is not updating"
+- Refresh the page
+- Wait a few seconds (status updates may take time)
+- Log out and log back in
+- Contact support if issue persists
+
+---
+
+## Security & Confidentiality
+
+### Important Reminders:
+
+🔒 **Protect Applicant Data**
+- Never share customer information
+- Keep passwords secure
+- Log out when leaving your desk
+- Don't leave account open unattended
+
+🔒 **Verify Before Acting**
+- Double-check before approving/rejecting
+- Ensure documents are authentic
+- Never approve based on incomplete info
+- Take your time to review carefully
+
+🔒 **Follow Procedures**
+- Always verify identity of person submitting
+- Keep records of your decisions
+- Report suspicious applications
+- Follow your bank's policies
+
+---
+
+## Support & Help
+
+### Getting Help:
+
+**For Application Issues:**
+- Contact your bank supervisor
+- Check this guide for common scenarios
+- Document what's unclear
+
+**For Technical Issues:**
+- Email: support@interbankshub.com
+- Describe the issue clearly
+- Include screenshots if helpful
+- Mention your browser and device
+
+**For Questions:**
+- Email: support@interbankshub.com
+- Your admin team lead
+- Supervisor or manager
+
+---
+
+## Contact Information
+
+**Support Email:** support@interbankshub.com
+**Support Hours:** 24/5 (Monday-Friday)
+**Response Time:** 24-48 hours
+
+**When contacting support, include:**
+- Your admin email
+- Your bank name
+- Description of issue
+- Application ID if applicable
+- Screenshots if helpful
+
+---

@@ -1,7 +1,6 @@
 package com.bankingapp.chatbot.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class ChatRequestDTO {
@@ -10,10 +9,13 @@ public class ChatRequestDTO {
     @Size(max = 1000, message = "Message cannot exceed 1000 characters")
     private String message;
     
-    @NotNull(message = "User ID is required")
     private String userId;
     
     private String sessionId;
+    
+    private String selectedAccountId;
+    
+    private String modelName;
     
     private String context;
     
@@ -60,6 +62,22 @@ public class ChatRequestDTO {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public String getSelectedAccountId() {
+        return selectedAccountId;
+    }
+
+    public void setSelectedAccountId(String selectedAccountId) {
+        this.selectedAccountId = selectedAccountId;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
     }
 
     public String getContext() {

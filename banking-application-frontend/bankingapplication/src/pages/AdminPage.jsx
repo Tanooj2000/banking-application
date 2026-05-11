@@ -406,7 +406,7 @@ const AdminPage = () => {
   };
 
   const handleLogout = () => {
-    AuthGuard.logout();
+    AuthGuard.logoutAdmin();
   };
 
   const openEditModal = () => {

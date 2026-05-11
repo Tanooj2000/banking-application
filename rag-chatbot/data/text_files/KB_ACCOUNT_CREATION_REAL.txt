@@ -1,0 +1,386 @@
+# InterBankHub - Account Creation by Country
+
+Complete step-by-step guide for creating bank accounts in India, USA, and UK.
+
+---
+
+## 🇮🇳 India - Account Creation
+
+### Account Types Available:
+- **Savings Account** - For personal saving
+- **Current Account** - For business transactions
+- **Salary Account** - Special account for salaried employees
+- **Fixed Deposit** - For fixed returns on savings
+
+### Form Fields by Section:
+
+**Step 1: Select Branch**
+- Choose your bank branch from the dropdown
+
+**Step 2: Personal Details**
+- Full Name (as per ID)
+- Date of Birth
+- Gender (Male/Female/Other)
+- Mobile Number
+- Email Address
+- Address (complete residential address)
+- Aadhaar Number (12-digit ID)
+- PAN Number (10-digit tax ID)
+
+**Step 3: Educational Details**
+- Education Level (High School, Diploma, Graduate, Post Graduate, Professional)
+- Institution Name
+- Course/Degree
+- Year of Completion
+- Percentage/CGPA (optional)
+
+**Step 4: Income Details**
+- Employment Status (Employed/Self-Employed/Business/Student/Retired/Unemployed)
+- Employer Name (if applicable)
+- Occupation
+- Monthly Income (in INR)
+- Annual Income (in INR)
+- Income Source (Salary/Business/Investment/Pension/Other)
+
+**Step 5: Nominee Details**
+- Nominee Full Name
+- Relationship with Nominee (Spouse/Father/Mother/Son/Daughter/Brother/Sister/Other)
+- Nominee Date of Birth
+- Nominee Contact Number
+- Nominee Address
+
+**Step 6: Documents & Account**
+- **Upload Files:**
+  - ID Proof (Aadhaar, Passport, License, etc.)
+  - Address Proof (Utility bill, Government letter, etc.)
+  - Income Proof (Salary slip, Tax return, etc.)
+  - Passport Photo
+  - Supported formats: JPG, JPEG, PNG, PDF
+  - Max file size: 5MB recommended
+- **Account Information:**
+  - Account Type (Savings/Current/Salary/Fixed Deposit)
+  - Initial Deposit Amount (in INR)
+  - Consent Checkbox (I agree to terms and conditions)
+
+### Processing Timeline:
+- Document submission: Instant
+- Bank verification: 1-3 business days
+- Approval/Rejection: Status updates in dashboard
+- Total: 2-5 business days typical
+
+### Tips for India Account:
+- Aadhaar must be valid 12-digit number
+- PAN format: e.g., AAAAA1234A
+- Address should match your ID
+- Documents must be clear and readable
+- Income figures should be realistic
+
+---
+
+## 🇺🇸 USA - Account Creation
+
+### Account Types Available:
+- **Checking Account** - For daily transactions
+- **Savings Account** - For saving and earning interest
+- **Money Market Account** - Higher interest rates
+- **Certificate of Deposit (CD)** - Fixed term savings
+
+### Form Fields by Section:
+
+**Step 1: Select Branch**
+- Choose your bank branch from the dropdown
+
+**Step 2: Personal Details**
+- Full Name (as per ID)
+- Date of Birth
+- Gender (Male/Female/Other)
+- Phone Number
+- Email Address
+- Address (complete street address, city, state, ZIP)
+- SSN - Social Security Number (9-digit: XXX-XX-XXXX)
+
+**Step 3: Educational Details**
+- Education Level (High School, Associate Degree, Bachelor Degree, Master Degree, Doctoral Degree)
+- Institution Name
+- Major/Field of Study
+- Year of Completion
+- GPA (optional)
+
+**Step 4: Income Details**
+- Employment Status (Employed/Self-Employed/Business Owner/Student/Retired/Unemployed)
+- Employer Name (if applicable)
+- Occupation
+- Monthly Income (in USD)
+- Annual Income (in USD)
+- Income Source (Salary/Business/Investment/Social Security/Other)
+
+**Step 5: Nominee Details**
+- Nominee Full Name
+- Relationship with Nominee (Spouse/Father/Mother/Son/Daughter/Brother/Sister/Other)
+- Nominee Date of Birth
+- Nominee Contact Number
+- Nominee Address
+
+**Step 6: Documents & Account**
+- **Upload Files:**
+  - ID Proof (Passport, Driver's License, State ID, Military ID)
+  - Address Proof (Utility bill, Bank statement, Lease agreement, etc.)
+  - Income Proof (Pay stub, Tax return, Bank statement, etc.)
+  - Passport Photo
+  - Supported formats: JPG, JPEG, PNG, PDF
+  - Max file size: 5MB recommended
+- **Account Information:**
+  - Account Type (Checking/Savings/Money Market/Certificate of Deposit)
+  - Initial Deposit Amount (in USD)
+  - Consent Checkbox (I agree to terms and conditions)
+
+### Processing Timeline:
+- Document submission: Instant
+- Bank verification: 2-4 business days
+- Approval/Rejection: Status updates in dashboard
+- Total: 2-5 business days typical
+
+### Tips for USA Account:
+- SSN must be valid (format: XXX-XX-XXXX)
+- Address must match your ID
+- Valid US address required
+- Documents must be current and clear
+- English language documents required
+
+---
+
+## 🇬🇧 UK - Account Creation
+
+### Account Types Available:
+- **Current Account** - For everyday banking
+- **Savings Account** - For building savings
+- **ISA (Individual Savings Account)** - Tax-free savings
+- **Fixed Term Account** - Fixed rate savings
+
+### Form Fields by Section:
+
+**Step 1: Select Branch**
+- Choose your bank branch from the dropdown
+
+**Step 2: Personal Details**
+- Full Name (as per ID)
+- Date of Birth
+- Gender (Male/Female/Other)
+- Phone Number
+- Email Address
+- Address (complete UK address with postcode)
+- National Insurance Number (NIN) - (format: AB123456C)
+
+**Step 3: Educational Details**
+- Education Level (GCSE, A-Levels, Undergraduate Degree, Postgraduate Degree, Professional Qualification)
+- Institution Name
+- Course/Subject
+- Year of Completion
+- Grade/Classification (optional)
+
+**Step 4: Income Details**
+- Employment Status (Employed/Self-Employed/Business Owner/Student/Retired/Unemployed)
+- Employer Name (if applicable)
+- Occupation
+- Monthly Income (in GBP)
+- Annual Income (in GBP)
+- Income Source (Salary/Business/Investment/Pension/Other)
+
+**Step 5: Nominee Details**
+- Nominee Full Name
+- Relationship with Nominee (Spouse/Father/Mother/Son/Daughter/Brother/Sister/Other)
+- Nominee Date of Birth
+- Nominee Contact Number
+- Nominee Address
+
+**Step 6: Documents & Account**
+- **Upload Files:**
+  - ID Proof (UK Passport, UK Driving License, National ID Card, EEA Passport)
+  - Address Proof (Utility bill, Council Tax bill, Bank statement, Mortgage statement, etc.)
+  - Income Proof (Pay stub, Tax return, Bank statement, etc.)
+  - Passport Photo
+  - Supported formats: JPG, JPEG, PNG, PDF
+  - Max file size: 5MB recommended
+- **Account Information:**
+  - Account Type (Current/Savings/ISA/Fixed Term)
+  - Initial Deposit Amount (in GBP)
+  - Consent Checkbox (I agree to terms and conditions)
+
+### Processing Timeline:
+- Document submission: Instant
+- Bank verification: 2-4 business days
+- Approval/Rejection: Status updates in dashboard
+- Total: 2-5 business days typical
+
+### Tips for UK Account:
+- NIN format: AB123456C (2 letters, 6 numbers, 1 letter)
+- Valid UK address required
+- Postcode must be valid UK format
+- Address proof should match current address
+- Documents must be dated within last 3 months
+
+---
+
+## Comparison: India vs USA vs UK
+
+| Aspect | India | USA | UK |
+|--------|-------|-----|-----|
+| **ID Requirement** | Aadhaar + PAN | SSN | NIN |
+| **Income Currency** | INR | USD | GBP |
+| **Account Types** | 4 types | 4 types | 4 types |
+| **Processing Time** | 2-5 days | 2-5 days | 2-5 days |
+| **Initial Deposit** | Required | Required | Required |
+| **Documents Needed** | 4 documents | 4 documents | 4 documents |
+| **Address Format** | City/State format | Street/City/State/ZIP | Street/City/Postcode |
+
+---
+
+## Document Upload Guidelines
+
+### General Requirements for All Countries:
+
+1. **Clear and Readable**
+   - Good lighting in photos
+   - Entire document visible
+   - No blurry or cropped images
+
+2. **File Format**
+   - Accepted: JPG, JPEG, PNG, PDF
+   - Avoid: BMP, GIF, TIFF
+
+3. **File Size**
+   - Maximum: 5MB per file recommended
+   - Compress if larger
+
+4. **Color**
+   - Use color photos (not black & white)
+   - Clear contrast for text
+
+5. **Currency**
+   - All documents should be in English
+   - For India: Original or certified copies
+   - For USA: Government-issued documents
+   - For UK: Recent documents
+
+### Each Document Type:
+
+**ID Proof:**
+- Front and back clearly visible
+- Photo and signature visible
+- Not expired
+- Matches your name exactly
+
+**Address Proof:**
+- Shows your full name
+- Shows complete address
+- Recent (within 3-6 months)
+- From government or utility company
+
+**Income Proof:**
+- Shows your name and company
+- Shows income amount
+- Recent (within last 3 months)
+- Clear and readable
+
+**Passport Photo:**
+- Smile or neutral expression
+- Plain background
+- Face clearly visible
+- Recent photo
+
+---
+
+## What Happens After Submission?
+
+### Timeline:
+
+**Day 1:**
+- Your application is submitted
+- Documents are received and verified for format
+- System confirms receipt
+
+**Day 2-3:**
+- Bank reviews your documents
+- Verifies personal information
+- May request additional details if needed
+
+**Day 4-5:**
+- Final approval decision made
+- Status updated in your account dashboard
+- Check status to see approval or rejection
+
+**After Approval:**
+- You can start using your account
+- Access account details
+- Make transactions (if supported)
+- Link to other platforms if available
+
+### If Rejected:
+
+- Check your dashboard for rejection reason
+- Common reasons:
+  - Unclear documents
+  - Information mismatch
+  - Missing information
+  - Document requirements not met
+- You can resubmit with corrections
+
+---
+
+## Important Reminders
+
+✅ **DO:**
+- Take time to fill in all fields accurately
+- Upload clear, readable documents
+- Double-check all information before submitting
+- Keep a copy of your submitted information
+- Check your dashboard regularly for status updates
+
+❌ **DON'T:**
+- Submit incomplete information
+- Use blurry or partial document photos
+- Provide false information
+- Upload expired documents
+- Rush through the form (errors cause delays)
+
+---
+
+## Troubleshooting
+
+**"My documents won't upload"**
+- Check file format (JPG, JPEG, PNG, PDF only)
+- Check file size (max 5MB)
+- Try different browser
+- Clear browser cache and retry
+
+**"I made a mistake in the form"**
+- Contact support: support@interbankshub.com
+- Provide your email and account details
+- They can help correct information
+
+**"My application was rejected"**
+- Check the rejection reason email
+- Resubmit with corrected information
+- Ensure all documents are current and valid
+- Contact support if you need clarification
+
+**"How long should I wait?"**
+- Typical: 2-5 business days
+- Not counting weekends/holidays
+- Check "Your Page" dashboard regularly to see current status
+- Status updates automatically when admin makes decision
+
+---
+
+## Contact Support
+
+**Email:** support@interbankshub.com
+**Response Time:** 24-48 hours
+
+**Include in your email:**
+- Your registered email address
+- Your account details if available
+- Description of your issue
+- Screenshots if helpful
+
+---

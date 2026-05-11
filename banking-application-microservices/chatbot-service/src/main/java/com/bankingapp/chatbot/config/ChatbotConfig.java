@@ -15,7 +15,7 @@ public class ChatbotConfig {
         // Configure timeouts
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000); // 5 seconds connection timeout
-        factory.setReadTimeout(10000);   // 10 seconds read timeout
+        factory.setReadTimeout(0);       // Infinite read timeout: wait until FastAPI responds
         restTemplate.setRequestFactory(factory);
         
         return restTemplate;

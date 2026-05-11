@@ -75,27 +75,39 @@ const SignUp = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email) newErrors.email = 'Email is required';
-    else {
-  const emailValidation = validateGmail(formData.email);
-  if (!emailValidation.isValid) {
-    newErrors.email = emailValidation.message;
-  }
-}
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else {
+      const emailValidation = validateGmail(formData.email);
+      if (!emailValidation.isValid) {
+        newErrors.email = emailValidation.message;
+      }
+    }
+
     if (userType === 'user') {
-      if (!formData.name) newErrors.name = 'Full name is required';
-      if (!formData.mobile) newErrors.mobile = 'Mobile number is required';
-      else if (!validateMobile(formData.mobile)) newErrors.mobile = 'Please enter a valid 10-digit mobile number';
-      if (!formData.password) newErrors.password = 'Password is required';
-      else if (!validatePassword(formData.password)) newErrors.password = 'Password must be at least 6 characters long';
-      if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
-      else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+      if (!formData.name) {
+        newErrors.name = 'Full name is required';
+      }
+      if (!formData.mobile) {
+        newErrors.mobile = 'Mobile number is required';
+      }
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      }
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = 'Please confirm your password';
+      }
     } else if (userType === 'admin') {
-      if (!formData.country) newErrors.country = 'Country is required';
-      if (!formData.bankName) newErrors.bankName = 'Bank name is required';
-      else if (formData.bankName.length < 2) newErrors.bankName = 'Bank name must be at least 2 characters long';
-      if (!formData.adminPassword) newErrors.adminPassword = 'Admin password is required';
-      else if (!validatePassword(formData.adminPassword)) newErrors.adminPassword = 'Admin password must be at least 6 characters long';
+      if (!formData.country) {
+        newErrors.country = 'Country is required';
+      }
+      if (!formData.bankName) {
+        newErrors.bankName = 'Bank name is required';
+      }
+      if (!formData.adminPassword) {
+        newErrors.adminPassword = 'Admin password is required';
+      }
     }
     
     if (userType === 'user') {

@@ -1,0 +1,386 @@
+# InterBankHub - Frequently Asked Questions (FAQ)
+
+## Getting Started
+
+**Q: What is InterBankHub?**
+A:
+InterBankHub is a multi-country banking platform that allows you to create and manage bank accounts across India, USA, and UK. You can browse banks, create accounts through a streamlined digital process, and manage all your accounts from a unified dashboard.
+
+*Also looking for: What does InterBankHub do, Platform overview, Banking platform*
+
+---
+
+**Q: How do I get started with InterBankHub?**
+A:
+1. Visit the home page
+2. Click "Sign Up" to create an account
+3. Choose your account type (User or Admin)
+4. Fill in your details (email, password, phone number, country)
+5. Verify your account
+6. Log in and explore banks or manage accounts
+
+*Also looking for: Getting started, First steps, New account, Sign up process*
+
+---
+
+**Q: What countries does InterBankHub support?**
+A:
+Currently, InterBankHub supports three countries:
+- India
+- USA
+- UK
+
+When you sign up, select your country of residence.
+
+*Also looking for: Supported countries, Which countries, Available locations*
+
+---
+
+## Account Types
+
+**Q: What account types are available?**
+A:
+Available account types depend on your country:
+
+**India:**
+- Savings Account
+- Current Account
+- Salary Account
+- Fixed Deposit
+
+**USA:**
+- Checking Account
+- Savings Account
+- Money Market Account
+- Certificate of Deposit
+
+**UK:**
+- Current Account
+- Savings Account
+- ISA (Individual Savings Account)
+- Fixed Term Account
+
+*Also looking for: Account types, What accounts, Account options, Choose account*
+
+---
+
+**Q: What's the difference between Savings and Current accounts?**
+A:
+**Savings Account:**
+- For personal use
+- Earn interest on balance
+- Limited transactions
+- Lower fees
+
+**Current Account:**
+- For business use
+- Unlimited transactions
+- No interest
+- Higher fees
+- Bulk payment options
+
+*Also looking for: Account comparison, Savings vs current, Which account type*
+
+---
+
+## Account Creation
+
+**Q: How do I create a bank account?**
+A:
+1. Log in to your user account
+2. Go to "User Dashboard" click New Account Section
+3. Select Country, City and Bank as per availability
+4. Click "Create Account" for your chosen bank
+5. Complete a 6-step form:
+   - Select Branch
+   - Personal Details
+   - Educational Details
+   - Income Details
+   - Nominee Details
+   - Upload Documents
+5. Review and submit
+6. Wait for approval (typically 2-5 business days)
+
+*Also looking for: Open account, New account, Create account, Bank account setup*
+
+---
+
+**Q: How long does account creation take?**
+A:
+Typical timeline:
+- Documents submitted: Instant
+- Bank verification: 2-5 business days
+- Account approval: Status updates in your dashboard
+
+The exact time may vary depending on bank processing and document completeness. Check your dashboard regularly for status updates.
+
+*Also looking for: How long, Processing time, Account approval time, Verification timeline*
+
+---
+
+**Q: What documents do I need to upload?**
+A:
+Required documents for all countries:
+- ID Proof (national ID, passport, license, etc.)
+- Address Proof (utility bill, bank statement, government letter)
+- Income Proof (salary slip, tax return, bank statement)
+- Passport-sized Photo
+- Consent form (checkbox in the form)
+
+Specific requirements vary by country:
+- **India:** Aadhaar Number and PAN Number
+- **USA:** Social Security Number (SSN)
+- **UK:** National Insurance Number (NIN)
+
+*Also looking for: Document requirements, What ID needed, Required documents, Documents to upload*
+
+---
+
+**Q: Can I create multiple accounts?**
+A:
+Yes! You can create multiple accounts across different banks and countries. Each account is linked to your profile for easy management.
+
+*Also looking for: Multiple accounts, Add more accounts, Create another account*
+
+---
+
+## User Account Management
+
+**Q: How do I view my bank accounts?**
+A:
+1. Log in to your account
+2. Go to "Your Page" or Dashboard
+3. You'll see all your linked bank accounts
+4. You can filter by account status (All, Pending, Approved, Rejected)
+5. Click on any account to view details
+
+*Also looking for: View accounts, My accounts, Account list*
+
+---
+
+**Q: How do I edit my profile?**
+A:
+1. Log in to your account
+2. Go to "Your Page" (User Page)
+3. Click on the "Profile" section (or edit icon)
+4. Update your information:
+   - Username
+   - Email
+   - Phone Number
+5. Click "Save Changes"
+
+*Also looking for: Update profile, Edit profile, Change details*
+
+---
+
+**Q: How do I change my password?**
+A:
+1. Log in to your account
+2. Go to "Your Page"
+3. Look for "Change Password" or "Security" section
+4. Enter your current password
+5. Enter your new password (must be different from current)
+6. Confirm your new password
+7. Click "Update"
+
+*Also looking for: Reset password, Change password, New password*
+
+---
+
+**Q: How do I download documents from my account?**
+A:
+1. Go to "Your Page"
+2. Click on the account you want to access
+3. Look for "Documents" or "View Documents"
+4. Select the document you want to download
+5. Click "Download" button
+6. File will save to your computer
+
+*Also looking for: Download files, Get documents, Export documents*
+
+---
+
+## Browsing Banks
+
+**Q: How do I browse banks?**
+A:
+1. Log in to your user account
+2. Click "Browse Banks"
+3. Select your country from the dropdown
+4. Search by bank name or filter by city
+5. Click on a bank to see details
+6. Click "Create Account" to start the account creation process
+
+*Also looking for: Find banks, Search banks, Browse banks*
+
+---
+
+**Q: Can I see which banks are available in my city?**
+A:
+Yes! When you browse banks:
+1. Go to "Browse Banks"
+2. Select your country
+3. Use the "City" filter dropdown
+4. Select your city to see banks with branches there
+5. You can also search by bank name
+
+*Also looking for: Banks in my city, Find local banks, City banks*
+
+---
+
+**Q: What if the bank I want is not available?**
+A:
+InterBankHub partners with selected banks in each country. If your bank is not available:
+1. Check if we have other banks you can use
+2. Contact support for suggestions
+3. We regularly add new bank partners
+
+Contact: support@interbankshub.com
+
+*Also looking for: Bank not available, Missing bank, Add new bank, Partner banks*
+
+---
+
+## For Admins
+
+**Q: I'm a bank admin, how do I sign up?**
+A:
+1. Click "Sign Up"
+2. Select "Admin" as your account type
+3. Fill in your details:
+   - Email
+   - Password
+   - Username
+   - Phone Number
+   - Select your Bank Name
+   - Select your Country
+4. Click "Sign Up"
+5. You'll be redirected to the Admin Dashboard
+
+*Also looking for: Admin signup, Bank admin account, Staff account*
+
+---
+
+**Q: What can I do in the Admin Dashboard?**
+A:
+As an admin, you can:
+- View all account applications
+- Filter by status: Pending, Approved, Rejected
+- View complete account details and submitted documents
+- Approve or Reject account applications
+- Add notes or feedback to applications
+- Edit your admin profile (email, username)
+- Change your password
+
+*Also looking for: Admin features, Admin dashboard, Manager tools, What can admins do*
+
+---
+
+**Q: How do I approve an account application?**
+A:
+1. Log in to your admin account
+2. Go to Admin Dashboard
+3. View the "Pending" applications
+4. Click on the application you want to review
+5. Check all the documents and details
+6. Click "Approve" button if everything is correct
+7. The user will receive an approval notification
+
+*Also looking for: Approve account, Accept application, Process application*
+
+---
+
+**Q: How do I reject an account application?**
+A:
+1. Log in to your admin account
+2. Go to Admin Dashboard
+3. View the "Pending" applications
+4. Click on the application
+5. Review the documents and details
+6. Click "Reject" button if there are issues
+7. You may optionally provide feedback
+8. The user receives a rejection notification with details
+
+*Also looking for: Reject account, Decline application, Deny account*
+
+---
+
+## Login & Security
+
+**Q: How do I log in?**
+A:
+1. Click "Sign In" on the home page
+2. Enter your email address
+3. Enter your password
+4. Click "Sign In"
+5. You'll be redirected to your dashboard (User Page for users, Admin Dashboard for admins)
+
+*Also looking for: Login, Sign in, Access account*
+
+---
+
+**Q: I forgot my password. What do I do?**
+A:
+Currently, you'll need to contact support for password reset assistance:
+- Email: support@interbankshub.com
+- Provide your email address
+- Support team will guide you through password recovery
+
+*Also looking for: Reset password, Forgot password, Lost password*
+
+---
+
+**Q: Is my data secure?**
+A:
+Yes, we employ several security measures:
+- SSL encryption for all data transmission
+- Secure password storage
+- Bank-level security standards
+- Regular security audits
+- User and admin separation for data protection
+
+Never share your password with anyone.
+
+*Also looking for: Data security, Privacy, Safety, Is data encrypted*
+
+---
+
+## Support
+
+**Q: How do I contact support?**
+A:
+You can reach support via:
+- **Email:** support@interbankshub.com
+- **Response Time:** 24-48 hours
+- **In-App:** Use the chatbot or support button if available
+
+*Also looking for: Get help, Contact support, Support team*
+
+---
+
+**Q: What should I do if I encounter a problem?**
+A:
+1. Check this FAQ for your question
+2. Try clearing your browser cache if page loading issues occur
+3. Try using a different browser
+4. Contact support with details:
+   - What you were trying to do
+   - What error occurred
+   - When it happened
+   - Screenshots if helpful
+
+Email: support@interbankshub.com
+
+*Also looking for: Problem solving, Help, Report issue, Technical support*
+
+---
+
+**Q: Can I delete my account?**
+A:
+Account deletion features may be available. For details, contact support:
+- Email: support@interbankshub.com
+- They can guide you through the account deletion process
+
+*Also looking for: Delete account, Remove account, Close account*
+
+---

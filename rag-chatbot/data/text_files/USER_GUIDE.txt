@@ -1,148 +1,698 @@
+# InterBankHub - Complete User Guide
+
+Welcome to InterBankHub! This comprehensive guide covers everything you need to know to use the platform effectively.
+
 ---
 
+## Table of Contents
 
-ACCOUNT CREATION GUIDE (User)
+1. [Getting Started](#getting-started)
+2. [User Account Management](#user-account-management)
+3. [Selecting Banks](#selecting-banks)
+4. [Creating Bank Accounts](#creating-bank-accounts)
+5. [Managing Your Accounts](#managing-your-accounts)
+6. [Admin Features](#admin-features)
+7. [Troubleshooting](#troubleshooting)
+8. [Support](#support)
 
-How to Create a New Bank Account
-Route: /createaccount
-1. Log in to your user account and go to the “Create Account” page (/createaccount).
-2. The account creation process is a multi-step form. Complete each step as follows:
-	 • Step 1: Select Branch (Route: /createaccount, first step)
-		 – Choose your preferred bank branch from the available list.
-	 • Step 2: Personal Details (Route: /createaccount, second step)
-		 – Enter your full name, date of birth, gender, mobile number, email, address, Aadhaar number, and PAN number (all required).
-	 • Step 3: Educational Details (Route: /createaccount, third step)
-		 – Fill in your highest qualification and other educational information as prompted.
-	 • Step 4: Income Details (Route: /createaccount, fourth step)
-		 – Provide your occupation, annual income, and related details.
-	 • Step 5: Nominee Details (Route: /createaccount, fifth step)
-		 – Add nominee information (name, relationship, contact details).
-	 • Step 6: Documents Upload (Route: /createaccount, final step)
-		 – Upload all required documents (e.g., ID proof, address proof, income proof) as per the instructions.
-3. Each step validates your input before allowing you to proceed to the next.
-4. After completing all steps, review your information and submit the form.
-5. You will see a confirmation message if your account creation request is successful. If there are errors, they will be displayed for correction.
-6. Once submitted, you can view the status of your account application from your dashboard (Route: /userpage).
-
-Tips:
-• Prepare all required documents in advance for a smooth process.
-• Double-check your details for accuracy before submitting.
-• If you encounter validation errors, correct the highlighted fields and try again.
 ---
 
-ADMIN USER GUIDE
+## Getting Started
 
+### Sign Up as a User
 
-1. Admin Login
-Route: /signin (select Admin)
-• Go to the Sign In page (/signin).
-• Select "Admin" as your user type if prompted.
-• Enter your admin username/email and password.
-• On successful login, you are redirected to the admin dashboard (/adminpage).
-• If credentials are invalid, an error message is displayed.
+1. Visit the home page and click **"Sign Up"**
+2. Select **"User"** as your account type
+3. Fill in your details:
+   - Email address (will be your login username)
+   - Password (minimum 8 characters, mix of letters, numbers, and symbols recommended)
+   - Confirm password
+   - Username (display name)
+   - Phone number
+   - Country (India, USA, or UK)
+4. Click **"Sign Up"**
+5. You'll be redirected to the sign-in page
+6. Log in with your email and password
 
-2. Admin Dashboard Overview
-Route: /adminpage
-• After login, you access the admin dashboard with navigation for profile, accounts, applications, branches, and more.
-• The sidebar/menu allows switching between different admin features.
+**Time required:** 3-5 minutes
 
-3. Manage Profile
-Route: /adminpage (Profile section)
-• In the dashboard, open the profile section.
-• Click the edit button or open the profile edit modal.
-• Update your admin details (username, email, bank, country, etc.) as needed.
-• Save changes. The system validates for required fields and uniqueness.
-• A confirmation message appears if the update is successful.
+### First Time Login
 
-4. Change Admin Password
-Route: /adminpage (Profile section)
-• In your profile section, select the option to change your password.
-• Enter your current password, new password, and confirm the new password.
-• Save changes. The system will confirm if the password was updated successfully.
+1. Go to **Sign In** page
+2. Enter your email address and password
+3. Click **"Sign In"**
+4. You'll be taken to your dashboard (**Your Page**)
 
-5. Manage User Accounts
-Route: /adminpage (Accounts/Applications section)
-• Navigate to the "Accounts" or "Applications" section in the dashboard.
-• View all user account applications, filter by status (e.g., Pending, Approved, Rejected).
-• Click on an application to view details.
-• Approve or reject applications as needed. The system updates the status and notifies the user.
+---
 
-6. Manage Branches
-Route: /adminpage (Branches section)
-• Go to the "Branches" section in the dashboard.
-• View, add, or edit branch details as required.
-• Fill in all required fields for new or updated branches and save changes.
+## User Account Management
 
-7. Log Out
-Route: /adminpage or any admin page
-• Click the “Logout” button in the navigation bar or admin menu.
-• Your session is cleared and you are redirected to the login page (/signin).
+### Accessing Your Dashboard
 
-Tips:
-• Always use a strong, unique password for your admin account.
-• Regularly review pending applications and branch information for accuracy.
-• Log out after using the application, especially on shared or public devices.
+- After login, you'll see your dashboard (**Your Page**) with sidebar navigation:
+  - **My Profile** - View and edit user information
+  - **Bank Accounts** - View all your created accounts
+   - **New Account** - Select bank and create accounts
+  - **Support** - Contact support
+  - **Help Center** - View frequently asked questions
+  - Theme toggle (dark/light mode in top right)
 
-For further help, contact support or refer to the FAQ section if available.
+### Viewing Your Profile
 
-BANKINGAPPLICATION USER GUIDE (User Features Only)
+1. Click **"My Profile"** in the sidebar
+2. You'll see your profile information:
+   - Username (display name)
+   - Email address
+   - Phone number
+   - Account status (Active)
+   - Member since date
 
+### Editing Your Profile
 
-1. Register as a New User
-Route: /signup
-• Go to the Sign Up page (/signup).
-• Fill in all required fields: username, email, phone number, password, country, and bank (if applicable).
-• The system checks for unique and valid data. Errors are shown for invalid or duplicate entries.
-• Submit the form. On success, you are redirected to the login page (/signin).
+1. From the **My Profile** section, click **"Edit Details"** button
+2. A modal window opens with your profile information
+3. Update any of these fields:
+   - Username (display name)
+   - Email address
+   - Phone number
+4. Click **"Save"** or **"Save Changes"** button
+5. You'll see a success confirmation message
+6. Modal will close automatically after 2 seconds
 
-2. Log In
-Route: /signin
-• Go to the Sign In page (/signin).
-• Enter your username or email and password.
-• On successful login, you are taken to your user dashboard (/userpage).
-• If credentials are invalid, an error message is displayed.
+**Validation Requirements:**
+- Username must be 3-50 characters
+- Email must be a valid email address
+- Email must be unique (not already in use)
+- Phone number must be valid for your country
 
-3. Edit Profile
-Route: /userpage (Profile section)
-• On your dashboard (/userpage), locate your profile section.
-• Click the edit button or open the profile edit modal.
-• Update your username, email, or phone number as needed.
-• Save your changes. The system validates for required fields and uniqueness.
-• A confirmation message appears if the update is successful.
+### Changing Your Password
 
-4. Change Password
-Route: /userpage (Profile section)
-• In your profile section, select the option to change your password.
-• Enter your current password and your new password.
-• Save changes. The system will confirm if the password was updated successfully.
+1. From the **My Profile** section, click **"Change Password"** button
+2. A modal window opens with password fields
+3. Enter your **Current Password** (for verification)
+4. Enter your **New Password**
+5. Confirm your **New Password**
+6. Click **"Update"** button
+7. You'll see a success confirmation message
+8. Modal will close automatically
 
-5. View Linked Bank Accounts
-Route: /userpage
-• On your dashboard, view the list of your linked bank accounts.
-• Click on an account to see details or associated documents.
+**Validation Rules:**
+- Current password is required for verification
+- New password must be different from current password
+- New password must be at least 8 characters
+- Must include mix of uppercase, lowercase, and numbers
 
-6. Create a New Bank Account
-Route: /createaccount
-• Go to the “Create Account” page (/createaccount).
-• Complete each step of the multi-step form: select branch, enter personal, educational, income, and nominee details, and upload documents.
-• Each step validates your input before proceeding.
-• Submit the form to create your account. Success or error messages are shown as appropriate.
+### Toggling Dark/Light Mode
 
-7. Browse Banks and Branches
-Route: /browsebank
-• Go to the “Browse Bank” page (/browsebank).
-• Search and filter banks by country, city, or branch.
-• View details and images for each bank/branch.
-• If logged in, see which banks you already have accounts with.
+1. Look for the **sun/moon icon** in the top right corner
+2. Click **☀️** (sun) for light mode or **🌙** (moon) for dark mode
+3. Theme toggles immediately
+4. Your preference is automatically saved in your browser
+5. Persists across sessions and logins
 
-8. Log Out
-Route: /userpage or any user page
-• Click the “Logout” button in the navigation bar or user menu.
-• Your session is cleared and you are redirected to the login page (/signin).
+### Logging Out
 
-Tips:
-• Always use a strong, unique password.
-• If you encounter errors, check for validation messages and ensure all required fields are filled.
-• Log out after using the application, especially on shared devices.
+1. From the **My Profile** section, click **"Logout"** button
+2. Or click the logout icon in the sidebar header
+3. Your session will be completely cleared
+4. You'll be redirected to the sign-in page
+5. Always log out on shared or public computers for security
 
-For further help, contact support or refer to the FAQ section if available.
+---
+
+## Selecting Banks & Creating Accounts
+
+### Accessing Bank Selection
+
+1. From your dashboard, click **"New Account"** in the sidebar
+2. Use the built-in bank selection controls on that section
+
+### Bank Selection Interface
+
+**Step 1: Select Country**
+- Use the country dropdown
+- Options: India, USA, UK
+- Banks will load for your selected country
+
+**Step 2: Select City**
+- Use the city dropdown to filter banks by location
+- Only shows cities with banks in your selected country
+- Filters the available banks
+
+**Step 3: Select Bank**
+- Use the bank dropdown to see available banks
+- Each bank shows if you already have an account with it
+- Icon shows: **(Account Exists)** if duplicate found
+- Prevents duplicate accounts with same bank
+
+**Step 4: Review Your Selection**
+- Summary shows:
+  - Selected Country
+  - Selected City
+  - Selected Bank
+  - Warning if account already exists (⚠️)
+
+### Starting Account Creation
+
+1. After selecting bank and city, click **"Create Account with [Bank Name]"**
+2. You'll be taken to the 6-step account creation form
+3. If you already have an account with that bank, you'll see an error message
+4. Select a different bank to proceed
+
+---
+
+## Creating Bank Accounts
+
+### Starting the Account Creation Process
+
+1. From dashboard, click **"New Account"** in the sidebar
+2. Select your preferred Country, City, and Bank
+3. Click **"Create Account with [Bank Name]"** button
+4. You'll be redirected to the 6-step form
+
+### 6-Step Account Creation Form
+
+The account creation process is split into 6 steps. You must complete each step before proceeding to the next.
+
+#### **Step 1: Select Branch**
+
+- Choose your bank branch from the dropdown
+- Only branches for your selected bank are shown
+- Click **"Next"** to proceed
+
+#### **Step 2: Personal Details**
+
+**Required fields:**
+- Full Name (as it appears on your ID)
+- Date of Birth (select from date picker)
+- Gender (Male/Female/Other)
+- Mobile Number
+- Email Address
+- Complete Address
+- Country-specific ID numbers:
+  - **India:** Aadhaar Number (12 digits) + PAN (10 digits)
+  - **USA:** Social Security Number (SSN format: XXX-XX-XXXX)
+  - **UK:** National Insurance Number (format: AB123456C)
+
+Click **"Next"** when complete.
+
+#### **Step 3: Educational Details**
+
+**Required fields:**
+- Education Level (dropdown with country-specific options)
+- Institution Name
+- Course/Degree Name
+- Year of Completion
+- Grade/CGPA (optional)
+
+Click **"Next"**.
+
+#### **Step 4: Income Details**
+
+**Required fields:**
+- Employment Status:
+  - Employed
+  - Self-Employed
+  - Business Owner
+  - Student
+  - Retired
+  - Unemployed
+- Employer Name (if applicable)
+- Occupation
+- Monthly Income (in local currency)
+- Annual Income (in local currency)
+- Income Source (Salary, Business, Investment, Pension, Other)
+
+Click **"Next"**.
+
+#### **Step 5: Nominee Details**
+
+**Required fields:**
+- Nominee Full Name
+- Relationship to You (Spouse, Father, Mother, Son, Daughter, Brother, Sister, Other)
+- Nominee Date of Birth
+- Nominee Contact Number
+- Nominee Address
+
+Click **"Next"**.
+
+#### **Step 6: Documents & Account**
+
+**Upload Documents (all required):**
+1. **ID Proof:**
+   - National ID, Passport, Driver's License, or Government ID
+   - Formats: JPG, JPEG, PNG, PDF
+   - Max file size: 5MB per document
+   - Must be clear and readable
+
+2. **Address Proof:**
+   - Utility bill, Government letter, Bank statement, or Lease agreement
+   - Same format requirements
+
+3. **Income Proof:**
+   - Salary slip, Tax return, Bank statement, or Business statement
+   - Same format requirements
+
+4. **Passport Photo:**
+   - Recent color photo
+   - Same format requirements
+
+**Account Selection:**
+- Select account type (varies by country):
+  - **India:** Savings, Current, Salary, Fixed Deposit
+  - **USA:** Checking, Savings, Money Market, Certificate of Deposit
+  - **UK:** Current, Savings, ISA, Fixed Term
+
+**Initial Deposit:**
+- Enter the amount you want to deposit initially
+- Currency depends on country (INR, USD, GBP)
+
+**Consent:**
+- Check the box: "I agree to terms and conditions"
+
+**Submit:**
+- Click **"Submit Application"**
+- You'll see a confirmation message
+- Application status will show as **"Pending"**
+
+### Document Upload Tips
+
+- Ensure documents are clear and well-lit
+- All text should be readable
+- Keep documents within file size limits (5MB max)
+- Use JPG or PNG for photos
+- Use PDF for official documents
+- Check file format before uploading (JPG, JPEG, PNG, or PDF only)
+
+### Expected Timeline
+
+- **Submission:** Instant
+- **Bank Review:** 2-5 business days
+- **Status Check:** View in your dashboard
+- **Decision:** Check your dashboard for approval or rejection
+
+---
+
+## Managing Your Accounts
+
+### Viewing Your Bank Accounts
+
+1. From your dashboard, click **"Bank Accounts"** in the sidebar
+2. All your created accounts will be displayed
+3. Accounts show with bank name, type, status, and other details
+
+### Filtering Your Accounts
+
+**Status Filter Options:**
+- **All Accounts** - Shows all your accounts regardless of status
+- **Pending Review** - Applications currently being reviewed by banks
+- **Approved** - Applications approved and ready to use
+- **Rejected** - Applications that were declined
+
+**Refresh Accounts:**
+- Click the **Refresh** button (↻ icon) to manually refresh the account list
+- Shows current status of all applications
+- Useful after submitting a new application
+
+### Account Card Information
+
+Each account card displays:
+- 🏛️ Bank name
+- 🌍 Country
+- 🏢 Branch
+- 📅 Creation date
+- Status badge (Pending/Approved/Rejected)
+- 💳 Account number (if approved)
+
+### Viewing Full Account Details
+
+1. Click **"View Full Details"** button on any account card
+2. A modal window opens showing:
+   - All submitted information (personal, educational, income, nominee details)
+   - Account status
+   - Rejection reason (if application was rejected)
+   - List of all 4 uploaded documents
+   - Download buttons for each document
+
+### Downloading Documents
+
+1. Click **"View Full Details"** on the account card
+2. In the modal, scroll to **"Documents"** section
+3. You'll see 4 documents:
+   - ID Proof
+   - Address Proof
+   - Income Proof
+   - Passport Photo
+4. Click **"Download"** next to the document you want
+5. File saves to your computer's default download location
+6. File name is the original filename you uploaded
+
+### If Application is Rejected
+
+- Check the rejection reason in your dashboard
+- Common reasons:
+  - Documents unclear or illegible
+  - Information mismatch or incomplete
+  - ID or address proof requirements not met
+  - Expired or invalid documents
+
+**To Reapply:**
+1. You can create another application for the same bank
+2. Correct any issues identified
+3. Resubmit with updated information
+
+---
+
+## Admin Features
+
+### Sign Up as Admin
+
+1. Click **"Sign Up"**
+2. Select **"Admin"** (Bank Staff)
+3. Fill in details:
+   - Email address
+   - Password
+   - Username
+   - Phone number
+   - **Select Your Bank** from the dropdown (important!)
+   - **Select Country**
+4. Click **"Sign Up"**
+5. Log in with your credentials
+
+### Admin Dashboard
+
+After login as admin, you'll see:
+- Count of pending applications
+- Quick navigation tabs (Pending, Approved, Rejected)
+- Admin profile information
+- Admin settings
+
+### Viewing Applications
+
+1. From the admin dashboard, click the tab for:
+   - **Pending** - Applications waiting for review
+   - **Approved** - Already approved applications
+   - **Rejected** - Rejected applications
+
+2. Each application shows:
+   - Applicant name
+   - Application date
+   - Account type requested
+   - Current status
+
+### Reviewing an Application
+
+1. Click on an application to open it
+2. Review all sections:
+   - Personal Details (name, DOB, contact info)
+   - Educational Background
+   - Income Information
+   - Nominee Details
+   - Account Type and Deposit Amount
+
+3. Review all 4 uploaded documents:
+   - ID Proof (check validity and clarity)
+   - Address Proof (matches address on application)
+   - Income Proof (verifies stated income)
+   - Passport Photo
+
+### Approving an Application
+
+1. Review all details and documents
+2. If everything is correct and complete:
+   - Click **"Approve"** button
+3. Application status changes to "Approved"
+4. Application moves to Approved tab
+5. Applicant can see approval in their dashboard
+
+### Rejecting an Application
+
+1. If there are issues:
+   - Click **"Reject"** button
+2. (Optional) Add a rejection reason explaining what needs correction
+3. Application status changes to "Rejected"
+4. Application moves to Rejected tab
+5. Applicant can see rejection reason in their dashboard
+
+### Admin Profile Management
+
+1. Click on your profile/settings
+2. View your information:
+   - Username
+   - Email
+   - Bank Name
+   - Country
+   - Phone Number
+
+3. To edit:
+   - Click **"Edit"** button
+   - Update username or email
+   - Click **"Save"**
+
+4. To change password:
+   - Click **"Change Password"**
+   - Enter current password
+   - Enter new password (min 8 characters)
+   - Confirm new password
+   - Click **"Update"**
+
+---
+
+## Troubleshooting
+
+### Login Issues
+
+**"I forgot my password"**
+- Unfortunately, the app doesn't have an automated password reset
+- Contact support with your registered email
+- They will verify your identity and help you reset
+
+**"Can't log in with my email"**
+- Ensure you're using the email you signed up with
+- Check for typos
+- Verify CAPS LOCK is off
+- Try clearing browser cache and cookies
+
+### Account Creation Issues
+
+**"Upload button won't work"**
+- Check file format (must be JPG, JPEG, PNG, or PDF)
+- Check file size (must be under 5MB)
+- Try different browser (Chrome, Firefox, Edge)
+- Clear browser cache and try again
+
+**"I submitted incorrect information"**
+- If application is still pending:
+  - Contact support with your email and account details
+  - They may be able to help correct it
+
+- If application was rejected:
+  - You can submit a new application with corrected information
+
+**"Documents were rejected"**
+- Documents must be clear and readable
+- All text must be visible
+- Documents must not be expired
+- Address on documents should match your application address
+- Resubmit with better quality documents
+
+### Application Status Issues
+
+**"Why is my application still pending?"**
+- Normal processing time: 2-5 business days
+- Admin is reviewing your documents
+- Check your dashboard regularly for updates
+- Status updates automatically
+
+**"Why was my application rejected?"**
+- Check your dashboard for the rejection reason
+- Common issues: unclear documents, incomplete information, missing fields
+- Resubmit with corrections
+
+**"I can't see my bank in the list"**
+- Ensure you selected the correct country
+- Try searching by exact bank name
+- Make sure we support your country (India, USA, UK only)
+- Contact support if your bank should be available
+
+### Profile Issues
+
+**"I can't update my profile"**
+- New email must be unique (not already used)
+- Click the edit button (pencil icon)
+- Ensure all fields are filled
+- Click "Save Changes"
+
+**"Profile changes didn't save"**
+- Check that there are no validation errors (red messages)
+- Try logging out and back in
+- Refresh the page and try again
+
+### Technical Issues
+
+**"Page won't load"**
+- Refresh the page (F5 or Ctrl+R)
+- Check your internet connection
+- Try a different browser
+- Clear cache and cookies
+
+**"Server error message"**
+- Wait a few minutes and try again
+- The backend server may be temporarily down
+- Contact support if issue persists
+
+**"Theme/dark mode not saving"**
+- Clear browser cache and cookies
+- Make sure JavaScript is enabled
+- Try logging out and back in
+
+---
+
+## Support & Help Center
+
+### Getting Help
+
+**Contact Support:**
+- Click **"Support"** in your dashboard sidebar
+- Email: **noreplyinterbankinghub@gmail.com**
+- Professional response within 24-48 hours
+
+**In Your Email Include:**
+- Your registered email address
+- Your user ID (if available)
+- Clear description of your issue
+- What you were trying to do when the error occurred
+- Any error messages you received
+- Screenshots if helpful
+- Relevant account or bank details
+- Your approximate account creation date
+
+### Help Center
+
+Click **"Help Center"** in your sidebar to access frequently asked questions about:
+- Account application processing time
+- Required documents by country
+- Multiple account management
+- Application status tracking
+- Application rejection and reapplication
+- Data security and encryption
+
+These FAQs cover the most common user questions and provide quick answers without needing to contact support.
+
+### Dashboard Sidebar Navigation
+
+Your dashboard sidebar provides quick access to:
+
+1. **My Profile** (👤)
+   - View profile information
+   - Edit profile details
+   - Change password
+   - Logout
+
+2. **Bank Accounts** (💳)
+   - View all accounts
+   - Filter by status
+   - Refresh account list
+   - Download documents
+   - View account details
+
+3. **New Account** (➕)
+   - Browse available banks
+   - Select country, city, bank
+   - Start new account application
+   - Check for duplicate accounts
+
+4. **Support** (✉️)
+   - Email address for support
+   - Support tips and guidelines
+   - Contact information
+
+5. **Help Center** (❓)
+   - Frequently asked questions
+   - Common troubleshooting
+   - Application information
+   - Feature explanations
+
+### Common Questions
+
+**Q: How long does it take to approve my account application?**
+A: Account application processing typically takes 1-3 business days depending on the bank and country. You'll receive comprehensive status updates throughout the review process.
+
+**Q: Can I have multiple accounts?**
+A: Yes! You can create accounts with different banks and in different countries. All accounts appear in your dashboard under "Bank Accounts" section.
+
+**Q: What documents do I need to open a bank account?**
+A: Documentation requirements vary by country and bank type. For Indian accounts, you typically need Aadhaar card, PAN card, and address proof. For USA/UK accounts, passport and local address verification may be required. Our platform guides you through the specific requirements for each bank.
+
+**Q: How many accounts can I create?**
+A: There is no limit. Create as many as you need across different banks and countries.
+
+**Q: What happens if my application is rejected?**
+A: If your application is not approved, check the rejection reason in your account details. You can contact support for assistance and reapply once you've corrected the identified issues.
+
+**Q: Can I delete an account?**
+A: Account deletion is not currently supported through the interface. Contact support if you need to remove an account.
+
+**Q: Is my data secure?**
+A: Yes. The application uses:
+- SSL encryption for all data
+- Secure password hashing
+- Proper session management
+- Authentication tokens
+
+**Q: What happens after approval?**
+A: After your application is approved:
+1. Status changes to "Approved" in your dashboard
+2. You can download your submitted documents
+3. You can view your complete account details
+4. You can use your account according to bank policies
+
+**Q: Can I reapply after rejection?**
+A: Yes! You can submit a new application for the same bank. Make sure to correct the issues that caused the rejection based on the feedback provided.
+
+**Q: How do I check my application status?**
+A: You can monitor all applications in real-time through the "Bank Accounts" section of your dashboard. Filter by status (Pending, Approved, Rejected) to see your applications. Status updates automatically when admins review your application.
+
+---
+
+## Tips for Success
+
+✅ **DO:**
+- Fill all fields accurately and completely
+- Upload clear, readable documents
+- Double-check information before submitting
+- Use a strong, unique password
+- Log out on shared computers
+- Check your dashboard regularly for status updates
+- Contact support if you have questions
+
+❌ **DON'T:**
+- Provide false information
+- Submit expired documents
+- Upload blurry or partial photos
+- Reuse passwords from other sites
+- Share your login credentials
+- Rush through the forms (accuracy matters)
+- Submit multiple applications for the same account
+
+---
+
+## Browser Compatibility
+
+**Recommended Browsers:**
+- Google Chrome (latest version)
+- Mozilla Firefox (latest version)
+- Microsoft Edge (latest version)
+- Safari (latest version)
+
+**Minimum Requirements:**
+- JavaScript enabled
+- Cookies enabled
+- Modern browser (2020 or later)
+
+---
+
+**Last Updated:** May 8, 2026
+**Version:** 2.0 (Updated to match actual UserPage interface)
+
+For technical support or account-specific issues, email: noreplyinterbankinghub@gmail.com

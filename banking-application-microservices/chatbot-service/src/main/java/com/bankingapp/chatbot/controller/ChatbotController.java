@@ -42,6 +42,8 @@ public class ChatbotController {
             dataMap.put("sessionId", response.getSessionId() != null ? response.getSessionId() : "");
             dataMap.put("messageId", response.getMessageId() != null ? response.getMessageId() : "");
             dataMap.put("quickReplies", response.getQuickReplies() != null ? response.getQuickReplies() : List.of());
+            dataMap.put("responseType", response.getResponseType() != null ? response.getResponseType() : "final_answer");
+            dataMap.put("options", response.getOptions() != null ? response.getOptions() : List.of());
             dataMap.put("timestamp", response.getTimestamp() != null ? response.getTimestamp().toString() : LocalDateTime.now().toString());
             dataMap.put("botName", "Banking Assistant");
             
@@ -58,10 +60,10 @@ public class ChatbotController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("data", Map.of(
-                "response", "I apologize, but I'm experiencing technical difficulties. Please try again in a moment, or contact our customer service team for immediate assistance.",
+                "response", "FastAPI bridge failure: " + e.getMessage(),
                 "sessionId", request.getSessionId() != null ? request.getSessionId() : "error_session",
                 "messageId", "error_" + System.currentTimeMillis(),
-                "quickReplies", List.of("🔄 Try Again", "📞 Contact Support", "🏠 Main Menu"),
+                "quickReplies", List.of(),
                 "timestamp", new java.util.Date(),
                 "botName", "Banking Assistant"
             ));

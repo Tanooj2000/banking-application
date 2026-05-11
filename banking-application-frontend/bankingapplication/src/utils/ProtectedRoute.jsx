@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AuthGuard } from './authGuard';
 
-const ProtectedRoute = ({ children, requireAuth = true, adminOnly = false }) => {
+const ProtectedRoute = ({ children, requireAuth = true, adminOnly = false, userOnly = false }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userType, setUserType] = useState(null);
@@ -77,6 +77,13 @@ const ProtectedRoute = ({ children, requireAuth = true, adminOnly = false }) => 
   }
 
   if (adminOnly && (!isAuthenticated || userType !== 'admin')) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (userOnly && (!isAuthenticated || userType === 'admin')) {
+    if (userType === 'admin') {
+      return <Navigate to="/adminpage" replace />;
+    }
     return <Navigate to="/signin" replace />;
   }
 

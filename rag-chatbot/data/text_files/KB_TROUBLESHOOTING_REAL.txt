@@ -1,0 +1,595 @@
+# InterBankHub - Troubleshooting Guide
+
+Solutions for common issues on InterBankHub.
+
+---
+
+## Account & Login Issues
+
+### "I can't log in"
+
+**Symptom:** Login button doesn't work or shows error
+
+**Solutions:**
+1. **Check your credentials**
+   - Verify email is correct
+   - Verify password is correct
+   - Password is case-sensitive
+   - Check Caps Lock
+
+2. **Try these steps:**
+   - Refresh the page (Ctrl+R or Cmd+R)
+   - Clear browser cookies:
+     - Chrome: Settings → Privacy → Clear browsing data
+     - Firefox: Settings → Privacy → Clear Data
+   - Try a different browser
+   - Try from a different network
+
+3. **If you forgot your password:**
+   - Contact support: support@interbankshub.com
+   - They'll help you reset it
+   - Include your registered email address
+
+**If still not working:** 
+- Email support@interbankshub.com with:
+  - Your email address
+  - Error message you see
+  - Screenshot of the problem
+
+---
+
+### "I forgot my password"
+
+**Solution:**
+1. On Sign In page, look for "Forgot Password" link (if available)
+2. If not available, contact support:
+   - Email: support@interbankshub.com
+   - Include your registered email
+   - Support will help you reset
+   - Response time: 24-48 hours
+
+---
+
+### "I can't sign up"
+
+**Problem: Form won't submit**
+
+**Check these:**
+- All required fields are filled in red/marked as required
+- Email is valid format (example@domain.com)
+- Password meets requirements (8+ characters, letters, numbers)
+- Passwords match in both fields
+- Select your country
+
+**If form still won't submit:**
+- Try a different browser
+- Clear browser cache
+- Disable browser extensions (some interfere with forms)
+- Try a different device
+
+---
+
+### "My account is locked"
+
+**Symptom:** "Account locked" or "Too many attempts" message
+
+**Reason:** Too many failed login attempts
+
+**Solution:**
+1. Wait 30 minutes
+2. Try logging in again
+3. If still locked, contact support:
+   - Email: support@interbankshub.com
+   - They can unlock your account
+
+---
+
+## Password & Security Issues
+
+### "I want to change my password"
+
+**Step 1: Log in**
+- Sign in with your current credentials
+
+**Step 2: Go to profile**
+- Click "Your Page" (Users) or Admin Dashboard
+
+**Step 3: Find password option**
+- Look for "Change Password" or "Security" section
+
+**Step 4: Update**
+- Enter current password
+- Enter new password (must be different)
+- Confirm new password
+- Click "Update"
+
+---
+
+### "I'm getting logged out unexpectedly"
+
+**Reason:** Session timeout or browser issue
+
+**Solutions:**
+1. **Clear browser cache:**
+   - Chrome: Settings → Privacy → Clear browsing data
+   - Firefox: Settings → Privacy → Clear Data
+   - Safari: Develop → Empty Caches
+
+2. **Try these:**
+   - Log out completely
+   - Close all browser tabs
+   - Restart browser
+   - Log in again
+
+3. **Check your browser:**
+   - Update browser to latest version
+   - Try a different browser
+   - Check if cookies are enabled
+
+---
+
+## Profile & Account Management Issues
+
+### "I can't edit my profile"
+
+**Problem: Edit button doesn't work or fields won't update**
+
+**Solutions:**
+1. **Check permissions:**
+   - Are you logged in?
+   - Are you on "Your Page" (Users)?
+   - Are you on Admin Dashboard (Admins)?
+
+2. **Try these:**
+   - Refresh page (Ctrl+R)
+   - Log out and log in again
+   - Try a different browser
+   - Wait a moment and try again (may be loading)
+
+3. **Check your information:**
+   - All fields filled correctly?
+   - Email is valid format?
+   - Phone number is valid?
+
+**If still not working:**
+- Email support@interbankshub.com
+
+---
+
+### "I can't download my documents"
+
+**Problem: Download button doesn't work or file won't download**
+
+**Solutions:**
+1. **Check your browser:**
+   - Is download enabled in browser settings?
+   - Check your Downloads folder
+   - Try a different browser
+
+2. **Refresh and retry:**
+   - Refresh the page
+   - Wait for page to load completely
+   - Try clicking download again
+
+3. **Check internet:**
+   - Is your connection stable?
+   - Try on a different network
+   - Disable VPN if using one
+
+4. **Try different document:**
+   - Sometimes one document works better than others
+   - Try downloading another document first
+   - If that works, try original document again
+
+---
+
+### "My account status shows 'Pending' but I submitted long ago"
+
+**Reason:** Processing delays
+
+**Solutions:**
+1. **Check email:**
+   - Look for status update emails
+   - Check spam/junk folder
+
+2. **Normal timeline:**
+   - Typical: 2-5 business days
+   - May be longer depending on volume
+   - Does not count weekends/holidays
+
+3. **Contact admin:**
+   - Email your bank's support
+   - Ask for status update
+   - Provide your email and account details
+
+---
+
+## Document Upload Issues
+
+### "I can't upload documents"
+
+**Problem: Upload button doesn't work**
+
+**Check these:**
+1. **File format:**
+   - Supported: JPG, JPEG, PNG, PDF
+   - NOT supported: BMP, GIF, TIFF, DOC
+   - Convert if needed (use online converter if necessary)
+
+2. **File size:**
+   - Maximum: 5MB per file
+   - If larger, compress the file
+   - Use compression tool or upload service
+
+3. **Browser:**
+   - Try a different browser
+   - Update your browser
+   - Disable extensions temporarily
+
+4. **Internet:**
+   - Check connection is stable
+   - Try uploading on better WiFi
+   - Mobile data might be slower
+
+---
+
+### "My documents are rejected for being unclear"
+
+**Problem: After uploading, documents are said to be unclear**
+
+**Solution:** Reupload with clear documents
+
+**Take better photos:**
+- Good lighting (daylight is best)
+- Entire document visible (all edges)
+- No shadows or glare
+- Document laying flat
+- Color photo (not black & white)
+- Not cropped or partial
+
+**Convert properly:**
+- Use phone camera app, not just screenshot
+- If scanning, use quality scanner
+- If using PDF, ensure text is readable
+- Check preview before uploading
+
+**Compress without losing quality:**
+- Use online image compressor
+- Check file opens clearly before uploading
+- If text is blurry, use higher quality
+
+---
+
+### "I uploaded wrong document"
+
+**Solution:**
+1. If form not yet submitted:
+   - Delete the document (if delete option available)
+   - Upload correct document
+   - Then submit form
+
+2. If already submitted:
+   - Contact support@interbankshub.com
+   - Explain which document is wrong
+   - They'll advise on resubmission
+
+---
+
+## Bank & Account Creation Issues
+
+### "I can't find my bank"
+
+**Problem: Bank not appearing in search or list**
+
+**Check these:**
+1. **Did you select correct country?**
+   - Your bank must be in selected country
+   - Switch country dropdown if needed
+   - Different countries have different banks
+
+2. **Try searching:**
+   - Use exact bank name
+   - Try spelling variations (State Bank vs SBI)
+   - Try with/without words (Bank of India vs Bank India)
+
+3. **Search by city:**
+   - Use city filter
+   - Select your city
+   - See if bank has branch there
+
+**If bank still not found:**
+- We may not partner with that bank yet
+- Contact support: support@interbankshub.com
+- They can suggest alternatives
+- Or tell us about banks you'd like added
+
+---
+
+### "I can't see branches for my selected bank"
+
+**Problem: Branch dropdown empty or showing no options**
+
+**Solutions:**
+1. **Select bank first:**
+   - Choose bank from list
+   - Then select city
+   - Then branches should appear
+
+2. **Try refreshing:**
+   - Refresh the page
+   - Try again
+   - Wait a few seconds for page to load
+
+3. **Check selection:**
+   - Ensure country is selected
+   - Ensure bank is selected
+   - Ensure city is selected
+
+**If no branches appear:**
+- Contact support
+- Bank might not have branches in your city yet
+- You can try other banks
+
+---
+
+### "Account creation form won't submit"
+
+**Problem: Submit button doesn't work or shows error**
+
+**Check these:**
+1. **All fields completed:**
+   - Look for red asterisks * (required fields)
+   - Fill all required fields
+   - No blank fields in any step
+
+2. **Information accurate:**
+   - Check spelling of names
+   - Verify dates (DOB format)
+   - Check ID numbers are valid format:
+     - India: 12-digit Aadhaar, 10-char PAN
+     - USA: 9-digit SSN (XXX-XX-XXXX)
+     - UK: NIN format (2 letters, 6 digits, 1 letter)
+
+3. **Documents uploaded:**
+   - All 4 documents needed
+   - All documents clear and readable
+   - All file sizes under 5MB
+   - All files in correct format (JPG, PNG, PDF)
+
+4. **Try these:**
+   - Refresh page and try again
+   - Try different browser
+   - Disable browser extensions
+   - Clear browser cache
+
+---
+
+### "I made a mistake in my application"
+
+**If not yet submitted:**
+- Go back to that step
+- Correct the information
+- Review before resubmitting
+
+**If already submitted:**
+- Contact support@interbankshub.com
+- Explain what's wrong
+- They'll advise on what to do:
+  - May allow correction
+  - May need to resubmit
+  - May automatically update
+
+---
+
+## Browsing & Navigation Issues
+
+### "I can't browse banks"
+
+**Problem: Browse Banks page not loading or shows error**
+
+**Solutions:**
+1. **Refresh page:**
+   - Click refresh (Ctrl+R)
+   - Wait for page to load
+   - Try again
+
+2. **Check login:**
+   - Are you logged in as a user?
+   - Users can browse banks
+   - Admins cannot browse banks
+   - Try logging in again
+
+3. **Try different browser:**
+   - Switch to Chrome, Firefox, or Edge
+   - Clear cache and try
+
+4. **Check internet:**
+   - Stable connection?
+   - Try different network
+   - Disable VPN
+
+---
+
+### "Page won't load"
+
+**Problem: Blank page or loading forever**
+
+**Solutions:**
+1. **Refresh page:**
+   - Press Ctrl+R (Windows) or Cmd+R (Mac)
+   - Wait 10 seconds
+   - Try again
+
+2. **Clear cache:**
+   - Clear browser cache and cookies
+   - Restart browser
+   - Try again
+
+3. **Try different browser:**
+   - Chrome, Firefox, Edge, Safari
+   - Sometimes one works better
+
+4. **Check internet:**
+   - Is WiFi/data connected?
+   - Try different network
+   - Restart router
+
+---
+
+### "Buttons don't work"
+
+**Problem: Clicking buttons does nothing**
+
+**Solutions:**
+1. **Try double-clicking** (sometimes single click doesn't register)
+
+2. **Refresh page** (Ctrl+R) and try again
+
+3. **Wait for loading:**
+   - Page might be loading
+   - Wait a few seconds
+   - Try again
+
+4. **Try different browser**
+
+5. **Disable extensions:**
+   - Browser extensions might interfere
+   - Disable them temporarily
+   - Try again
+
+---
+
+## Admin-Specific Issues
+
+### "I can't see pending applications"
+
+**Problem: Application list is empty**
+
+**Solutions:**
+1. **Check status filter:**
+   - Are you on "Pending" tab?
+   - Click "Pending" to see pending apps
+   - May be showing "Approved" or "Rejected" instead
+
+2. **Wait for applications:**
+   - If just set up, no applications yet
+   - Applications come from users
+   - May take time to receive applications
+
+3. **Refresh:**
+   - Refresh the page (Ctrl+R)
+   - New applications may have arrived
+
+---
+
+### "I can't approve/reject applications"
+
+**Problem: Buttons don't work**
+
+**Solutions:**
+1. **Check button visibility:**
+   - Scroll down in application details
+   - Buttons at bottom
+   - May need to scroll to see
+
+2. **Refresh and try:**
+   - Refresh page
+   - Click application again
+   - Try button again
+
+3. **Check login:**
+   - Are you logged in as admin?
+   - Users can't approve/reject
+   - Log out and log in as admin
+
+---
+
+## Theme & Display Issues
+
+### "Dark/Light theme not working"
+
+**Problem: Theme toggle doesn't work or reverts**
+
+**Solutions:**
+1. **Click theme button:**
+   - Look for sun/moon icon
+   - Click to toggle between dark and light
+   - Page should change colors
+
+2. **Refresh:**
+   - If reverted after refresh
+   - Click theme button again
+   - Refresh page
+   - Theme should persist
+
+3. **Clear cache:**
+   - Clear browser cache
+   - Try toggling theme again
+
+---
+
+### "Page looks broken or text is cut off"
+
+**Problem: Display issues**
+
+**Solutions:**
+1. **Check zoom level:**
+   - Press Ctrl+0 (Cmd+0 on Mac) to reset zoom
+   - Page might be zoomed too much
+
+2. **Refresh:**
+   - Press Ctrl+R (Cmd+R)
+   - Wait for page to fully load
+
+3. **Try different browser:**
+   - Some browsers display better than others
+
+4. **Check screen size:**
+   - Might be display issue on small screens
+   - Try full screen
+   - Try different device
+
+---
+
+## Still Having Issues?
+
+### Contact Support
+
+**Email:** support@interbankshub.com
+
+**Include in your email:**
+1. Your registered email address
+2. Description of the problem
+3. Steps you tried
+4. Error message (if any)
+5. Screenshots if helpful
+6. Your browser and device (Chrome on Windows, etc.)
+7. When problem started
+
+**Response time:** 24-48 hours
+
+---
+
+### Helpful Information to Provide:
+
+When contacting support, tell them:
+- What you were trying to do
+- What happened instead
+- What error message appeared (screenshot)
+- Your browser (Chrome, Firefox, etc.)
+- Your device (Windows, Mac, iPhone, Android)
+- Whether it worked before
+- If other users have the same problem
+
+---
+
+### Before Contacting Support:
+
+✓ Refresh the page
+✓ Try another browser
+✓ Clear browser cache
+✓ Try from different network
+✓ Check this troubleshooting guide
+✓ Wait 10 minutes and try again
+
+---

@@ -1,0 +1,278 @@
+# InterBankHub - Getting Started Guide
+
+## Welcome to InterBankHub
+
+InterBankHub is your unified platform for creating and managing bank accounts in India, USA, and UK. This guide will walk you through your first steps.
+
+---
+
+## Step 1: Create Your Account
+
+### What You'll Need:
+- A valid email address
+- A strong password (min 8 characters, mix of letters, numbers, symbols)
+- Your phone number
+- Your country (India, USA, or UK)
+- Know if you're signing up as a User or Admin
+
+### How to Sign Up as a User:
+
+1. **Visit the home page** and click "Sign Up"
+2. **Choose "User" as your account type**
+3. **Fill in your details:**
+   - Email address
+   - Password (strong password recommended)
+   - Confirm password
+   - Username
+   - Phone number
+   - Country (India, USA, or UK)
+4. **Click "Sign Up"**
+5. **You'll be redirected to sign in**
+6. **Enter your email and password to log in**
+
+**Time needed:** 3-5 minutes
+
+---
+
+### How to Sign Up as an Admin (Bank Staff):
+
+1. **Visit the home page** and click "Sign Up"
+2. **Choose "Admin" as your account type**
+3. **Fill in your details:**
+   - Email address
+   - Password
+   - Confirm password
+   - Username
+   - Phone number
+   - Select your bank name from the list
+   - Select your country
+4. **Click "Sign Up"**
+5. **You'll be redirected to the Admin Dashboard**
+
+**Time needed:** 3-5 minutes
+
+---
+
+## Step 2: Log In to Your Account
+
+1. **Click "Sign In"** on the home page
+2. **Enter your email address** you used during signup
+3. **Enter your password**
+4. **Click "Sign In"**
+5. **You'll be taken to your dashboard** (User Page or Admin Dashboard)
+
+---
+
+## Step 3: For Users - Explore and Create Your First Account
+
+### View Available Banks:
+
+1. **Click "Browse Banks"** from your dashboard
+2. **Select your country** (India, USA, or UK)
+3. **Search by:**
+   - Bank name (use the search box)
+   - City (use the city filter dropdown)
+4. **Click on a bank** to see details
+5. **Click "Create Account"** to start the account creation process
+
+### Create Your First Bank Account:
+
+1. **From Browse Banks, click "Create Account"**
+2. **You'll see a 6-step form:**
+
+**Step 1: Select Branch**
+- Choose your branch from the dropdown
+- Click "Next"
+
+**Step 2: Personal Details**
+- Fill in your full name, date of birth, gender
+- Enter your contact information
+- Enter required ID numbers (Aadhaar/PAN for India, SSN for USA, NIN for UK)
+- Click "Next"
+
+**Step 3: Educational Details**
+- Select your education level
+- Enter your institution name
+- Enter your course/degree
+- Enter completion year
+- Click "Next"
+
+**Step 4: Income Details**
+- Select your employment status
+- Enter occupation
+- Enter monthly and annual income
+- Select income source
+- Click "Next"
+
+**Step 5: Nominee Details**
+- Enter nominee's full name
+- Select relationship
+- Enter nominee's date of birth and contact
+- Click "Next"
+
+**Step 6: Documents & Account Type**
+- Upload documents:
+  - ID Proof
+  - Address Proof
+  - Income Proof
+  - Passport Photo
+- Select your account type (Savings, Current, etc.)
+- Enter initial deposit amount
+- Check consent checkbox
+- Click "Submit"
+
+**Time needed:** 15-20 minutes
+
+---
+
+## Step 4: Manage Your Profile
+
+1. **Click "Your Page"** from your dashboard
+2. **View your profile information:**
+   - Username
+   - Email
+   - Phone number
+3. **To edit your profile:**
+   - Click the "Edit" button
+   - Update your information
+   - Click "Save Changes"
+
+4. **To change your password:**
+   - Look for "Change Password" option
+   - Enter your current password
+   - Enter your new password
+   - Confirm new password
+   - Click "Update"
+
+---
+
+## Step 5: View Your Bank Accounts
+
+1. **Go to "Your Page"**
+2. **You'll see all your linked bank accounts**
+3. **Filter by status:**
+   - All (all accounts)
+   - Pending (under approval)
+   - Approved (ready to use)
+   - Rejected (application denied)
+4. **Click on any account** to see full details
+5. **View or download documents** from your account
+
+---
+
+## For Admin Users - Your First Steps
+
+### View Pending Applications:
+
+1. **Log in to your Admin account**
+2. **You'll see the Admin Dashboard**
+3. **View "Pending" applications** - these are accounts waiting for approval
+4. **Click on an application** to see full details:
+   - Applicant's personal information
+   - Educational details
+   - Income information
+   - Nominee details
+   - Uploaded documents
+
+### Review and Approve/Reject:
+
+1. **Review all details and documents**
+2. **Click "Approve"** if everything is correct
+3. **Click "Reject"** if there are issues
+4. **Applicants receive notifications** about their application status
+
+### Manage Your Admin Profile:
+
+1. **Go to your Admin Dashboard**
+2. **Click "Profile" section**
+3. **Edit your information:**
+   - Username
+   - Email
+4. **Change your password** if needed
+
+---
+
+## Key Features Overview
+
+### For Users:
+
+✅ **Browse Banks** - Find banks in your country and city
+✅ **Create Account** - Multi-step account creation
+✅ **Manage Profile** - Update your personal information
+✅ **View Accounts** - See all your accounts and their status
+✅ **Download Documents** - Access your uploaded documents
+✅ **Change Password** - Keep your account secure
+
+### For Admins:
+
+✅ **View Applications** - See all pending account applications
+✅ **Approve/Reject** - Process applications
+✅ **View Documents** - Check submitted documents
+✅ **Manage Profile** - Update admin information
+✅ **Filter Applications** - Sort by status (Pending, Approved, Rejected)
+
+---
+
+## Common Questions
+
+### "What should I do after I submit my account application?"
+- Check your account status regularly in "Your Page" (typically 2-5 business days)
+- Your status will update automatically when admin reviews it
+- If approved, you can start using your account
+- If rejected, you'll see the details in your dashboard
+
+### "I can't find my bank"
+- Make sure you selected the correct country
+- Try searching by exact bank name
+- Check if we support your bank
+- Contact support if issues persist
+
+### "How long does account approval take?"
+- Typical time: 2-5 business days
+- Time varies depending on bank processing
+- Check your dashboard regularly for status updates
+- Status updates automatically when admin makes a decision
+
+### "Can I create multiple accounts?"
+- Yes, you can create accounts with different banks
+- You can also create accounts in different countries
+- All accounts appear in your "Your Page"
+
+### "I forgot my password"
+- Contact support at support@interbankshub.com
+- Provide your email address
+- They'll help you reset your password
+
+---
+
+## Next Steps
+
+✅ **Done setting up?** Explore more banks and create accounts!
+
+📚 **Need more help?** Check our FAQ section or contact support
+
+❓ **Have questions?** Email: support@interbankshub.com
+
+---
+
+## Important Tips
+
+🔒 **Security:**
+- Never share your password
+- Use a strong password
+- Use a secure internet connection
+- Log out after each session
+
+✅ **Document Upload:**
+- Ensure documents are clear and readable
+- Use PDF, JPG, or PNG format
+- File size should be reasonable
+- Double-check all information is accurate
+
+📞 **Contact Support:**
+- Email: support@interbankshub.com
+- Response time: 24-48 hours
+- Describe your issue clearly
+- Include any error messages
+
+---

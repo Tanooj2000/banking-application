@@ -45,23 +45,81 @@ def split_documents(documents, chunk_size=800, chunk_overlap=100):
 
 # --- Embedding Manager ---
 class EmbeddingManager:
-    def __init__(self, ollama_url: str = "http://localhost:11434/api/embeddings", model: str = "all-minilm"):
+    def __init__(
+        self,
+        ollama_url: str = "http://localhost:11434/api/embeddings",
+        model: str = "all-minilm",
+        max_input_chars: int = 1200,
+        min_input_chars: int = 120
+    ):
         self.ollama_url = ollama_url
         self.model = model
+        self.max_input_chars = max_input_chars
+        self.min_input_chars = min_input_chars
+
+    def _split_for_embedding(self, text: str, max_chars: int | None = None) -> list[str]:
+        normalized_text = (text or "").strip()
+        if not normalized_text:
+            return [" "]
+
+        chunk_limit = max_chars or self.max_input_chars
+        if len(normalized_text) <= chunk_limit:
+            return [normalized_text]
+
+        parts = []
+        start = 0
+        overlap = min(100, max(0, chunk_limit // 10))
+        step = max(1, chunk_limit - overlap)
+
+        while start < len(normalized_text):
+            end = min(start + chunk_limit, len(normalized_text))
+            parts.append(normalized_text[start:end])
+            if end >= len(normalized_text):
+                break
+            start += step
+
+        return parts
+
+    def _is_context_length_error(self, response: requests.Response) -> bool:
+        if response.status_code != 500:
+            return False
+        text = (response.text or "").lower()
+        return "context length" in text or "input length exceeds" in text
+
+    def _request_embedding(self, text: str) -> list[float]:
+        payload = {
+            "model": self.model,
+            "prompt": text
+        }
+        response = requests.post(self.ollama_url, json=payload, timeout=60)
+        try:
+            response.raise_for_status()
+        except requests.HTTPError:
+            if self._is_context_length_error(response) and len(text) > self.min_input_chars:
+                tighter_limit = max(self.min_input_chars, len(text) // 2)
+                sub_parts = self._split_for_embedding(text, max_chars=tighter_limit)
+                sub_embeddings = [self._request_embedding(part) for part in sub_parts]
+                if len(sub_embeddings) == 1:
+                    return sub_embeddings[0]
+                return np.mean(np.array(sub_embeddings), axis=0).tolist()
+            raise
+
+        data = response.json()
+        if "embedding" not in data:
+            raise ValueError("No embedding returned from Ollama")
+        return data["embedding"]
+
     def generate_embeddings(self, texts: list) -> np.ndarray:
         embeddings = []
         for text in texts:
-            payload = {
-                "model": self.model,
-                "prompt": text
-            }
-            response = requests.post(self.ollama_url, json=payload)
-            response.raise_for_status()
-            data = response.json()
-            if "embedding" not in data:
-                raise ValueError(f"No embedding returned for text: {text}")
-            embeddings.append(data["embedding"])
-        embeddings = np.array(embeddings)
+            text_parts = self._split_for_embedding(text)
+            part_embeddings = [self._request_embedding(part) for part in text_parts]
+            if len(part_embeddings) == 1:
+                embeddings.append(part_embeddings[0])
+            else:
+                mean_embedding = np.mean(np.array(part_embeddings), axis=0)
+                embeddings.append(mean_embedding.tolist())
+        embeddings = np.array(embeddings, dtype=np.float32)
         return embeddings
 
 # --- Vector Store ---
@@ -141,29 +199,22 @@ def ollama_unified_response(query, rag_retriever, api_context=None, ollama_url="
     api_context: str or None - formatted API response (if available)
     """
     retrieved_docs = rag_retriever.retrieve(query, top_k=top_k)
-    rag_context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
-    # Compose prompt
+    context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
     prompt = ""
     if api_context:
         prompt += f"API Context:\n{api_context}\n\n"
-    if rag_context:
-        prompt += f"Document Context:\n{rag_context}\n\n"
-    prompt += f"User Question:\n{query}\n\nAnswer:"
+    if context:
+        prompt += f"Context:\n{context}\n\n"
+    prompt += f"Question: {query}\nAnswer:"
     payload = {
         "model": model_name,
-        "prompt": prompt
+        "prompt": prompt,
+        "stream": False
     }
-    response = requests.post(ollama_url, json=payload, stream=True)
+    response = requests.post(ollama_url, json=payload)
     response.raise_for_status()
-    answer = ""
-    for line in response.iter_lines():
-        if line:
-            try:
-                data = json.loads(line.decode("utf-8"))
-                answer += data.get("response", "")
-            except Exception:
-                continue
-    return answer if answer else "No response from LLM."
+    data = response.json()
+    return data.get("response", "").strip() or "No response from LLM."
 
 # --- Original RAG-only LLM Response (kept for backward compatibility) ---
 def ollama_rag_response(query, rag_retriever, ollama_url="http://localhost:11434/api/generate", model_name="llama3.2:3b", top_k=5):
@@ -174,7 +225,15 @@ all_text_documents = process_all_texts("./data")
 chunks = split_documents(all_text_documents)
 embedding_manager = EmbeddingManager()
 vectorstore = VectorStore()
-texts = [doc.page_content for doc in chunks]
-embeddings = embedding_manager.generate_embeddings(texts)
-vectorstore.add_documents(chunks, embeddings)
+
+# Skip re-embedding if documents are already stored in ChromaDB
+if vectorstore.collection.count() == 0:
+    print(f"[startup] Embedding {len(chunks)} chunks into ChromaDB...")
+    texts = [doc.page_content for doc in chunks]
+    embeddings = embedding_manager.generate_embeddings(texts)
+    vectorstore.add_documents(chunks, embeddings)
+    print("[startup] Embedding complete.")
+else:
+    print(f"[startup] ChromaDB already has {vectorstore.collection.count()} chunks. Skipping re-embedding.")
+
 rag_retriever = RAGRetriever(vectorstore, embedding_manager)

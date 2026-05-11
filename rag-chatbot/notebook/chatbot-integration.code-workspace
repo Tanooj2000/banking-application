@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../banking-application-microservices/chatbot-service"
+		},
+		{
+			"path": "../../banking-application-frontend/bankingapplication"
+		}
+	],
+	"settings": {}
+}

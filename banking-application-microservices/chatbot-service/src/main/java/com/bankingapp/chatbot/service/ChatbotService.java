@@ -2,8 +2,18 @@ package com.bankingapp.chatbot.service;
 
 import com.bankingapp.chatbot.dto.ChatRequestDTO;
 import com.bankingapp.chatbot.dto.ChatResponseDTO;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 @Service
 public class ChatbotService {
@@ -31,6 +44,14 @@ public class ChatbotService {
     
     @Autowired
     private MicroserviceIntegrationService integrationService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${chatbot.fastapi.url:http://localhost:8000/rag/ask}")
+    private String fastApiUrl;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
     
     static {
         initializeBankingResponses();
@@ -41,7 +62,7 @@ public class ChatbotService {
         // ACTUAL IMPLEMENTED FEATURES - Based on real microservices
         
         // Account Creation & Management (REAL)
-        BANKING_RESPONSES.put(Pattern.compile(".*\\b(create account|open account|new account|account opening)\\b.*", Pattern.CASE_INSENSITIVE),
+        BANKING_RESPONSES.put(Pattern.compile(".*\\b(create account|open account|new account|new bank account|create new account|create new bank account|account opening)\\b.*", Pattern.CASE_INSENSITIVE),
                 "I can help you create a new bank account! We support accounts for India, USA, and UK. You'll need to upload ID proof, address proof, income proof, and a photo. Would you like to start the application process?");
         
         BANKING_RESPONSES.put(Pattern.compile(".*\\b(application status|account status|approval status|application)\\b.*", Pattern.CASE_INSENSITIVE),
@@ -122,46 +143,82 @@ public class ChatbotService {
     }
 
     public ChatResponseDTO processMessage(ChatRequestDTO request) {
+        System.out.println("ChatbotService processing via FastAPI only: " + request.getMessage());
+        String sessionId = request.getSessionId() != null ? request.getSessionId() : generateSessionId();
+        return processViaFastApi(request, sessionId);
+    }
+
+    private ChatResponseDTO processViaFastApi(ChatRequestDTO request, String sessionId) {
         try {
-            System.out.println("ChatbotService processing: " + request.getMessage());
-            
-            String sessionId = request.getSessionId() != null ? request.getSessionId() : generateSessionId();
-            String userMessage = request.getMessage().toLowerCase().trim();
-            
-            // Check if message needs real API integration (with fallback handling)
-            ChatResponseDTO apiResponse = processApiIntegratedMessage(request, sessionId, userMessage);
-            if (apiResponse != null) {
-                System.out.println("API integration response provided for: " + request.getMessage());
-                return apiResponse;
-            }
-            
-            // Find matching response from patterns
-            String response = findBestResponse(userMessage);
-            
-            ChatResponseDTO chatResponse = ChatResponseDTO.success(response, sessionId);
-            chatResponse.setMessageId(generateMessageId());
-            
-            // Add appropriate quick replies
-            List<String> quickReplies = getQuickRepliesForMessage(userMessage);
-            chatResponse.setQuickReplies(quickReplies);
-            
-            System.out.println("Pattern matching response provided for: " + request.getMessage());
-            return chatResponse;
-            
-        } catch (Exception e) {
-            System.err.println("Error in ChatbotService.processMessage: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Fallback response that always works
-            String sessionId = request.getSessionId() != null ? request.getSessionId() : generateSessionId();
-            ChatResponseDTO fallbackResponse = ChatResponseDTO.success(
-                "I can help you with account creation, checking status, finding branches, and profile updates. What would you like to do?",
-                sessionId
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("question", request.getMessage());
+            payload.put("user_id", request.getUserId());
+            payload.put("session_id", request.getSessionId());
+            payload.put("selected_account_id", request.getSelectedAccountId());
+            payload.put("model_name", request.getModelName() != null ? request.getModelName() : "llama3.2:3b");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                fastApiUrl,
+                HttpMethod.POST,
+                entity,
+                String.class
             );
-            fallbackResponse.setQuickReplies(Arrays.asList("Create Account", "Check Status", "Find Branch", "Get Help"));
-            fallbackResponse.setMessageId(generateMessageId());
-            
-            return fallbackResponse;
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new IllegalStateException("FastAPI returned non-success response or empty body");
+            }
+
+            JsonNode root = objectMapper.readTree(response.getBody());
+            if (!root.hasNonNull("response") || !root.hasNonNull("response_type")) {
+                throw new IllegalStateException("FastAPI response missing required fields: response/response_type");
+            }
+
+            String responseText = root.get("response").asText();
+            String responseType = root.get("response_type").asText();
+            String responseSessionId = root.hasNonNull("session_id")
+                ? root.get("session_id").asText()
+                : sessionId;
+
+            ChatResponseDTO dto = ChatResponseDTO.success(responseText, responseSessionId);
+            dto.setMessageId(generateMessageId());
+            dto.setResponseType(responseType);
+
+            JsonNode optionsNode = root.path("options");
+            if (optionsNode.isArray()) {
+                List<Map<String, Object>> options = new ArrayList<>();
+                for (JsonNode option : optionsNode) {
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("selection_id", option.path("selection_id").asText(""));
+                    item.put("index", option.path("index").isNumber() ? option.path("index").asInt() : null);
+                    item.put("bank_name", option.path("bank_name").asText(""));
+                    item.put("account_number_masked", option.path("account_number_masked").asText(""));
+                    item.put("status", option.path("status").asText(""));
+                    item.put("country", option.path("country").asText(""));
+                    options.add(item);
+                }
+                dto.setOptions(options);
+            } else {
+                dto.setOptions(Collections.emptyList());
+            }
+
+            if ("selection_required".equalsIgnoreCase(dto.getResponseType())) {
+                dto.setQuickReplies(Arrays.asList("1", "2", "3"));
+            } else if ("auth_required".equalsIgnoreCase(dto.getResponseType())) {
+                dto.setQuickReplies(Arrays.asList("Sign In", "Help"));
+            }
+
+            return dto;
+        } catch (RestClientResponseException ex) {
+            throw new RuntimeException(
+                "FastAPI bridge HTTP error " + ex.getRawStatusCode() + ": " + ex.getResponseBodyAsString(),
+                ex
+            );
+        } catch (Exception ex) {
+            throw new RuntimeException("FastAPI bridge failure: " + ex.getMessage(), ex);
         }
     }
 
@@ -248,7 +305,7 @@ public class ChatbotService {
         
         try {
             // Account Creation Process - Enhanced with fallback
-            if (userMessage.contains("create account") || userMessage.contains("open account") || userMessage.contains("new account") || userMessage.contains("want create") || userMessage.contains("i want")) {
+            if (userMessage.contains("create account") || userMessage.contains("open account") || userMessage.contains("new account") || userMessage.contains("new bank account") || userMessage.contains("create new account") || userMessage.contains("create new bank account") || userMessage.contains("want create") || userMessage.contains("i want")) {
                 ChatResponseDTO response = ChatResponseDTO.success(
                     "Welcome to Account Creation! Choose your country: India (SAVINGS, CURRENT), USA (SAVINGS, CHECKING, BUSINESS), or UK (SAVINGS, CURRENT, BUSINESS). Required documents: ID Proof, Address Proof, Income Proof, and Photo.",
                     sessionId

@@ -2,6 +2,7 @@ package com.bankingapp.chatbot.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class ChatResponseDTO {
     
@@ -13,6 +14,8 @@ public class ChatResponseDTO {
     private String messageId;
     private List<String> quickReplies;
     private String errorMessage;
+    private String responseType;
+    private List<Map<String, Object>> options;
 
     // Constructors
     public ChatResponseDTO() {
@@ -30,7 +33,9 @@ public class ChatResponseDTO {
 
     // Static factory methods
     public static ChatResponseDTO success(String response, String sessionId) {
-        return new ChatResponseDTO(true, response, sessionId);
+        ChatResponseDTO dto = new ChatResponseDTO(true, response, sessionId);
+        dto.responseType = "final_answer";
+        return dto;
     }
 
     public static ChatResponseDTO error(String errorMessage, String sessionId) {
@@ -104,5 +109,21 @@ public class ChatResponseDTO {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getResponseType() {
+        return responseType;
+    }
+
+    public void setResponseType(String responseType) {
+        this.responseType = responseType;
+    }
+
+    public List<Map<String, Object>> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<Map<String, Object>> options) {
+        this.options = options;
     }
 }
