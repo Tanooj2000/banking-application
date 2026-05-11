@@ -366,14 +366,14 @@ const CreateAccount = () => {
         }
       }
 
-      if (field.name === 'pan' && value) {
+      if (field.name === 'panCard' && value) {
         const panValidation = validatePAN(value);
         if (!panValidation.isValid) {
           newFieldErrors[field.name] = panValidation.message;
         }
       }
 
-      if (field.name === 'aadhaar' && value) {
+      if (field.name === 'aadhaarNumber' && value) {
         const aadhaarValidation = validateAadhaar(value);
         if (!aadhaarValidation.isValid) {
           newFieldErrors[field.name] = aadhaarValidation.message;
