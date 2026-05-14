@@ -9,3 +9,5 @@ class QueryRequest(BaseModel):
     user_id: Optional[str] = None
     session_id: Optional[str] = None
     selected_account_id: Optional[str] = None
+    auth_token: Optional[str] = None
+    user_type: Optional[str] = None

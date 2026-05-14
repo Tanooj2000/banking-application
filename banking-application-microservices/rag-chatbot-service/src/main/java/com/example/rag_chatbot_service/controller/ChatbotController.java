@@ -16,8 +16,24 @@ public class ChatbotController {
     }
 
     @PostMapping
-    public ResponseEntity<ChatResponseDTO> chatWithBot(@RequestBody ChatRequestDTO frontendRequest) {
+    public ResponseEntity<ChatResponseDTO> chatWithBot(
+        @RequestBody ChatRequestDTO frontendRequest,
+        @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        if ((frontendRequest.getAuthToken() == null || frontendRequest.getAuthToken().isBlank())
+            && authorizationHeader != null && !authorizationHeader.isBlank()) {
+            frontendRequest.setAuthToken(extractBearerToken(authorizationHeader));
+        }
+
         ChatResponseDTO response = chatbotService.callFastApi(frontendRequest);
         return ResponseEntity.ok(response);
+    }
+
+    private String extractBearerToken(String authorizationHeader) {
+        String prefix = "Bearer ";
+        if (authorizationHeader.regionMatches(true, 0, prefix, 0, prefix.length())) {
+            return authorizationHeader.substring(prefix.length()).trim();
+        }
+        return authorizationHeader.trim();
     }
 }

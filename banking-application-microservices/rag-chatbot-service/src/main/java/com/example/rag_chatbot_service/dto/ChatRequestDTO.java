@@ -18,6 +18,12 @@ public class ChatRequestDTO {
     @JsonProperty("model_name")
     private String modelName;
 
+    @JsonProperty("auth_token")
+    private String authToken;
+
+    @JsonProperty("user_type")
+    private String userType;
+
     public String getMessage() {
         return message;
     }
@@ -64,5 +70,21 @@ public class ChatRequestDTO {
 
     public void setModelName(String modelName) {
         this.modelName = modelName;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

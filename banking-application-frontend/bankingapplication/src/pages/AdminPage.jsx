@@ -47,26 +47,23 @@ const AdminPage = () => {
   useEffect(() => {
     const checkAuth = () => {
       if (!AuthGuard.isAdminAuthenticated()) {
-        AuthGuard.logoutAdmin();
+        navigate('/signin', { replace: true });
         return;
       }
     };
 
     // Check authentication every 5 minutes
     const interval = setInterval(checkAuth, 5 * 60 * 1000);
-    
-    // Initial check
-    checkAuth();
 
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (!AuthGuard.isAdminAuthenticated()) {
-      AuthGuard.logoutAdmin();
+      navigate('/signin', { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   // State for sections navigation
   const [activeSection, setActiveSection] = useState('Profile');

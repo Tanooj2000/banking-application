@@ -29,10 +29,12 @@ async def ask_rag(request: QueryRequest):
             top_k,
             model_name,
             request.user_id,
+            request.auth_token,
             request.session_id,
             request.selected_account_id,
             rag_retriever,
             ollama_unified_response,
+            request.user_type,
         )
         return {"question": question, **result}
     except requests.HTTPError as e:

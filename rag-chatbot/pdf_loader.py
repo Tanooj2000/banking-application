@@ -201,6 +201,11 @@ def ollama_unified_response(query, rag_retriever, api_context=None, ollama_url="
     retrieved_docs = rag_retriever.retrieve(query, top_k=top_k)
     context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
     prompt = ""
+    prompt = (
+        "You are a banking assistant. Answer ONLY using the provided context below. "
+        "Do NOT make up information. If the context does not contain enough information to answer the question, "
+        "respond with: 'I'm sorry, I don't have enough information to answer that. Please contact support or ask a banking-related question.'\n\n"
+    )
     if api_context:
         prompt += f"API Context:\n{api_context}\n\n"
     if context:

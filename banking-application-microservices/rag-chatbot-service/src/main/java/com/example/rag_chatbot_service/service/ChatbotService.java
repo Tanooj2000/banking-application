@@ -42,9 +42,14 @@ public class ChatbotService {
         payload.put("session_id", requestData.getSessionId());
         payload.put("selected_account_id", requestData.getSelectedAccountId());
         payload.put("model_name", requestData.getModelName() != null ? requestData.getModelName() : "llama3.2:3b");
+        payload.put("auth_token", requestData.getAuthToken());
+        payload.put("user_type", requestData.getUserType());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        if (requestData.getAuthToken() != null && !requestData.getAuthToken().isBlank()) {
+            headers.setBearerAuth(requestData.getAuthToken().trim());
+        }
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
 
         try {

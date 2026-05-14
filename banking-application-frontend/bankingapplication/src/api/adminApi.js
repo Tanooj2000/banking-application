@@ -15,7 +15,7 @@ const ErrorTypes = {
 };
 
 const UserFriendlyMessages = {
-  [ErrorTypes.NETWORK]: 'Server not responding please try again',
+  [ErrorTypes.NETWORK]: 'Unable to connect. Please check your network connection and try again.',
   [ErrorTypes.AUTHENTICATION]: 'Your session has expired. Please sign in again.',
   [ErrorTypes.VALIDATION]: 'Please check the information you entered and try again.',
   [ErrorTypes.SERVER]: 'A server error occurred. Our team has been notified. Please try again later.',
@@ -161,7 +161,7 @@ const makeApiRequest = async (url, options = {}, operation = 'API Request') => {
         error.message.includes('ERR_NAME_NOT_RESOLVED') ||
         error.message.includes('fetch') ||
         error.message.includes('NetworkError')) {
-      networkErrorMessage = 'Server not responding please try again';
+      networkErrorMessage = 'Unable to connect. Please check your network connection and try again.';
     }
     
     const networkError = new ApiError(

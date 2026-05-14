@@ -30,10 +30,39 @@ const RagChatbotModern = ({ onClose }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  /** Get the logged-in user's ID from localStorage (set by authGuard on login). */
+  /** Get the user type: 'user' or 'admin'. */
+  const getUserType = () => {
+    return localStorage.getItem('userType') || sessionStorage.getItem('userType') || null;
+  };
+
+  /** Get the logged-in user's ID — handles both regular users and admins. */
   const getLoggedInUserId = () => {
+    const userType = getUserType();
+    if (userType === 'admin') {
+      const adminData = AuthGuard.getAdminData?.() || null;
+      return (
+        adminData?.id ||
+        adminData?.adminId ||
+        sessionStorage.getItem('adminId') ||
+        null
+      );
+    }
     const user = AuthGuard.getCurrentUser?.() || null;
-    return user?.userId || user?.id || null;
+    return (
+      user?.userId ||
+      user?.id ||
+      user?.user_id ||
+      localStorage.getItem('userId') ||
+      null
+    );
+  };
+
+  const getAuthToken = () => {
+    const userType = getUserType();
+    if (userType === 'admin') {
+      return sessionStorage.getItem('userToken') || null;
+    }
+    return AuthGuard.getToken?.() || localStorage.getItem('authToken') || null;
   };
 
   const appendMessage = (msg) => setMessages((prev) => [...prev, msg]);
@@ -53,10 +82,14 @@ const RagChatbotModern = ({ onClose }) => {
     setIsLoading(true);
     try {
       const userId = getLoggedInUserId();
+      const authToken = getAuthToken();
+      const userType = getUserType();
       const result = await sendRagChatMessage({
         message:  text.trim(),
         userId:   userId || undefined,
         sessionId: sessionId || undefined,
+        authToken: authToken || undefined,
+        userType:  userType || undefined,
       });
 
       // Persist session ID for multi-turn flows (account selection, etc.)
@@ -95,7 +128,7 @@ const RagChatbotModern = ({ onClose }) => {
       appendMessage({
         id: Date.now() + 2,
         type: 'bot',
-        text: 'Sorry, I could not reach the chatbot service. Please try again.',
+        text: err?.message || 'Sorry, I could not reach the chatbot service. Please try again.',
         isError: true,
         timestamp: new Date(),
       });
@@ -156,7 +189,24 @@ const RagChatbotModern = ({ onClose }) => {
         {messages.map((msg) => (
           <div key={msg.id} className={`rag-message ${msg.type} ${msg.isError ? 'error' : ''}`}>
             <div className="rag-message-bubble">
-              <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+              {msg.responseType === 'auth_required' ? (
+                // Render auth_required as structured component
+                <div className="auth-required-message">
+                  <div className="auth-title">Sign In Required</div>
+                  <div className="auth-description">{msg.text || 'You need to be signed in to continue.'}</div>
+                  <div className="auth-actions">
+                    <div className="auth-action">
+                      → Already have an account? <a href="/signin" className="chatbot-link">Sign In</a>
+                    </div>
+                    <div className="auth-action">
+                      → New here? <a href="/signup" className="chatbot-link">Sign Up</a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Render plain text for other responses
+                <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+              )}
 
               {/* Render clickable option buttons for selection_required */}
               {msg.responseType === 'selection_required' && msg.options?.length > 0 && (
@@ -181,13 +231,6 @@ const RagChatbotModern = ({ onClose }) => {
                       {idx + 1}. {opt.label || opt.bankName || opt.accountId || JSON.stringify(opt)}
                     </button>
                   ))}
-                </div>
-              )}
-
-              {/* Auth required hint */}
-              {msg.responseType === 'auth_required' && (
-                <div style={{ marginTop: 8, color: '#6366f1', fontWeight: 600, fontSize: '0.9rem' }}>
-                  Please log in to continue.
                 </div>
               )}
             </div>

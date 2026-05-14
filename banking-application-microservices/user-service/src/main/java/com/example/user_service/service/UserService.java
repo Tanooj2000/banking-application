@@ -31,13 +31,13 @@ public class UserService {
 
     public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            return ResponseEntity.badRequest().body("This username is already taken. Please choose a different username.");
         }
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.badRequest().body("An account with this email already exists. Please use a different email or login.");
         }
         if (userRepository.findByPhonenumber(request.getPhonenumber()).isPresent()) {
-            return ResponseEntity.badRequest().body("Phone number already exists");
+            return ResponseEntity.badRequest().body("An account with this phone number already exists. Please use a different phone number.");
         }
 
         User user = new User();
@@ -55,7 +55,7 @@ public class UserService {
             System.err.println("Failed to send welcome email: " + e.getMessage());
         }
 
-        return ResponseEntity.ok("User registered successfully.");
+        return ResponseEntity.ok("Registration successful. You can now login with your username or email.");
     }
 
     public ResponseEntity<LoginResponse> login(LoginRequest request) {
@@ -70,11 +70,11 @@ public class UserService {
         }
         if (user == null) {
             return ResponseEntity.badRequest().body(
-                new LoginResponse(false, "User not found", null, null, null));
+                new LoginResponse(false, "Invalid username/email or password.", null, null, null));
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body(
-                new LoginResponse(false, "Invalid credentials", null, null, null));
+                new LoginResponse(false, "Invalid Password.", null, null, null));
         }
         
         // Generate JWT token
@@ -102,7 +102,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest()
-                .body(new UpdateUserResponse(false, "User not found", null));
+                .body(new UpdateUserResponse(false, "User not found. Please verify the user ID.", null));
         }
 
         User user = optionalUser.get();
@@ -112,7 +112,7 @@ public class UserService {
             Optional<User> existingUserWithUsername = userRepository.findByUsername(request.getUsername());
             if (existingUserWithUsername.isPresent() && !existingUserWithUsername.get().getId().equals(userId)) {
                 return ResponseEntity.badRequest()
-                    .body(new UpdateUserResponse(false, "Username already exists", null));
+                    .body(new UpdateUserResponse(false, "This username is already in use. Please choose a different username.", null));
             }
             user.setUsername(request.getUsername());
         }
@@ -122,7 +122,7 @@ public class UserService {
             Optional<User> existingUserWithEmail = userRepository.findByEmail(request.getEmail());
             if (existingUserWithEmail.isPresent() && !existingUserWithEmail.get().getId().equals(userId)) {
                 return ResponseEntity.badRequest()
-                    .body(new UpdateUserResponse(false, "Email already exists", null));
+                    .body(new UpdateUserResponse(false, "This email is already in use. Please choose a different email.", null));
             }
             user.setEmail(request.getEmail());
         }
@@ -132,7 +132,7 @@ public class UserService {
             Optional<User> existingUserWithPhone = userRepository.findByPhonenumber(request.getPhonenumber());
             if (existingUserWithPhone.isPresent() && !existingUserWithPhone.get().getId().equals(userId)) {
                 return ResponseEntity.badRequest()
-                    .body(new UpdateUserResponse(false, "Phone number already exists", null));
+                    .body(new UpdateUserResponse(false, "This phone number is already in use. Please choose a different number.", null));
             }
             user.setPhonenumber(request.getPhonenumber());
         }
@@ -151,7 +151,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest()
-                .body(new UpdateUserResponse(false, "User not found", null));
+                .body(new UpdateUserResponse(false, "User not found. Please verify the user ID.", null));
         }
 
         User user = optionalUser.get();
@@ -159,19 +159,19 @@ public class UserService {
         // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.badRequest()
-                .body(new UpdateUserResponse(false, "Current password is incorrect", null));
+                .body(new UpdateUserResponse(false, "Current password is incorrect. Please try again.", null));
         }
         
         // Validate new password
         if (request.getNewPassword() == null || request.getNewPassword().trim().isEmpty()) {
             return ResponseEntity.badRequest()
-                .body(new UpdateUserResponse(false, "New password cannot be empty", null));
+                .body(new UpdateUserResponse(false, "New password cannot be empty.", null));
         }
         
         // Check if new password is same as current password
         if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
             return ResponseEntity.badRequest()
-                .body(new UpdateUserResponse(false, "New password must be different from current password", null));
+                .body(new UpdateUserResponse(false, "New password must be different from your current password.", null));
         }
         
         // Update password
@@ -191,7 +191,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest()
-                .body(new UserDetailsResponse(false, "User not found", null));
+                .body(new UserDetailsResponse(false, "User not found. Please verify the user ID.", null));
         }
 
         User user = optionalUser.get();
@@ -230,7 +230,7 @@ public class UserService {
             
             return ResponseEntity.ok("Logout successful");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid token");
+            return ResponseEntity.badRequest().body("Logout failed. Invalid or expired token.");
         }
     }
     
@@ -244,14 +244,14 @@ public class UserService {
             
             if (userId == null) {
                 return ResponseEntity.badRequest().body(
-                    new UserDetailsResponse(false, "Invalid token: userId not found", null));
+                    new UserDetailsResponse(false, "Invalid token. Please login again.", null));
             }
             
             // Get user by ID
             Optional<User> optionalUser = userRepository.findById(userId);
             if (optionalUser.isEmpty()) {
                 return ResponseEntity.badRequest().body(
-                    new UserDetailsResponse(false, "User not found", null));
+                    new UserDetailsResponse(false, "User not found. Please contact support if this persists.", null));
             }
             
             User user = optionalUser.get();
@@ -266,7 +266,7 @@ public class UserService {
             
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                new UserDetailsResponse(false, "Invalid token", null));
+                new UserDetailsResponse(false, "Invalid or expired session. Please login again.", null));
         }
     }
 

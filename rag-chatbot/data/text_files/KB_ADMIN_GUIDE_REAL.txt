@@ -42,18 +42,22 @@ An Admin (Bank Administrator) is a staff member of a bank who manages account ap
 
 ## Admin Dashboard Overview
 
-Your dashboard has several sections:
+Your dashboard has a left sidebar with four sections:
 
-**Main Sections:**
-1. **Applications** - View pending, approved, and rejected applications
-2. **Profile** - Edit your personal information
-3. **Security** - Change your password
+**Sidebar Sections:**
+1. **My Profile** - View your info, edit details, change password, logout
+2. **Dashboard** - Overview stats and quick actions
+3. **Applications** - Review, approve, and reject account applications
+4. **New Branch** - Create a new branch for your bank
 
-**Key Information:**
+**Theme Toggle:**
+- A Light/Dark mode toggle is at the bottom of the sidebar
+- Your theme preference is saved automatically
+
+**Key Information displayed:**
 - Your bank name
-- Your country
 - Your admin username
-- Number of pending applications
+- Number of pending, approved, rejected, and total applications
 
 ---
 
@@ -61,123 +65,51 @@ Your dashboard has several sections:
 
 ### View All Applications
 
-1. **Go to Admin Dashboard**
-2. **You'll see a list of applications**
-3. **Each application shows:**
+1. **Click "Applications" in the sidebar**
+2. **Each application card shows:**
    - Applicant name
-   - Account type requested
-   - Application date
-   - Current status (Pending/Approved/Rejected)
-   - Bank and branch
+   - Current status badge (Pending / Approved / Rejected)
+   - Email
+   - Country
+   - Bank name
 
 ### Filter Applications
 
-**By Status:**
-- Click on "Pending" to see waiting applications
-- Click on "Approved" to see approved applications
-- Click on "Rejected" to see rejected applications
+Use the **"Filter by Status"** dropdown:
+- **Pending** - Applications waiting for your decision
+- **Approved** - Successfully processed applications
+- **Rejected** - Applications that did not meet requirements
+- **All Applications** - Show all applications at once
 
-**All statuses are important:**
-- **Pending:** Waiting for your decision
-- **Approved:** Successfully processed
-- **Rejected:** Did not meet requirements
+### View Application Details
+
+1. Click the **"View Details"** button (eye icon) on any application card
+2. A modal opens showing:
+   - Applicant name
+   - Email
+   - Country
+   - Bank name
+   - Current status
+3. Click outside the modal or the close button to dismiss it
 
 ---
 
 ## Reviewing an Application
 
-### Step 1: Click on Application
+### Step 1: Open Application Details
 
-1. From application list, click on any application
-2. You'll see the complete application details
+1. Go to **Applications** in the sidebar
+2. Find the application you want to review
+3. Click the **"View Details"** button (eye icon)
+4. A modal shows: applicant name, email, country, bank, and status
 
-### Step 2: View Applicant Information
+### Step 2: Make a Decision
 
-You'll see all sections the applicant filled out:
+For **Pending** applications, two action buttons appear on the application card:
+- **Approve** button - to approve the application
+- **Reject** button - to reject the application
 
-**Personal Details:**
-- Full name
-- Date of birth
-- Gender
-- Contact information (email, phone)
-- Address
-- ID numbers (Aadhaar for India, SSN for USA, NIN for UK)
-
-**Educational Details:**
-- Education level
-- Institution name
-- Course/degree
-- Completion year
-- Grade/GPA (if provided)
-
-**Income Details:**
-- Employment status
-- Employer name (if applicable)
-- Occupation
-- Monthly income
-- Annual income
-- Income source
-
-**Nominee Information:**
-- Nominee name
-- Relationship to applicant
-- Nominee date of birth
-- Nominee contact
-- Nominee address
-
-**Account Information:**
-- Account type requested
-- Initial deposit amount
-- Currency
-
----
-
-## Reviewing Documents
-
-### View Uploaded Documents
-
-1. **In the application detail page, scroll to "Documents" section**
-2. **You'll see 4 uploaded documents:**
-   - ID Proof
-   - Address Proof
-   - Income Proof
-   - Passport Photo
-
-### Check Each Document
-
-For each document, verify:
-
-**ID Proof:**
-- ✓ All fields readable
-- ✓ Photo is clear
-- ✓ Signature visible
-- ✓ Not expired
-- ✓ Matches applicant's name
-- ✓ Country appropriate (Aadhaar for India, SSN for USA, Passport/License for USA/UK, etc.)
-
-**Address Proof:**
-- ✓ Clearly shows address
-- ✓ Document is recent (within 3-6 months)
-- ✓ From recognized source (utility company, government, bank, etc.)
-- ✓ Applicant's name visible
-- ✓ Complete address shown
-- ✓ Matches address on ID
-
-**Income Proof:**
-- ✓ Shows salary/income amount
-- ✓ Recent (within 3 months)
-- ✓ From recognized employer or institution
-- ✓ Matches stated occupation
-- ✓ Income matches or exceeds stated income
-- ✓ Clear and readable
-
-**Passport Photo:**
-- ✓ Applicant clearly visible
-- ✓ Recent photo
-- ✓ Professional quality
-- ✓ Plain background
-- ✓ No sunglasses or extreme expressions
-- ✓ Matches applicant name
+A confirmation dialog will appear before either action is applied.
 
 ---
 
@@ -193,12 +125,10 @@ For each document, verify:
 - All requirements met
 
 **To approve:**
-1. Review all information and documents
-2. Make sure everything is in order
-3. Click "Approve" button
-4. Confirm your action
-5. Application is approved
-6. Customer receives approval notification
+1. Go to Applications and find the Pending application
+2. Click the **"Approve"** button on the application card
+3. Confirm in the dialog that appears
+4. The application status updates to "Approved" immediately
 
 ---
 
@@ -213,13 +143,10 @@ For each document, verify:
 - Red flags detected
 
 **To reject:**
-1. Review all information and documents
-2. Identify the reason for rejection
-3. Click "Reject" button
-4. You may optionally add a rejection reason/note
-5. Confirm your action
-6. Application is rejected
-7. Customer receives rejection notification with details
+1. Go to Applications and find the Pending application
+2. Click the **"Reject"** button on the application card
+3. Confirm in the dialog that appears
+4. The application status updates to "Rejected" immediately
 
 **Common rejection reasons:**
 - "Documents are not clear or readable"
@@ -236,58 +163,93 @@ For each document, verify:
 
 ### View Your Profile
 
-1. **Go to Admin Dashboard**
-2. **Click on "Profile" section**
-3. **You'll see:**
+1. **Click "My Profile" in the sidebar**
+2. **You'll see:**
+   - Bank Name
+   - Email Address
    - Username
-   - Email
-   - Phone number
-   - Bank name
-   - Country
-   - Account creation date
+   - Admin Role (Bank Administrator)
 
 ### Edit Your Profile
 
-1. **Click on "Profile" section**
-2. **Click "Edit Profile" button**
-3. **Update your information:**
+1. **Click "My Profile" in the sidebar**
+2. **Click "Edit Details" button**
+3. **Update your information in the modal:**
    - Username
    - Email
-4. **Click "Save Changes"**
-5. Changes are saved immediately
+   - Note: Bank Name is shown but cannot be changed
+4. **Click "Update Details"**
+5. Changes are saved immediately and the modal closes automatically
 
 ---
 
 ## Change Your Password
 
-### Step 1: Go to Security Section
+### Steps to Change Password
 
-1. **Go to Admin Dashboard**
-2. **Click on "Change Password" or "Security" option**
-
-### Step 2: Enter Passwords
-
-1. **Enter your current password**
-2. **Enter your new password** (must be different from current)
-3. **Confirm new password** (must match exactly)
-4. **Click "Update"**
+1. **Click "My Profile" in the sidebar**
+2. **Click "Change Password" button**
+3. A modal titled "Reset Password" opens
+4. **Enter your current password**
+5. **Enter your new password** (must be different from current)
+6. **Confirm new password** (must match exactly)
+7. **Click "Update Password"**
+8. On success you'll see: "Password updated successfully!"
 
 ### Password Requirements
 
 - Minimum 8 characters
-- Must contain letters
-- Must contain numbers
+- Must contain letters and numbers
 - Should contain special characters for security
-- Cannot be same as previous password
+- Cannot be the same as your current password
 
 ### Tips for Strong Passwords
 
-✅ Use mix of uppercase and lowercase
+✅ Use a mix of uppercase and lowercase
 ✅ Include numbers (0-9)
 ✅ Include special characters (@, #, $, !, &, etc.)
 ✅ Make it at least 12 characters for better security
 ✅ Don't use easily guessable words
 ✅ Don't share your password
+
+---
+
+## Dashboard Overview
+
+### Stat Cards
+
+The Dashboard section shows four summary cards:
+- **Pending Applications** - Number of applications waiting for review
+- **Approved Accounts** - Number of approved applications
+- **Rejected Applications** - Number of rejected applications
+- **Total Applications** - Total count of all applications
+
+### Quick Action Buttons
+
+Below the stat cards:
+- **View Applications** - Navigates directly to the Applications section
+- **Add New Branch** - Navigates directly to the New Branch section
+
+---
+
+## Adding a New Branch
+
+Admins can create new branch locations for their bank.
+
+### Steps to Add a Branch
+
+1. **Click "New Branch" in the sidebar** (or click "Add New Branch" from the Dashboard)
+2. Click the **"Add New Branch"** button on the page
+3. A modal titled "Add New Branch" opens with the following fields:
+   - **Country** - Auto-filled from your admin profile (read-only)
+   - **City** - Enter the city name (required)
+   - **Bank Name** - Auto-filled from your admin profile (read-only)
+   - **Branch Name** - Enter a name for the branch (required)
+   - **Branch Code** - Enter a unique code (minimum 3 characters, required)
+4. Click **"Create Branch"**
+5. On success you'll see: "Branch created successfully!"
+
+**Note:** Country and Bank Name are automatically filled from your admin account and cannot be changed.
 
 ---
 
@@ -450,7 +412,7 @@ For each document, verify:
 - Check your internet connection
 
 ### "I accidentally approved/rejected an application"
-- Contact support immediately: support@interbankshub.com
+- Contact support immediately: noreplyinterbankinghub@gmail.com
 - Explain the situation
 - They may be able to help correct it
 
@@ -496,13 +458,13 @@ For each document, verify:
 - Document what's unclear
 
 **For Technical Issues:**
-- Email: support@interbankshub.com
+- Email: noreplyinterbankinghub@gmail.com
 - Describe the issue clearly
 - Include screenshots if helpful
 - Mention your browser and device
 
 **For Questions:**
-- Email: support@interbankshub.com
+- Email: noreplyinterbankinghub@gmail.com
 - Your admin team lead
 - Supervisor or manager
 
@@ -510,7 +472,7 @@ For each document, verify:
 
 ## Contact Information
 
-**Support Email:** support@interbankshub.com
+**Support Email:** noreplyinterbankinghub@gmail.com
 **Support Hours:** 24/5 (Monday-Friday)
 **Response Time:** 24-48 hours
 

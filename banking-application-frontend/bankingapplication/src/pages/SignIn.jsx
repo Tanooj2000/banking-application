@@ -24,20 +24,22 @@ const SignIn = () => {
 	// Redirect if already signed in - with a small delay to ensure logout has completed
 	useEffect(() => {
 		const checkAndRedirect = () => {
+			// Admin session is stored in sessionStorage (no JWT token)
+			if (AuthGuard.isAdminAuthenticated()) {
+				setIsRedirecting(true);
+				window.location.replace('/adminpage');
+				return;
+			}
+
 			const token = localStorage.getItem('authToken');
 			const currentUser = AuthGuard.getCurrentUser();
-			
-			// More thorough validation - check if token AND user data are valid
-			if (token && currentUser && currentUser.id && currentUser.email) {
-				// Additional validation for admin
-				if (AuthGuard.isAdminAuthenticated()) {
-					setIsRedirecting(true);
-					navigate('/adminpage', { replace: true });
-				} else if (AuthGuard.isAuthenticated()) {
+
+			if (token && currentUser && (currentUser.id || currentUser.userId)) {
+				if (AuthGuard.isAuthenticated()) {
 					setIsRedirecting(true);
 					navigate('/userpage', { replace: true });
 				}
-			} else if (token && (!currentUser || !currentUser.id || !currentUser.email)) {
+			} else if (token && (!currentUser || (!currentUser.id && !currentUser.userId))) {
 				// Invalid/incomplete user data - clear everything
 				console.warn('Found invalid authentication data, clearing...');
 				localStorage.removeItem('authToken');
@@ -49,10 +51,10 @@ const SignIn = () => {
 				window.dispatchEvent(new Event('storage'));
 			}
 		};
-		
+
 		// Small delay to allow logout to complete if user just logged out
 		const timeoutId = setTimeout(checkAndRedirect, 100);
-		
+
 		return () => clearTimeout(timeoutId);
 	}, [navigate]);
 
@@ -124,8 +126,10 @@ const SignIn = () => {
 					AuthGuard.setAdminData(adminPayload);
 					localStorage.setItem('userType', 'admin');
 					sessionStorage.setItem('userType', 'admin');
-					window.dispatchEvent(new Event('storage'));
-					navigate('/adminpage', { state: { admin: adminPayload } });
+					// Use hard redirect for admin so sessionStorage is read fresh
+					// by ProtectedRoute on the new page load, avoiding React Router
+					// async-handler timing issues.
+					window.location.replace('/adminpage');
 				} else {
 					await signInUser(formData);
 					window.dispatchEvent(new Event('storage'));

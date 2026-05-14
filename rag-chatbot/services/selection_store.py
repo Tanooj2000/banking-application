@@ -27,3 +27,9 @@ def save_session(session_id: str, session_data: Dict[str, Any]) -> None:
 def get_session(session_id: str) -> Dict[str, Any] | None:
     with _selection_lock:
         return _selection_store.get(session_id)
+
+
+def remove_session(session_id: str) -> None:
+    with _selection_lock:
+        if session_id in _selection_store:
+            del _selection_store[session_id]
