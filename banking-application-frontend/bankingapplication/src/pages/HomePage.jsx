@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import MainTop from '../components/MainTop';
 import MainBottom from '../components/MainBottom';
+import ChatBotButton from '../components/ChatBotButton';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -17,6 +18,8 @@ const HomePage = () => {
         </div>
       </main>
       <Footer />
+      {/* Banking Assistant ChatBot */}
+      <ChatBotButton userId="guest" />
     </div>
   );
 };
