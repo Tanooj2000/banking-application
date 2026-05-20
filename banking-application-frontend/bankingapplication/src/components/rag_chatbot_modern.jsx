@@ -159,24 +159,18 @@ const RagChatbotModern = ({ onClose }) => {
   };
 
   return (
-    <div className="rag-chatbot-container" style={{ width: 370, height: 520, display: 'flex', flexDirection: 'column' }}>
+    <div className="rag-chatbot-container rag-chatbot-modern" role="dialog" aria-label="Banking Assistant chat">
       {/* Header */}
-      <div style={{
-        background: 'linear-gradient(90deg, #6366f1 0%, #818cf8 100%)',
-        color: '#fff',
-        padding: '14px 18px',
-        fontWeight: 700,
-        fontSize: '1.08rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderRadius: '16px 16px 0 0',
-      }}>
-        <span>🏦 Banking Assistant</span>
+      <div className="rag-chatbot-header">
+        <div className="rag-chatbot-title-wrap">
+          <span className="rag-chatbot-title">Banking Assistant</span>
+          <span className="rag-chatbot-subtitle">Secure support for your account questions</span>
+        </div>
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
-            style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', lineHeight: 1 }}
+            className="rag-chatbot-close"
             aria-label="Close chat"
           >
             ✕
@@ -185,7 +179,7 @@ const RagChatbotModern = ({ onClose }) => {
       </div>
 
       {/* Messages */}
-      <div className="rag-messages-area" style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="rag-messages-area">
         {messages.map((msg) => (
           <div key={msg.id} className={`rag-message ${msg.type} ${msg.isError ? 'error' : ''}`}>
             <div className="rag-message-bubble">
@@ -205,28 +199,19 @@ const RagChatbotModern = ({ onClose }) => {
                 </div>
               ) : (
                 // Render plain text for other responses
-                <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+                <span className="rag-message-text">{msg.text}</span>
               )}
 
               {/* Render clickable option buttons for selection_required */}
               {msg.responseType === 'selection_required' && msg.options?.length > 0 && (
-                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div className="rag-options-list">
                   {msg.options.map((opt, idx) => (
                     <button
+                      type="button"
                       key={idx}
                       onClick={() => handleOptionClick({ label: String(idx + 1), ...opt })}
                       disabled={isLoading}
-                      style={{
-                        background: '#6366f1',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '7px 14px',
-                        fontSize: '0.92rem',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        opacity: isLoading ? 0.6 : 1,
-                      }}
+                      className="rag-option-button"
                     >
                       {idx + 1}. {opt.label || opt.bankName || opt.accountId || JSON.stringify(opt)}
                     </button>
@@ -242,7 +227,7 @@ const RagChatbotModern = ({ onClose }) => {
 
         {isLoading && (
           <div className="rag-message bot">
-            <div className="rag-message-bubble" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <div className="rag-message-bubble rag-typing-indicator">
               <span className="typing-dot" style={dotStyle(0)} />
               <span className="typing-dot" style={dotStyle(0.2)} />
               <span className="typing-dot" style={dotStyle(0.4)} />
@@ -258,13 +243,13 @@ const RagChatbotModern = ({ onClose }) => {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type a message or pick an option above…"
+          placeholder="Type a message...."
           disabled={isLoading}
           rows={1}
           className="rag-message-input"
-          style={{ resize: 'none' }}
         />
         <button
+          type="button"
           onClick={handleSend}
           disabled={!inputMessage.trim() || isLoading}
           className="rag-send-button"
@@ -277,12 +262,7 @@ const RagChatbotModern = ({ onClose }) => {
 };
 
 const dotStyle = (delay) => ({
-  display: 'inline-block',
-  width: 8,
-  height: 8,
-  borderRadius: '50%',
-  background: '#94a3b8',
-  animation: `bounce 1s ${delay}s infinite`,
+  animationDelay: `${delay}s`,
 });
 
 export default RagChatbotModern;

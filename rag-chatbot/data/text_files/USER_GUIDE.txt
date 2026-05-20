@@ -1,4 +1,4 @@
-# InterBankHub - Complete User Guide
+﻿# InterBankHub - Complete User Guide
 
 Welcome to InterBankHub! This comprehensive guide covers everything you need to know to use the platform effectively.
 
@@ -39,9 +39,9 @@ Welcome to InterBankHub! This comprehensive guide covers everything you need to 
 ### First Time Login
 
 1. Go to **Sign In** page
-2. Enter your email address and password
+2. Enter your email address or Username and password
 3. Click **"Sign In"**
-4. You'll be taken to your dashboard (**Your Page**)
+4. You'll be taken to your dashboard (**Dashboard**)
 
 ---
 
@@ -49,7 +49,7 @@ Welcome to InterBankHub! This comprehensive guide covers everything you need to 
 
 ### Accessing Your Dashboard
 
-- After login, you'll see your dashboard (**Your Page**) with sidebar navigation:
+- After login, you'll see your dashboard (**Your Dashboard**) with sidebar navigation:
   - **My Profile** - View and edit user information
   - **Bank Accounts** - View all your created accounts
    - **New Account** - Select bank and create accounts
@@ -105,7 +105,7 @@ Welcome to InterBankHub! This comprehensive guide covers everything you need to 
 ### Toggling Dark/Light Mode
 
 1. Look for the **sun/moon icon** in the top right corner
-2. Click **☀️** (sun) for light mode or **🌙** (moon) for dark mode
+2. Click **â˜€ï¸** (sun) for light mode or **ðŸŒ™** (moon) for dark mode
 3. Theme toggles immediately
 4. Your preference is automatically saved in your browser
 5. Persists across sessions and logins
@@ -150,7 +150,7 @@ Welcome to InterBankHub! This comprehensive guide covers everything you need to 
   - Selected Country
   - Selected City
   - Selected Bank
-  - Warning if account already exists (⚠️)
+  - Warning if account already exists (âš ï¸)
 
 ### Starting Account Creation
 
@@ -310,19 +310,19 @@ Click **"Next"**.
 - **Rejected** - Applications that were declined
 
 **Refresh Accounts:**
-- Click the **Refresh** button (↻ icon) to manually refresh the account list
+- Click the **Refresh** button (â†» icon) to manually refresh the account list
 - Shows current status of all applications
 - Useful after submitting a new application
 
 ### Account Card Information
 
 Each account card displays:
-- 🏛️ Bank name
-- 🌍 Country
-- 🏢 Branch
-- 📅 Creation date
+- ðŸ›ï¸ Bank name
+- ðŸŒ Country
+- ðŸ¢ Branch
+- ðŸ“… Creation date
 - Status badge (Pending/Approved/Rejected)
-- 💳 Account number (if approved)
+- ðŸ’³ Account number (if approved)
 
 ### Viewing Full Account Details
 
@@ -583,31 +583,31 @@ These FAQs cover the most common user questions and provide quick answers withou
 
 Your dashboard sidebar provides quick access to:
 
-1. **My Profile** (👤)
+1. **My Profile** (ðŸ‘¤)
    - View profile information
    - Edit profile details
    - Change password
    - Logout
 
-2. **Bank Accounts** (💳)
+2. **Bank Accounts** (ðŸ’³)
    - View all accounts
    - Filter by status
    - Refresh account list
    - Download documents
    - View account details
 
-3. **New Account** (➕)
+3. **New Account** (âž•)
    - Browse available banks
    - Select country, city, bank
    - Start new account application
    - Check for duplicate accounts
 
-4. **Support** (✉️)
+4. **Support** (âœ‰ï¸)
    - Email address for support
    - Support tips and guidelines
    - Contact information
 
-5. **Help Center** (❓)
+5. **Help Center** (â“)
    - Frequently asked questions
    - Common troubleshooting
    - Application information
@@ -657,7 +657,7 @@ A: You can monitor all applications in real-time through the "Bank Accounts" sec
 
 ## Tips for Success
 
-✅ **DO:**
+âœ… **DO:**
 - Fill all fields accurately and completely
 - Upload clear, readable documents
 - Double-check information before submitting
@@ -666,7 +666,7 @@ A: You can monitor all applications in real-time through the "Bank Accounts" sec
 - Check your dashboard regularly for status updates
 - Contact support if you have questions
 
-❌ **DON'T:**
+âŒ **DON'T:**
 - Provide false information
 - Submit expired documents
 - Upload blurry or partial photos
@@ -696,3 +696,4 @@ A: You can monitor all applications in real-time through the "Bank Accounts" sec
 **Version:** 2.0 (Updated to match actual UserPage interface)
 
 For technical support or account-specific issues, email: noreplyinterbankinghub@gmail.com
+

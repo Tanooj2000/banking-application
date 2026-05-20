@@ -1,4 +1,4 @@
-# InterBankHub - Troubleshooting Guide
+﻿# InterBankHub - Troubleshooting Guide
 
 Solutions for common issues on InterBankHub.
 
@@ -20,8 +20,8 @@ Solutions for common issues on InterBankHub.
 2. **Try these steps:**
    - Refresh the page (Ctrl+R or Cmd+R)
    - Clear browser cookies:
-     - Chrome: Settings → Privacy → Clear browsing data
-     - Firefox: Settings → Privacy → Clear Data
+     - Chrome: Settings â†’ Privacy â†’ Clear browsing data
+     - Firefox: Settings â†’ Privacy â†’ Clear Data
    - Try a different browser
    - Try from a different network
 
@@ -92,7 +92,7 @@ Solutions for common issues on InterBankHub.
 - Sign in with your current credentials
 
 **Step 2: Go to profile**
-- Click "Your Page" (Users) or Admin Dashboard
+- Click "Your Dashboard" (Users) or Admin Dashboard
 
 **Step 3: Find password option**
 - Look for "Change Password" or "Security" section
@@ -111,9 +111,9 @@ Solutions for common issues on InterBankHub.
 
 **Solutions:**
 1. **Clear browser cache:**
-   - Chrome: Settings → Privacy → Clear browsing data
-   - Firefox: Settings → Privacy → Clear Data
-   - Safari: Develop → Empty Caches
+   - Chrome: Settings â†’ Privacy â†’ Clear browsing data
+   - Firefox: Settings â†’ Privacy â†’ Clear Data
+   - Safari: Develop â†’ Empty Caches
 
 2. **Try these:**
    - Log out completely
@@ -137,7 +137,7 @@ Solutions for common issues on InterBankHub.
 **Solutions:**
 1. **Check permissions:**
    - Are you logged in?
-   - Are you on "Your Page" (Users)?
+   - Are you on "Your Dashboard" (Users)?
    - Are you on Admin Dashboard (Admins)?
 
 2. **Try these:**
@@ -585,11 +585,12 @@ When contacting support, tell them:
 
 ### Before Contacting Support:
 
-✓ Refresh the page
-✓ Try another browser
-✓ Clear browser cache
-✓ Try from different network
-✓ Check this troubleshooting guide
-✓ Wait 10 minutes and try again
+âœ“ Refresh the page
+âœ“ Try another browser
+âœ“ Clear browser cache
+âœ“ Try from different network
+âœ“ Check this troubleshooting guide
+âœ“ Wait 10 minutes and try again
 
 ---
+

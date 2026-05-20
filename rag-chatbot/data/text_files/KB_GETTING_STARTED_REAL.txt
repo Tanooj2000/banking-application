@@ -1,4 +1,4 @@
-# InterBankHub - Getting Started Guide
+﻿# InterBankHub - Getting Started Guide
 
 ## Welcome to InterBankHub
 
@@ -127,7 +127,7 @@ InterBankHub is your unified platform for creating and managing bank accounts in
 
 ## Step 4: Manage Your Profile
 
-1. **Click "Your Page"** from your dashboard
+1. **Click "Your Dashboard"** from your dashboard
 2. **View your profile information:**
    - Username
    - Email
@@ -148,7 +148,7 @@ InterBankHub is your unified platform for creating and managing bank accounts in
 
 ## Step 5: View Your Bank Accounts
 
-1. **Go to "Your Page"**
+1. **Go to "Your Dashboard"**
 2. **You'll see all your linked bank accounts**
 3. **Filter by status:**
    - All (all accounts)
@@ -196,27 +196,27 @@ InterBankHub is your unified platform for creating and managing bank accounts in
 
 ### For Users:
 
-✅ **Browse Banks** - Find banks in your country and city
-✅ **Create Account** - Multi-step account creation
-✅ **Manage Profile** - Update your personal information
-✅ **View Accounts** - See all your accounts and their status
-✅ **Download Documents** - Access your uploaded documents
-✅ **Change Password** - Keep your account secure
+âœ… **Browse Banks** - Find banks in your country and city
+âœ… **Create Account** - Multi-step account creation
+âœ… **Manage Profile** - Update your personal information
+âœ… **View Accounts** - See all your accounts and their status
+âœ… **Download Documents** - Access your uploaded documents
+âœ… **Change Password** - Keep your account secure
 
 ### For Admins:
 
-✅ **View Applications** - See all pending account applications
-✅ **Approve/Reject** - Process applications
-✅ **View Documents** - Check submitted documents
-✅ **Manage Profile** - Update admin information
-✅ **Filter Applications** - Sort by status (Pending, Approved, Rejected)
+âœ… **View Applications** - See all pending account applications
+âœ… **Approve/Reject** - Process applications
+âœ… **View Documents** - Check submitted documents
+âœ… **Manage Profile** - Update admin information
+âœ… **Filter Applications** - Sort by status (Pending, Approved, Rejected)
 
 ---
 
 ## Common Questions
 
 ### "What should I do after I submit my account application?"
-- Check your account status regularly in "Your Page" (typically 2-5 business days)
+- Check your account status regularly in "Your Dashboard" (typically 2-5 business days)
 - Your status will update automatically when admin reviews it
 - If approved, you can start using your account
 - If rejected, you'll see the details in your dashboard
@@ -236,7 +236,7 @@ InterBankHub is your unified platform for creating and managing bank accounts in
 ### "Can I create multiple accounts?"
 - Yes, you can create accounts with different banks
 - You can also create accounts in different countries
-- All accounts appear in your "Your Page"
+- All accounts appear in your "Your Dashboard"
 
 ### "I forgot my password"
 - Contact support at support@interbankshub.com
@@ -247,32 +247,33 @@ InterBankHub is your unified platform for creating and managing bank accounts in
 
 ## Next Steps
 
-✅ **Done setting up?** Explore more banks and create accounts!
+âœ… **Done setting up?** Explore more banks and create accounts!
 
-📚 **Need more help?** Check our FAQ section or contact support
+ðŸ“š **Need more help?** Check our FAQ section or contact support
 
-❓ **Have questions?** Email: support@interbankshub.com
+â“ **Have questions?** Email: support@interbankshub.com
 
 ---
 
 ## Important Tips
 
-🔒 **Security:**
+ðŸ”’ **Security:**
 - Never share your password
 - Use a strong password
 - Use a secure internet connection
 - Log out after each session
 
-✅ **Document Upload:**
+âœ… **Document Upload:**
 - Ensure documents are clear and readable
 - Use PDF, JPG, or PNG format
 - File size should be reasonable
 - Double-check all information is accurate
 
-📞 **Contact Support:**
+ðŸ“ž **Contact Support:**
 - Email: support@interbankshub.com
 - Response time: 24-48 hours
 - Describe your issue clearly
 - Include any error messages
 
 ---
+

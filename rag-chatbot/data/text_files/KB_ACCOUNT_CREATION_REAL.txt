@@ -1,10 +1,10 @@
-# InterBankHub - Account Creation by Country
+﻿# InterBankHub - Account Creation by Country
 
 Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 
 ---
 
-## 🇮🇳 India - Account Creation
+## ðŸ‡®ðŸ‡³ India - Account Creation
 
 ### Account Types Available:
 - **Savings Account** - For personal saving
@@ -77,7 +77,7 @@ Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 
 ---
 
-## 🇺🇸 USA - Account Creation
+## ðŸ‡ºðŸ‡¸ USA - Account Creation
 
 ### Account Types Available:
 - **Checking Account** - For daily transactions
@@ -149,7 +149,7 @@ Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 
 ---
 
-## 🇬🇧 UK - Account Creation
+## ðŸ‡¬ðŸ‡§ UK - Account Creation
 
 ### Account Types Available:
 - **Current Account** - For everyday banking
@@ -329,14 +329,14 @@ Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 
 ## Important Reminders
 
-✅ **DO:**
+âœ… **DO:**
 - Take time to fill in all fields accurately
 - Upload clear, readable documents
 - Double-check all information before submitting
 - Keep a copy of your submitted information
 - Check your dashboard regularly for status updates
 
-❌ **DON'T:**
+âŒ **DON'T:**
 - Submit incomplete information
 - Use blurry or partial document photos
 - Provide false information
@@ -367,7 +367,7 @@ Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 **"How long should I wait?"**
 - Typical: 2-5 business days
 - Not counting weekends/holidays
-- Check "Your Page" dashboard regularly to see current status
+- Check "Your Dashboard" dashboard regularly to see current status
 - Status updates automatically when admin makes decision
 
 ---
@@ -384,3 +384,4 @@ Complete step-by-step guide for creating bank accounts in India, USA, and UK.
 - Screenshots if helpful
 
 ---
+

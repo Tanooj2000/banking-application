@@ -145,6 +145,31 @@ GREETING_TERMS = {
     "what's up", "whats up", "how are you", "how r u",
 }
 
+CAPABILITIES_TERMS = [
+    "what can you do",
+    "what can u do",
+    "what services can you do",
+    "what service can you do",
+    "what services do you provide",
+    "what services are available",
+    "what can i do here",
+    "help me",
+    "help",
+    "available features",
+    "available services",
+    "how can you help me",
+    "what can you help me with",
+    "what are the exact things",
+    "what exactly can you",
+    "what do you do",
+    "what do you help",
+    "things that you can help",
+    "what all can you",
+    "what are you capable",
+    "what features do you have",
+    "what are your capabilities",
+]
+
 
 def _is_how_to_question(question: str) -> bool:
     lowered = question.lower().strip()
@@ -154,6 +179,17 @@ def _is_how_to_question(question: str) -> bool:
 def is_greeting_intent(question: str) -> bool:
     lowered = question.lower().strip().rstrip("!.,? ")
     return lowered in GREETING_TERMS
+
+
+def is_capabilities_intent(question: str) -> bool:
+    lowered = question.lower().strip()
+    if any(term in lowered for term in CAPABILITIES_TERMS):
+        return True
+    return (
+        lowered.startswith("what can you")
+        or lowered.startswith("what services")
+        or lowered.startswith("what do you")
+    )
 
 
 def is_account_status_intent(question: str) -> bool:
@@ -190,6 +226,9 @@ def is_bank_lookup_intent(question: str) -> bool:
 
 def is_profile_view_intent(question: str) -> bool:
     lowered = question.lower()
+    # Guard against overlap like "change my profile" being treated as a view request.
+    if any(token in lowered for token in ["change", "update", "modify"]):
+        return False
     return any(term in lowered for term in PROFILE_VIEW_TERMS)
 
 
@@ -432,6 +471,141 @@ def handle_greeting(model_name: str) -> Dict[str, Any]:
         "response_type": "final_answer",
         "response": "Hello! Welcome to InterBankHub. How can I assist you today?",
     }
+
+
+def handle_capabilities(user_type: Optional[str], user_id: Optional[str]) -> Dict[str, Any]:
+    normalized_user_type = (user_type or "").strip().lower()
+
+    if normalized_user_type == "admin":
+        response_text = (
+            "I can help you with these admin services:\n"
+            "- Update admin profile fields (username, email, bank name, country)\n"
+            "- Change admin password\n"
+            "- Find available banks by country/city\n"
+            "- Answer banking knowledge-base questions\n\n"
+            "Try asking: 'change my email to admin@bank.com' or 'change my password'."
+        )
+        return {"response_type": "final_answer", "response": response_text}
+
+    if user_id:
+        response_text = (
+            "I can help you with these services:\n"
+            "- Check account status\n"
+            "- List your accounts\n"
+            "- Check application status\n"
+            "- View or update profile (username/email/phone)\n"
+            "- Change password\n"
+            "- Find available banks by country/city\n"
+            "- Answer banking knowledge-base questions\n\n"
+            "Try asking: 'show my accounts', 'check my account status', or 'change my phone to 9876543210'."
+        )
+        return {"response_type": "final_answer", "response": response_text}
+
+    response_text = (
+        "I can help with:\n"
+        "- Bank discovery (by city/country)\n"
+        "- General banking FAQ from the knowledge base\n"
+        "- Guidance on profile/account services after sign-in\n\n"
+        "Please sign in to use account-specific actions like account status, profile updates, and password changes."
+    )
+    return {"response_type": "final_answer", "response": response_text}
+
+
+# ---------------------------------------------------------------------------
+# Internal system context: tells the LLM exactly what this chatbot can and
+# cannot do so it answers any question phrasing honestly without hallucinating.
+# ---------------------------------------------------------------------------
+CHATBOT_SYSTEM_CONTEXT = """\
+You are the InterBankHub chatbot assistant — a conversational AI embedded in \
+the InterBankHub banking portal.
+
+WHAT YOU CAN DO (your exact supported functionalities):
+1. Account Status     – Check the status of a user's linked bank account (requires sign-in).
+2. List Accounts      – Show all bank accounts linked to the signed-in user (requires sign-in).
+3. Application Status – Track a bank-account application by its Application ID (requires sign-in).
+4. Profile View       – Show the signed-in user's profile: username, email, phone (requires sign-in).
+5. Profile Update     – Update username, email, or phone number (requires sign-in).
+6. Password Change    – Change the user's account password (requires sign-in).
+7. Bank Discovery     – Find available banks by country or city (no sign-in required).
+8. Knowledge Base Q&A – Answer general banking questions from the knowledge base (no sign-in required).
+
+WHAT YOU CANNOT DO (be honest about these):
+- You CANNOT navigate the user to any page or section of the portal UI. \
+You are a conversational assistant, not a UI controller. \
+Never tell a user to "click" a specific button or sidebar link — you do not know the exact UI layout.
+- You CANNOT check account balances, show transaction history, or produce account statements.
+- You CANNOT perform fund transfers, send money, or execute any financial transaction.
+- You CANNOT process loan applications (personal, home, education, etc.).
+- You CANNOT manage, apply for, or provide details about credit cards or debit cards.
+- You CANNOT create bank accounts directly. Account creation is handled through \
+the portal's online application form. After the user submits an application through the portal, \
+you CAN help them track its status using the Application ID.
+- You CANNOT access real-time market data, live interest rates, or exchange rates \
+unless they appear in the knowledge base.
+
+ACCOUNT CREATION GUIDANCE (if the user asks how to open or create an account):
+Account creation is done through the portal's application form, not through this chatbot.
+Steps:
+1. Go to the Account Creation section in the portal.
+2. Select a country (India, USA, or UK).
+3. Fill in personal details and upload required documents: \
+ID Proof, Address Proof, Income Proof, Passport-size Photo.
+4. Submit the application.
+After submission, the user can ask this chatbot to track the application status using their Application ID.
+
+STRICT RULES:
+- Never mention clicking specific buttons, sidebar items, menu links, or UI element names.
+- Never invent features or capabilities that are not listed above.
+- If the user asks about something you cannot do, say so clearly and suggest the closest \
+thing you CAN help with instead.
+- Be professional, concise, and helpful within your actual capabilities.
+- Do not use placeholder text such as [Bank Name] or [Customer Name].
+"""
+
+
+def guided_general_response(
+    question: str,
+    model_name: str,
+    user_id: Optional[str] = None,
+    user_type: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Handles any query not matched by a specific transactional intent.
+
+    The LLM is given precise capability facts about the chatbot so it can answer
+    any phrasing of any question accurately and honestly, without hallucinating
+    unsupported features or inventing UI navigation steps.
+    """
+    if user_type == "admin":
+        session_context = "The user is currently signed in as an ADMIN."
+    elif user_id:
+        session_context = "The user is currently signed in."
+    else:
+        session_context = "The user is NOT currently signed in."
+
+    prompt = (
+        f"{CHATBOT_SYSTEM_CONTEXT}\n"
+        f"Session context: {session_context}\n\n"
+        f"User question: {question}\n\n"
+        "Answer the user's question accurately based solely on the context above. "
+        "Be concise and professional. "
+        "If the user asks about something you cannot do, say so clearly and suggest "
+        "what you can help with instead. "
+        "Never invent UI navigation steps or unsupported features."
+    )
+    payload = {"model": model_name, "prompt": prompt, "stream": False}
+    try:
+        resp = requests.post(OLLAMA_GENERATE_URL, json=payload, timeout=OLLAMA_TIMEOUT_SECONDS)
+        resp.raise_for_status()
+        answer = resp.json().get("response", "").strip()
+        return {
+            "response_type": "final_answer",
+            "response": answer or "I'm sorry, I couldn't generate a response. Please try again.",
+        }
+    except requests.RequestException:
+        return {
+            "response_type": "final_answer",
+            "response": "I'm sorry, I'm unable to process that request right now. Please try again in a moment.",
+        }
 
 
 def handle_bank_lookup(question: str, model_name: str) -> Dict[str, Any]:
@@ -1115,11 +1289,14 @@ def orchestrate_query(
     if is_greeting_intent(question):
         return handle_greeting(model_name)
 
-    if is_profile_view_intent(question):
-        return handle_profile_view(model_name, user_id, auth_token, user_type)
+    if is_capabilities_intent(question):
+        return handle_capabilities(user_type=user_type, user_id=user_id)
 
     if is_profile_update_intent(question):
         return handle_profile_update(question, model_name, user_id, auth_token, user_type)
+
+    if is_profile_view_intent(question):
+        return handle_profile_view(model_name, user_id, auth_token, user_type)
 
     if is_password_update_intent(question):
         return handle_password_update(question, model_name, user_id, auth_token, user_type)
@@ -1297,18 +1474,23 @@ def orchestrate_query(
         )
         return {"response_type": "final_answer", "response": response_text}
 
-    # Check if RAG has any relevant documents before calling LLM
+    # Try RAG first for knowledge-base questions (banking concepts, FAQs from documents).
+    # If relevant documents are found, use them to ground the LLM response factually.
     retrieved_docs = rag_retriever.retrieve(question, top_k=top_k)
-    if not retrieved_docs:
-        return {
-            "response_type": "final_answer",
-            "response": "I'm sorry, I don't have information on that. I can help you with account status, profile updates, bank information, password changes, and application status. Please ask a banking-related question.",
-        }
-    response = rag_response_fn(
-        question,
-        rag_retriever,
-        api_context=None,
-        model_name=model_name,
-        top_k=top_k,
-    )
-    return {"response_type": "final_answer", "response": response}
+    if retrieved_docs:
+        try:
+            response = rag_response_fn(
+                question,
+                rag_retriever,
+                api_context=None,
+                model_name=model_name,
+                top_k=top_k,
+            )
+            return {"response_type": "final_answer", "response": response}
+        except Exception:
+            pass  # Fall through to guided general response
+
+    # For everything else — navigation queries, unsupported features, account creation
+    # guidance, unknown questions, or RAG failures — use the guided LLM with the full
+    # capability context so it answers any phrasing honestly and accurately.
+    return guided_general_response(question, model_name, user_id, user_type)

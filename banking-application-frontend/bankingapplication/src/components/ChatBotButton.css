@@ -6,24 +6,24 @@
   width: 65px;
   height: 65px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
   border: none;
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 25px rgba(201, 168, 76, 0.38);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  color: white;
+  color: #1f2937;
   font-size: 26px;
   overflow: hidden;
 }
 
 .chatbot-fab:hover {
   transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 10px 35px rgba(102, 126, 234, 0.6);
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 10px 35px rgba(201, 168, 76, 0.52);
+  background: linear-gradient(135deg, var(--gold-hover) 0%, var(--gold) 100%);
 }
 
 .chatbot-fab:active {
@@ -31,13 +31,13 @@
 }
 
 .chatbot-fab.active {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  box-shadow: 0 6px 25px rgba(231, 76, 60, 0.4);
+  background: linear-gradient(135deg, #806118 0%, var(--gold) 100%);
+  box-shadow: 0 6px 25px rgba(201, 168, 76, 0.45);
 }
 
 .chatbot-fab.active:hover {
-  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-  box-shadow: 0 10px 35px rgba(231, 76, 60, 0.6);
+  background: linear-gradient(135deg, #6f5515 0%, var(--gold-hover) 100%);
+  box-shadow: 0 10px 35px rgba(201, 168, 76, 0.56);
 }
 
 .fab-icon {
@@ -129,8 +129,8 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #e74c3c;
-  color: white;
+  background: #1f2937;
+  color: #fff;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -139,5 +139,5 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  border: 2px solid white;
+  border: 2px solid var(--gold);
 }

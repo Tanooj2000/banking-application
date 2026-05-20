@@ -1,4 +1,4 @@
-# InterBankHub - Frequently Asked Questions (FAQ)
+﻿# InterBankHub - Frequently Asked Questions (FAQ)
 
 ## Getting Started
 
@@ -149,7 +149,7 @@ Yes! You can create multiple accounts across different banks and countries. Each
 **Q: How do I view my bank accounts?**
 A:
 1. Log in to your account
-2. Go to "Your Page" or Dashboard
+2. Go to "Your Dashboard" or Dashboard
 3. You'll see all your linked bank accounts
 4. You can filter by account status (All, Pending, Approved, Rejected)
 5. Click on any account to view details
@@ -161,7 +161,7 @@ A:
 **Q: How do I edit my profile?**
 A:
 1. Log in to your account
-2. Go to "Your Page" (User Page)
+2. Go to "Your Dashboard" (User Page)
 3. Click on the "Profile" section (or edit icon)
 4. Update your information:
    - Username
@@ -176,7 +176,7 @@ A:
 **Q: How do I change my password?**
 A:
 1. Log in to your account
-2. Go to "Your Page"
+2. Go to "Your Dashboard"
 3. Look for "Change Password" or "Security" section
 4. Enter your current password
 5. Enter your new password (must be different from current)
@@ -189,7 +189,7 @@ A:
 
 **Q: How do I download documents from my account?**
 A:
-1. Go to "Your Page"
+1. Go to "Your Dashboard"
 2. Click on the account you want to access
 3. Look for "Documents" or "View Documents"
 4. Select the document you want to download
@@ -384,3 +384,4 @@ Account deletion features may be available. For details, contact support:
 *Also looking for: Delete account, Remove account, Close account*
 
 ---
+
