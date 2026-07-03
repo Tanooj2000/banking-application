@@ -10,6 +10,7 @@ import './AdminPageClean.css';
 import { createBranch } from '../api/bankApi';
 import { FaUser, FaTimes, FaEye, FaUserShield, FaPlus, FaChartBar, FaBuilding, FaSignOutAlt, FaUsers, FaEdit, FaKey } from 'react-icons/fa';
 import { HiSun, HiMoon } from 'react-icons/hi';
+import ChatBotButton from '../components/ChatBotButton';
 
 
 const AdminPage = () => {
@@ -1085,6 +1086,9 @@ const AdminPage = () => {
           </div>
         )}
 
+      {/* Banking Assistant ChatBot */}
+      <ChatBotButton userId={adminIdResolved || 'admin'} />
+      
       <Footer />
     </>
   );
