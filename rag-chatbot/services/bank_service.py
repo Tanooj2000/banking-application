@@ -38,13 +38,19 @@ def get_all_banks() -> List[Dict[str, Any]]:
 def get_banks_by_country(country: str) -> List[Dict[str, Any]]:
     if not country:
         return []
-    return _call_bank_service(f"/country/{country}")
+    try:
+        return _call_bank_service(f"/country/{country}")
+    except requests.RequestException:
+        return []
 
 
 def get_banks_by_country_and_city(country: str, city: str) -> List[Dict[str, Any]]:
     if not country or not city:
         return []
-    return _call_bank_service(f"/country/{country}/city/{city}")
+    try:
+        return _call_bank_service(f"/country/{country}/city/{city}")
+    except requests.RequestException:
+        return []
 
 
 def bank_name(bank: Dict[str, Any]) -> str:

@@ -5,6 +5,10 @@ import asyncio
 import logging
 import traceback
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
@@ -12,7 +16,7 @@ app = FastAPI()
 # Import the RAG pipeline objects.
 from pdf_loader import rag_retriever, ollama_unified_response
 from services.schemas import QueryRequest
-from services.chat_orchestrator import orchestrate_query
+from services.chat_orchestrator_v2_faq_cache import orchestrate_query_faq_first as orchestrate_query
 
 
 @app.post("/rag/ask")

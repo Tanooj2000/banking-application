@@ -200,11 +200,18 @@ def ollama_unified_response(query, rag_retriever, api_context=None, ollama_url="
     """
     retrieved_docs = rag_retriever.retrieve(query, top_k=top_k)
     context = "\n\n".join([doc['content'] for doc in retrieved_docs]) if retrieved_docs else ""
-    prompt = ""
     prompt = (
-        "You are a banking assistant. Answer ONLY using the provided context below. "
+        "You are a professional banking assistant. Answer ONLY using the provided context below. "
         "Do NOT make up information. If the context does not contain enough information to answer the question, "
         "respond with: 'I'm sorry, I don't have enough information to answer that. Please contact support or ask a banking-related question.'\n\n"
+        "FORMATTING RULES — follow these strictly:\n"
+        "1. For procedural / how-to questions: use a short one-line introduction, then numbered steps (1. 2. 3. …). "
+        "   Use **bold** for section names, button labels, or field names. "
+        "   Use sub-bullets (   - item) for lists of options within a step.\n"
+        "2. For factual / explanatory questions: use short paragraphs or a simple bullet list.\n"
+        "3. Always end with a concise closing sentence (e.g. 'If you need further help, please contact support.').\n"
+        "4. Never output placeholder text such as [Customer Name] or [Field].\n"
+        "5. Keep the answer concise — avoid unnecessary repetition.\n\n"
     )
     if api_context:
         prompt += f"API Context:\n{api_context}\n\n"
@@ -214,7 +221,9 @@ def ollama_unified_response(query, rag_retriever, api_context=None, ollama_url="
     payload = {
         "model": model_name,
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "num_predict": 320,  # cap output tokens — banking answers are concise
+        "temperature": 0,   # greedy decoding is fastest and most consistent
     }
     response = requests.post(ollama_url, json=payload)
     response.raise_for_status()

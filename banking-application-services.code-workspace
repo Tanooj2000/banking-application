@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "banking-application-microservices/user-service"
+		},
+		{
+			"path": "banking-application-microservices/account-service"
+		},
+		{
+			"path": "banking-application-microservices/bank-service"
+		},
+		{
+			"path": "banking-application-microservices/admin-service"
+		}
+	],
+	"settings": {}
+}

@@ -4,11 +4,8 @@ import re
 import uuid
 import time
 import json
-import logging
 from datetime import datetime
 import requests
-
-logger = logging.getLogger(__name__)
 
 from services.account_service import (
     get_accounts_by_user_id,
@@ -39,6 +36,56 @@ from services.selection_store import cleanup_expired_sessions, get_session, remo
 
 OLLAMA_GENERATE_URL = "http://localhost:11434/api/generate"
 OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+ACCOUNT_STATUS_TERMS = [
+    "account status",
+    "status of my account",
+    "check my account",
+    "my account status",
+    "account details",
+    "bank status",
+    "my bank status",
+    "check my bank",
+    "status of my bank",
+    "check account",
+    "view account",
+    "see my account",
+    "account info",
+    "account information",
+    "my banking status",
+    "my account details",
+    "check my bank status",
+]
+
+APPLICATION_STATUS_TERMS = [
+    "application status",
+    "application progress",
+    "check my application",
+    "track my application",
+    "status of my application",
+]
+
+LIST_ACCOUNTS_TERMS = [
+    "list my accounts",
+    "show my accounts",
+    "my accounts",
+    "list of accounts",
+    "show all my accounts",
+    "display my accounts",
+]
+
+BANK_LOOKUP_TERMS = [
+    "available banks",
+    "what banks are available",
+    "which banks are available",
+    "list of banks",
+    "banks available",
+    "show banks",
+    "bank list",
+    "find banks",
+    "search banks",
+    "bank names",
+]
+
 COUNTRY_ALIASES = {
     "india": "India",
     "in": "India",
@@ -59,6 +106,147 @@ CITY_TO_COUNTRY = {
     "hyderabad": "India",
     "hyderbad": "India",
 }
+
+PROFILE_VIEW_TERMS = [
+    "show my profile",
+    "my profile",
+    "view my profile",
+    "profile details",
+    "who am i",
+]
+
+PROFILE_UPDATE_TERMS = [
+    "update my profile",
+    "change my profile",
+    "update my email",
+    "change my email",
+    "update my phone",
+    "change my phone",
+    "update my mobile",
+    "change my mobile",
+    "update my mobile number",
+    "change my mobile number",
+    "update mobile number",
+    "change mobile number",
+    "update my username",
+    "change my username",
+]
+
+PASSWORD_UPDATE_TERMS = [
+    "change my password",
+    "update my password",
+    "reset my password",
+]
+
+GREETING_TERMS = {
+    "hi", "hello", "hey", "hii", "helo", "heyy",
+    "good morning", "good afternoon", "good evening", "good night",
+    "howdy", "greetings", "sup",
+    "what's up", "whats up", "how are you", "how r u",
+}
+
+CAPABILITIES_TERMS = [
+    "what can you do",
+    "what can u do",
+    "what services can you do",
+    "what service can you do",
+    "what services do you provide",
+    "what services are available",
+    "what can i do here",
+    "help me",
+    "help",
+    "available features",
+    "available services",
+    "how can you help me",
+    "what can you help me with",
+    "what are the exact things",
+    "what exactly can you",
+    "what do you do",
+    "what do you help",
+    "things that you can help",
+    "what all can you",
+    "what are you capable",
+    "what features do you have",
+    "what are your capabilities",
+]
+
+
+def _is_how_to_question(question: str) -> bool:
+    lowered = question.lower().strip()
+    return lowered.startswith("how") or "how to" in lowered or "how do" in lowered or "how can" in lowered
+
+
+def is_greeting_intent(question: str) -> bool:
+    lowered = question.lower().strip().rstrip("!.,? ")
+    return lowered in GREETING_TERMS
+
+
+def is_capabilities_intent(question: str) -> bool:
+    lowered = question.lower().strip()
+    if any(term in lowered for term in CAPABILITIES_TERMS):
+        return True
+    return (
+        lowered.startswith("what can you")
+        or lowered.startswith("what services")
+        or lowered.startswith("what do you")
+    )
+
+
+def is_account_status_intent(question: str) -> bool:
+    if _is_how_to_question(question):
+        return False
+    lowered = question.lower()
+    return any(term in lowered for term in ACCOUNT_STATUS_TERMS)
+
+
+def is_application_status_intent(question: str) -> bool:
+    if _is_how_to_question(question):
+        return False
+    lowered = question.lower()
+    return any(term in lowered for term in APPLICATION_STATUS_TERMS)
+
+
+def is_list_accounts_intent(question: str) -> bool:
+    if _is_how_to_question(question):
+        return False
+    lowered = question.lower()
+    return any(term in lowered for term in LIST_ACCOUNTS_TERMS)
+
+
+def is_bank_lookup_intent(question: str) -> bool:
+    if _is_how_to_question(question):
+        return False
+    lowered = question.lower()
+    if any(term in lowered for term in BANK_LOOKUP_TERMS):
+        return True
+    if "banks in" in lowered or "bank in" in lowered:
+        return True
+    return lowered.startswith("what banks") or lowered.startswith("show bank") or lowered.startswith("list bank")
+
+
+def is_profile_view_intent(question: str) -> bool:
+    lowered = question.lower()
+    # Guard against overlap like "change my profile" being treated as a view request.
+    if any(token in lowered for token in ["change", "update", "modify"]):
+        return False
+    return any(term in lowered for term in PROFILE_VIEW_TERMS)
+
+
+def is_profile_update_intent(question: str) -> bool:
+    lowered = question.lower()
+    if any(term in lowered for term in PROFILE_UPDATE_TERMS):
+        return True
+
+    # Support natural phrasing like "i want change my mobile number"
+    has_update_verb = any(token in lowered for token in ["change", "update", "modify"])
+    has_profile_field = any(token in lowered for token in ["email", "phone", "mobile", "mobile number", "username", "profile"])
+    return has_update_verb and has_profile_field
+
+
+def is_password_update_intent(question: str) -> bool:
+    lowered = question.lower()
+    return any(term in lowered for term in PASSWORD_UPDATE_TERMS)
+
 
 def _clean_value(value: str) -> str:
     return value.strip().strip(".!,;: ").strip('"\'')
@@ -404,13 +592,7 @@ def guided_general_response(
         "what you can help with instead. "
         "Never invent UI navigation steps or unsupported features."
     )
-    payload = {
-        "model": model_name,
-        "prompt": prompt,
-        "stream": False,
-        "num_predict": 320,  # concise banking answers stay well within 320 tokens
-        "temperature": 0,
-    }
+    payload = {"model": model_name, "prompt": prompt, "stream": False}
     try:
         resp = requests.post(OLLAMA_GENERATE_URL, json=payload, timeout=OLLAMA_TIMEOUT_SECONDS)
         resp.raise_for_status()
@@ -449,21 +631,13 @@ def handle_bank_lookup(question: str, model_name: str) -> Dict[str, Any]:
         scope = "all available banks"
 
     if not banks:
-        response_text = llm_text(
-            model_name,
-            f"Politely inform the customer that no banks were found for {scope}. Suggest they check the spelling or try a different location.",
-            {"scope": scope, "banks_found": 0},
-        )
+        response_text = fmt_no_banks(scope)
     else:
         bank_list = [
             {"name": bank_name(bank), "location": _format_bank_location(bank)}
             for bank in banks
         ]
-        response_text = llm_text(
-            model_name,
-            "Format the following banks as a numbered list. Start with 'Thank you for your interest in opening a bank account. Currently, the following banks are available for account creation:' then list each bank with its location (city, country) as 'Bank Name - City, Country'.",
-            {"banks": bank_list},
-        )
+        response_text = fmt_bank_list(bank_list, scope)
 
     return {
         "response_type": "final_answer",
@@ -505,12 +679,7 @@ def handle_profile_view(model_name: str, user_id: Optional[str], auth_token: Opt
             "response": "I could not find your profile details at the moment.",
         }
 
-    response_text = llm_text(
-        model_name,
-        "Show the user profile in a clear banking assistant style with bullet points for id, username, email, and phone.",
-        {"profile": clean_user_profile(user)},
-    )
-    return {"response_type": "final_answer", "response": response_text}
+    return {"response_type": "final_answer", "response": fmt_profile(clean_user_profile(user))}
 
 
 def handle_profile_update(question: str, model_name: str, user_id: Optional[str], auth_token: Optional[str], user_type: Optional[str] = None) -> Dict[str, Any]:
@@ -562,15 +731,7 @@ def handle_profile_update(question: str, model_name: str, user_id: Optional[str]
                 "response": llm_backend_error_response(model_name, "update_admin_profile", str(exc)),
             }
 
-        response_text = llm_text(
-            model_name,
-            "Confirm profile update in a professional tone and show updated fields (username, email, bankname, country) as bullet points.",
-            {
-                "updated_fields": updates,
-                "profile": updated if isinstance(updated, dict) else updates,
-            },
-        )
-        return {"response_type": "final_answer", "response": response_text}
+        return {"response_type": "final_answer", "response": fmt_profile_updated(updates)}
 
     # --- Regular user flow ---
     updates = extract_profile_updates(question)
@@ -608,15 +769,7 @@ def handle_profile_update(question: str, model_name: str, user_id: Optional[str]
             "response": llm_backend_error_response(model_name, "update_profile", str(exc)),
         }
 
-    response_text = llm_text(
-        model_name,
-        "Confirm profile update in a professional tone and show updated username, email, and phone as bullet points.",
-        {
-            "updated_fields": updates,
-            "profile": clean_user_profile(updated) if isinstance(updated, dict) else updates,
-        },
-    )
-    return {"response_type": "final_answer", "response": response_text}
+    return {"response_type": "final_answer", "response": fmt_profile_updated(updates)}
 
 
 def handle_password_update(question: str, model_name: str, user_id: Optional[str], auth_token: Optional[str], user_type: Optional[str] = None) -> Dict[str, Any]:
@@ -732,25 +885,11 @@ def handle_pending_profile_update(model_name: str, session_id: str, pending_sess
 
     try:
         if pending_user_type == "admin":
-            updated = update_admin_details(pending_user_id, {field: value}, pending_auth_token)
-            response_text = llm_text(
-                model_name,
-                "Confirm profile update in a professional tone and show updated fields (username, email, bankname, country) as bullet points.",
-                {
-                    "updated_fields": {field: value},
-                    "profile": updated if isinstance(updated, dict) else {field: value},
-                },
-            )
+            update_admin_details(pending_user_id, {field: value}, pending_auth_token)
+            response_text = fmt_profile_updated({field: value})
         else:
-            updated = update_user_details(pending_user_id, {field: value}, pending_auth_token)
-            response_text = llm_text(
-                model_name,
-                "Confirm profile update in a professional tone and show updated username, email, and phone as bullet points.",
-                {
-                    "updated_fields": {field: value},
-                    "profile": clean_user_profile(updated) if isinstance(updated, dict) else {field: value},
-                },
-            )
+            update_user_details(pending_user_id, {field: value}, pending_auth_token)
+            response_text = fmt_profile_updated({field: value})
     except requests.RequestException as exc:
         remove_session(session_id)
         return {
@@ -907,8 +1046,8 @@ def llm_text(model_name: str, instruction: str, facts: Dict[str, Any]) -> str:
         "model": model_name,
         "prompt": prompt,
         "stream": False,
-        "num_predict": 280,  # structured banking data fits within 280 tokens
-        "temperature": 0,   # deterministic output
+        "num_predict": 280,
+        "temperature": 0,
     }
     response = requests.post(OLLAMA_GENERATE_URL, json=payload, timeout=OLLAMA_TIMEOUT_SECONDS)
     response.raise_for_status()
@@ -916,18 +1055,204 @@ def llm_text(model_name: str, instruction: str, facts: Dict[str, Any]) -> str:
     return data.get("response", "I could not generate a response at the moment.").strip()
 
 
-def llm_backend_error_response(model_name: str, operation: str, backend_error: str) -> str:
-    try:
-        return llm_text(
-            model_name,
-            "Write a polite and professional banking assistant response for a temporary backend issue. Apologize briefly, do not expose technical internals, and ask the user to retry in a short while.",
-            {
-                "operation": operation,
-                "backend_error": backend_error,
-            },
+# ---------------------------------------------------------------------------
+# Python template formatters — zero LLM calls, instant responses
+# ---------------------------------------------------------------------------
+
+def _fmt_footer() -> str:
+    return "\n\nBest regards,\nBanking Support Team"
+
+
+def fmt_account_list(accounts: List[Dict[str, Any]]) -> str:
+    lines = ["Here are your linked bank accounts:\n"]
+    for a in accounts:
+        bank  = a.get("bankName", "Unknown Bank")
+        acnum = a.get("accountNumber", "N/A")
+        atype = a.get("accountType", "N/A")
+        status = a.get("status", "N/A")
+        branch = a.get("branch", "")
+        country = a.get("country", "")
+        loc = ", ".join(filter(None, [branch, country]))
+        line = f"• {bank} — {acnum} | {atype} | Status: {status}"
+        if loc:
+            line += f" | {loc}"
+        lines.append(line)
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_no_accounts(user_id: str) -> str:
+    return (
+        f"No bank accounts were found linked to your profile.\n"
+        f"If you believe this is an error, please contact support.\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def fmt_account_status(account: Dict[str, Any]) -> str:
+    bank   = account.get("bankName", "Unknown Bank")
+    acnum  = account.get("accountNumber", "N/A")
+    atype  = account.get("accountType", "N/A")
+    status = account.get("status", "N/A")
+    branch = account.get("branch", "")
+    country = account.get("country", "")
+    date   = account.get("responseDate", datetime.now().strftime("%B %d, %Y"))
+
+    lines = [
+        f"Account Status as of {date}:\n",
+        f"• Bank: {bank}",
+        f"• Account Number: {acnum}",
+        f"• Account Type: {atype}",
+        f"• Status: {status}",
+    ]
+    if branch:
+        lines.append(f"• Branch: {branch}")
+    if country:
+        lines.append(f"• Country: {country}")
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_bank_list(bank_list: List[Dict[str, Any]], scope: str) -> str:
+    lines = [
+        "Thank you for your interest in opening a bank account.",
+        f"Currently, the following banks are available for {scope}:\n",
+    ]
+    for i, b in enumerate(bank_list, 1):
+        lines.append(f"{i}. {b['name']} — {b['location']}")
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_no_banks(scope: str) -> str:
+    return (
+        f"No banks were found for '{scope}'.\n"
+        f"Please check the spelling or try a different country or city.\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def fmt_profile(profile: Dict[str, Any]) -> str:
+    lines = ["Your profile details:\n"]
+    field_labels = {
+        "id": "User ID",
+        "username": "Username",
+        "email": "Email",
+        "phone": "Phone",
+    }
+    for key, label in field_labels.items():
+        value = profile.get(key)
+        if value:
+            lines.append(f"• {label}: {value}")
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_profile_updated(updated_fields: Dict[str, Any]) -> str:
+    lines = ["Your profile has been updated successfully:\n"]
+    field_labels = {
+        "username": "Username",
+        "email": "Email",
+        "phone": "Phone",
+        "bankname": "Bank Name",
+        "country": "Country",
+    }
+    for key, label in field_labels.items():
+        value = updated_fields.get(key)
+        if value:
+            lines.append(f"• {label}: {value}")
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_selection_prompt(options: List[Dict[str, Any]]) -> str:
+    lines = [
+        "You have multiple accounts. Please choose one by replying with a number, bank name, or the last 4 digits of the account number:\n"
+    ]
+    for opt in options:
+        lines.append(
+            f"{opt['index']}. {opt['bank_name']} — {opt['account_number_masked']} | Status: {opt['status']}"
         )
-    except requests.RequestException:
-        return "I am sorry, I am unable to process your request at the moment. Please try again in a few moments."
+    return "\n".join(lines)
+
+
+def fmt_invalid_selection(options: List[Dict[str, Any]]) -> str:
+    lines = [
+        "That selection was not recognised. Please reply with a number, bank name, or last 4 digits of the account:\n"
+    ]
+    for opt in options:
+        lines.append(
+            f"{opt['index']}. {opt['bank_name']} — {opt['account_number_masked']} | Status: {opt['status']}"
+        )
+    return "\n".join(lines)
+
+
+def fmt_session_expired() -> str:
+    return (
+        "Your selection session has expired.\n"
+        "Please ask for account status again to start a new session.\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def fmt_multiple_last4(last4: str, options: List[Dict[str, Any]]) -> str:
+    lines = [
+        f"Multiple accounts end in {last4}. Please choose one:\n"
+    ]
+    for opt in options:
+        lines.append(
+            f"{opt['index']}. {opt['bank_name']} — {opt['account_number_masked']} | Status: {opt['status']}"
+        )
+    return "\n".join(lines)
+
+
+def fmt_no_last4_match(last4: str) -> str:
+    return (
+        f"No account ending in {last4} was found on your profile.\n"
+        f"Please verify the digits and try again.\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def fmt_application_status(details: Dict[str, Any]) -> str:
+    lines = [
+        f"Application Status Report — {details.get('responseDate', datetime.now().strftime('%B %d, %Y'))}:\n",
+        f"• Application ID: {details.get('applicationId', 'N/A')}",
+    ]
+    if details.get("bankName"):
+        lines.append(f"• Bank: {details['bankName']}")
+    if details.get("currentStatus"):
+        lines.append(f"• Status: {details['currentStatus']}")
+    if details.get("applicationStage"):
+        lines.append(f"• Stage: {details['applicationStage']}")
+    if details.get("submittedOn"):
+        lines.append(f"• Submitted On: {details['submittedOn']}")
+    if details.get("documentsVerifiedOn"):
+        lines.append(f"• Documents Verified: {details['documentsVerifiedOn']}")
+    if details.get("expectedCompletion"):
+        lines.append(f"• Expected Completion: {details['expectedCompletion']}")
+    lines.append(_fmt_footer())
+    return "\n".join(lines)
+
+
+def fmt_ask_application_id() -> str:
+    return (
+        "Please provide your Application ID to check the status.\n"
+        "Example: APP123456\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def fmt_backend_error() -> str:
+    return (
+        "I'm sorry, there was a temporary issue reaching our services.\n"
+        "Please try again in a moment.\n"
+        f"{_fmt_footer()}"
+    )
+
+
+def llm_backend_error_response(model_name: str, operation: str, backend_error: str) -> str:
+    return fmt_backend_error()
 
 
 def selection_options(accounts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -991,12 +1316,7 @@ def handle_account_selection(model_name: str, session_id: str, selection_input: 
     cleanup_expired_sessions()
     session = get_session(session_id)
     if not session:
-        response_text = llm_text(
-            model_name,
-            "Explain that the selection session expired and ask user to request account status again.",
-            {"reason": "session_expired"},
-        )
-        return {"response_type": "final_answer", "response": response_text}
+        return {"response_type": "final_answer", "response": fmt_session_expired()}
 
     selected_account_id = _resolve_selected_account_id(session["accounts"], selection_input)
     selected = None
@@ -1008,18 +1328,9 @@ def handle_account_selection(model_name: str, session_id: str, selection_input: 
 
     if not selected:
         options = selection_options(session["accounts"])
-        response_text = llm_text(
-            model_name,
-            "Tell the user selection is invalid and ask to choose using number, bank name, or account last 4 digits.",
-            {
-                "selection_input": selection_input,
-                "valid_options": options,
-                "usage": "Reply with 1, 2, 3... or bank name or account last 4 digits.",
-            },
-        )
         return {
             "response_type": "selection_required",
-            "response": response_text,
+            "response": fmt_invalid_selection(options),
             "session_id": session_id,
             "options": options,
         }
@@ -1031,170 +1342,7 @@ def handle_account_selection(model_name: str, session_id: str, selection_input: 
             latest_selected = account
             break
 
-    response_text = llm_text(
-        model_name,
-        "Write a formal bank notification informing the customer of their account status. Include bank name, account type, and current status as bullet points.",
-        {"account": clean_account(latest_selected)},
-    )
-    return {"response_type": "final_answer", "response": response_text}
-
-
-# ---------------------------------------------------------------------------
-# LLM-based intent recognition
-# Two pipelines:
-#   STATIC       — pure static responses, no external calls (greeting, capabilities)
-#   API_PIPELINE — live data from microservices (accounts, profile, banks, password)
-#   RAG_PIPELINE — ChromaDB vector search + Ollama LLM (general banking Q&A)
-# ---------------------------------------------------------------------------
-
-INTENT_PIPELINE_MAP: Dict[str, str] = {
-    "GREETING":           "STATIC",
-    "SHOW_CAPABILITIES":  "STATIC",
-    "LIST_ACCOUNTS":      "API_PIPELINE",
-    "BANK_LOOKUP":        "API_PIPELINE",
-    "PROFILE_VIEW":       "API_PIPELINE",
-    "PROFILE_UPDATE":     "API_PIPELINE",
-    "PASSWORD_UPDATE":    "API_PIPELINE",
-    "ACCOUNT_STATUS":     "API_PIPELINE",
-    "APPLICATION_STATUS": "API_PIPELINE",
-    "UNKNOWN":            "RAG_PIPELINE",
-}
-
-_VALID_INTENTS = frozenset(INTENT_PIPELINE_MAP.keys())
-
-# Timeout raised to match OLLAMA_TIMEOUT_SECONDS — small models (llama3.2:3b)
-# can take longer than 30s on modest hardware.
-_INTENT_CLASSIFICATION_TIMEOUT = 120
-
-# Prompt is intentionally minimal — fewer tokens = faster inference.
-# The model only needs to output a small JSON object.
-_INTENT_CLASSIFICATION_PROMPT = """
-You are an intent classifier for a banking chatbot.
-Classify the message into exactly one intent and return JSON only.
-
-Intents:
-GREETING, SHOW_CAPABILITIES, LIST_ACCOUNTS, BANK_LOOKUP,
-PROFILE_VIEW, PROFILE_UPDATE, PASSWORD_UPDATE,
-ACCOUNT_STATUS, APPLICATION_STATUS, UNKNOWN
-
-Key rules:
-- "how to / how do / how can" questions -> always UNKNOWN (explanation, not live data)
-- Requests for the user's OWN live data -> specific intent (ACCOUNT_STATUS, LIST_ACCOUNTS, etc.)
-
-Examples:
-"hello" -> {{"intent":"GREETING","confidence":1.0}}
-"what can you do" -> {{"intent":"SHOW_CAPABILITIES","confidence":0.98}}
-"show my accounts" -> {{"intent":"LIST_ACCOUNTS","confidence":0.99}}
-"my account status" -> {{"intent":"ACCOUNT_STATUS","confidence":0.97}}
-"i want to know about my account status" -> {{"intent":"ACCOUNT_STATUS","confidence":0.96}}
-"can you provide my account status" -> {{"intent":"ACCOUNT_STATUS","confidence":0.95}}
-"check my application" -> {{"intent":"APPLICATION_STATUS","confidence":0.95}}
-"change my mobile number" -> {{"intent":"PROFILE_UPDATE","confidence":0.97}}
-"show my profile" -> {{"intent":"PROFILE_VIEW","confidence":0.97}}
-"change my password" -> {{"intent":"PASSWORD_UPDATE","confidence":0.99}}
-"banks in india" -> {{"intent":"BANK_LOOKUP","confidence":0.95}}
-"how to check my account status" -> {{"intent":"UNKNOWN","confidence":0.97}}
-"how do i open an account" -> {{"intent":"UNKNOWN","confidence":0.96}}
-"how to update my profile" -> {{"intent":"UNKNOWN","confidence":0.97}}
-"how can i change my password" -> {{"intent":"UNKNOWN","confidence":0.97}}
-"how do i update my email" -> {{"intent":"UNKNOWN","confidence":0.96}}
-"how to view my accounts" -> {{"intent":"UNKNOWN","confidence":0.97}}
-"what is a savings account" -> {{"intent":"UNKNOWN","confidence":0.92}}
-
-Message: "{question}"
-JSON:"""
-
-
-_HOW_TO_PATTERN = re.compile(
-    r"^\s*how\s+(to|do|can|would|should|does|will|could|might)\b",
-    re.IGNORECASE,
-)
-
-
-def _classify_intent_rule_based(question: str) -> str:
-    """Fast rule-based pre-classification.
-
-    Catches patterns that the LLM sometimes misclassifies (e.g. 'how to update
-    my profile' → PROFILE_UPDATE instead of UNKNOWN).  Returns UNKNOWN for
-    explanatory / procedural questions so they are always served by the RAG
-    pipeline.
-    """
-    if _HOW_TO_PATTERN.match(question):
-        return "UNKNOWN"
-    return "UNKNOWN"
-
-
-def classify_intent_with_llm(question: str, model_name: str) -> tuple[str, str]:
-    """Classify user intent using the LLM and return (intent, pipeline).
-
-    The LLM understands natural language variations, typos, and rephrasing
-    that would be missed by keyword-based matching.
-
-    Falls back to _classify_intent_rule_based() automatically if:
-    - Ollama is unreachable or times out
-    - The LLM returns unparseable JSON
-    - Confidence is below the 0.5 threshold
-
-    Returns:
-        (intent, pipeline) where intent is a key from INTENT_PIPELINE_MAP and
-        pipeline is one of: "STATIC", "API_PIPELINE", "RAG_PIPELINE".
-    """
-    # Fast rule-based guard — intercept before the LLM for common patterns
-    # that the model occasionally misclassifies (e.g. "how to update my profile").
-    if _HOW_TO_PATTERN.match(question):
-        intent = "UNKNOWN"
-        pipeline = INTENT_PIPELINE_MAP[intent]
-        logger.info("[intent_classifier] rule-based override: how-to question → UNKNOWN")
-        return intent, pipeline
-
-    prompt = _INTENT_CLASSIFICATION_PROMPT.format(question=question)
-    payload = {
-        "model": model_name,
-        "prompt": prompt,
-        "stream": False,
-        "format": "json",
-        "num_predict": 50,   # intent JSON is ~15 tokens; cap prevents runaway generation
-        "temperature": 0,   # greedy — deterministic and fastest
-    }
-    try:
-        resp = requests.post(
-            OLLAMA_GENERATE_URL,
-            json=payload,
-            timeout=_INTENT_CLASSIFICATION_TIMEOUT,
-        )
-        resp.raise_for_status()
-        raw = resp.json().get("response", "").strip()
-        logger.info("[intent_classifier] question=%r  raw_llm_response=%r", question, raw)
-
-        # Try direct parse first; if that fails, extract JSON object from anywhere in the text.
-        parsed = None
-        try:
-            parsed = json.loads(raw)
-        except json.JSONDecodeError:
-            match = re.search(r'\{[^{}]*"intent"[^{}]*\}', raw, re.DOTALL)
-            if match:
-                try:
-                    parsed = json.loads(match.group(0))
-                except json.JSONDecodeError:
-                    pass
-
-        if parsed:
-            intent = str(parsed.get("intent", "UNKNOWN")).upper().strip()
-            confidence = float(parsed.get("confidence", 0.0))
-            logger.info("[intent_classifier] intent=%r  confidence=%s", intent, confidence)
-            if intent not in _VALID_INTENTS or confidence < 0.5:
-                logger.warning("[intent_classifier] invalid/low-confidence intent %r — falling back to UNKNOWN", intent)
-                intent = _classify_intent_rule_based(question)
-        else:
-            logger.warning("[intent_classifier] could not parse JSON from response — falling back. raw=%r", raw)
-            intent = _classify_intent_rule_based(question)
-
-    except (requests.RequestException, json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
-        logger.warning("[intent_classifier] exception during classification: %s — falling back", exc)
-        intent = _classify_intent_rule_based(question)
-
-    pipeline = INTENT_PIPELINE_MAP.get(intent, "RAG_PIPELINE")
-    return intent, pipeline
+    return {"response_type": "final_answer", "response": fmt_account_status(clean_account(latest_selected))}
 
 
 def orchestrate_query(
@@ -1209,7 +1357,6 @@ def orchestrate_query(
     rag_response_fn: Callable[..., str],
     user_type: Optional[str] = None,
 ) -> Dict[str, Any]:
-    # 1. Session continuation takes priority over intent detection.
     if session_id and get_session(session_id):
         active_session = get_session(session_id)
         flow_type = str(active_session.get("flow_type") or "account_selection")
@@ -1230,178 +1377,142 @@ def orchestrate_query(
                 user_reply=question,
             )
 
-    # 2. LLM intent recognition — one call classifies intent AND selects pipeline.
-    #    Falls back to rule-based automatically if Ollama is unreachable.
-    intent, pipeline = classify_intent_with_llm(question, model_name)
+    if is_list_accounts_intent(question):
+        resolved_user_id = extract_user_id(question, user_id)
+        if not resolved_user_id:
+            return {
+                "response_type": "auth_required",
+                "response": "Please sign in to view your accounts.",
+            }
 
-    # 3. Route by pipeline, then by specific intent within that pipeline.
+        accounts = get_accounts_by_user_id(resolved_user_id)
+        if not accounts:
+            return {"response_type": "final_answer", "response": fmt_no_accounts(resolved_user_id)}
+        return {"response_type": "final_answer", "response": fmt_account_list([clean_account(a) for a in accounts])}
 
-    # ── STATIC pipeline: no external service calls needed ────────────────────
-    if pipeline == "STATIC":
-        if intent == "GREETING":
-            return handle_greeting(model_name)
-        if intent == "SHOW_CAPABILITIES":
-            return handle_capabilities(user_type=user_type, user_id=user_id)
+    if is_bank_lookup_intent(question):
+        return handle_bank_lookup(question, model_name)
 
-    # ── API pipeline: live data from microservices ────────────────────────────
-    if pipeline == "API_PIPELINE":
+    if is_greeting_intent(question):
+        return handle_greeting(model_name)
 
-        if intent == "LIST_ACCOUNTS":
-            resolved_user_id = extract_user_id(question, user_id)
-            if not resolved_user_id:
+    if is_capabilities_intent(question):
+        return handle_capabilities(user_type=user_type, user_id=user_id)
+
+    if is_profile_update_intent(question):
+        return handle_profile_update(question, model_name, user_id, auth_token, user_type)
+
+    if is_profile_view_intent(question):
+        return handle_profile_view(model_name, user_id, auth_token, user_type)
+
+    if is_password_update_intent(question):
+        return handle_password_update(question, model_name, user_id, auth_token, user_type)
+
+    if is_account_status_intent(question):
+        resolved_user_id = extract_user_id(question, user_id)
+        if not resolved_user_id:
+            response_text = "Please sign in to view your account details."
+            return {
+                "response_type": "auth_required",
+                "response": response_text,
+            }
+
+        provided_account_number = extract_account_number_from_question(question)
+        if provided_account_number:
+            account = get_account_by_account_number(provided_account_number)
+            if not account:
                 return {
-                    "response_type": "auth_required",
-                    "response": "Please sign in to view your accounts.",
-                }
-            accounts = get_accounts_by_user_id(resolved_user_id)
-            if not accounts:
-                response_text = llm_text(
-                    model_name,
-                    "Inform user that no accounts were found for the provided user id.",
-                    {"user_id": resolved_user_id, "accounts_found": 0},
-                )
-                return {"response_type": "final_answer", "response": response_text}
-            response_text = llm_text(
-                model_name,
-                "List all user accounts in a formal bank statement style with bank name, masked account number, account type, and status as bullet points.",
-                {"accounts": [clean_account(a) for a in accounts]},
-            )
-            return {"response_type": "final_answer", "response": response_text}
-
-        if intent == "BANK_LOOKUP":
-            return handle_bank_lookup(question, model_name)
-
-        if intent == "PROFILE_UPDATE":
-            return handle_profile_update(question, model_name, user_id, auth_token, user_type)
-
-        if intent == "PROFILE_VIEW":
-            return handle_profile_view(model_name, user_id, auth_token, user_type)
-
-        if intent == "PASSWORD_UPDATE":
-            return handle_password_update(question, model_name, user_id, auth_token, user_type)
-
-        if intent == "ACCOUNT_STATUS":
-            resolved_user_id = extract_user_id(question, user_id)
-            if not resolved_user_id:
-                return {
-                    "response_type": "auth_required",
-                    "response": "Please sign in to view your account details.",
+                    "response_type": "final_answer",
+                    "response": "I could not find an account with that account number. Please verify and try again.",
                 }
 
-            provided_account_number = extract_account_number_from_question(question)
-            if provided_account_number:
-                account = get_account_by_account_number(provided_account_number)
-                if not account:
-                    return {
-                        "response_type": "final_answer",
-                        "response": "I could not find an account with that account number. Please verify and try again.",
-                    }
-                account_user_id = str(account.get("userId") or "").strip()
-                if account_user_id and account_user_id != str(resolved_user_id):
-                    return {
-                        "response_type": "final_answer",
-                        "response": "That account number is not associated with your signed-in user.",
-                    }
-                response_text = llm_text(
-                    model_name,
-                    "Write a formal bank notification informing the customer of their account status. Include bank name, account type, and current status as bullet points.",
-                    {"account": clean_account(account)},
-                )
-                return {"response_type": "final_answer", "response": response_text}
+            account_user_id = str(account.get("userId") or "").strip()
+            if account_user_id and account_user_id != str(resolved_user_id):
+                return {
+                    "response_type": "final_answer",
+                    "response": "That account number is not associated with your signed-in user.",
+                }
 
-            last4 = extract_last4_from_question(question)
-            if last4:
-                accounts = get_accounts_by_user_id(resolved_user_id)
-                if not accounts:
-                    response_text = llm_text(
-                        model_name,
-                        "Inform user that no accounts were found for the provided user id.",
-                        {"user_id": resolved_user_id, "accounts_found": 0},
-                    )
-                    return {"response_type": "final_answer", "response": response_text}
-                matched = match_account_by_last4(accounts, last4)
-                if not matched:
-                    response_text = llm_text(
-                        model_name,
-                        "Tell user no account matched the provided last 4 digits and ask them to recheck.",
-                        {"last4": last4, "accounts_count": len(accounts)},
-                    )
-                    return {"response_type": "final_answer", "response": response_text}
-                if len(matched) == 1:
-                    account_number = str(matched[0].get("accountNumber", "")).strip()
-                    account_details = get_account_by_account_number(account_number) if account_number else matched[0]
-                    response_text = llm_text(
-                        model_name,
-                        "Write a formal bank notification informing the customer of their account status. Include bank name, account type, and current status as bullet points.",
-                        {"account": clean_account(account_details)},
-                    )
-                    return {"response_type": "final_answer", "response": response_text}
-                options = selection_options(matched)
-                new_session_id = uuid.uuid4().hex
-                save_session(
-                    new_session_id,
-                    {"flow_type": "account_selection", "user_id": resolved_user_id, "accounts": matched, "created_at": time.time()},
-                )
-                response_text = llm_text(
-                    model_name,
-                    "Ask the user to choose one account because multiple accounts matched the same last 4 digits.",
-                    {"requested_last4": last4, "account_options": options},
-                )
-                return {"response_type": "selection_required", "response": response_text, "session_id": new_session_id, "options": options}
+            return {
+                "response_type": "final_answer",
+                "response": fmt_account_status(clean_account(account)),
+            }
 
+        last4 = extract_last4_from_question(question)
+        if last4:
             accounts = get_accounts_by_user_id(resolved_user_id)
             if not accounts:
-                response_text = llm_text(
-                    model_name,
-                    "Inform user that no accounts were found for the provided user id.",
-                    {"user_id": resolved_user_id, "accounts_found": 0},
-                )
-                return {"response_type": "final_answer", "response": response_text}
-            if len(accounts) == 1:
-                response_text = llm_text(
-                    model_name,
-                    "Write a formal bank notification informing the customer of their account status. Include bank name, account type, and current status as bullet points.",
-                    {"account": clean_account(accounts[0])},
-                )
-                return {"response_type": "final_answer", "response": response_text}
+                return {"response_type": "final_answer", "response": fmt_no_accounts(resolved_user_id)}
+
+            matched = match_account_by_last4(accounts, last4)
+            if not matched:
+                return {"response_type": "final_answer", "response": fmt_no_last4_match(last4)}
+
+            if len(matched) == 1:
+                account_number = str(matched[0].get("accountNumber", "")).strip()
+                account_details = get_account_by_account_number(account_number) if account_number else matched[0]
+                return {"response_type": "final_answer", "response": fmt_account_status(clean_account(account_details))}
+
+            options = selection_options(matched)
             new_session_id = uuid.uuid4().hex
             save_session(
                 new_session_id,
-                {"flow_type": "account_selection", "user_id": resolved_user_id, "accounts": accounts, "created_at": time.time()},
+                {
+                    "flow_type": "account_selection",
+                    "user_id": resolved_user_id,
+                    "accounts": matched,
+                    "created_at": time.time(),
+                },
             )
-            options = selection_options(accounts)
-            response_text = llm_text(
-                model_name,
-                "Ask the user to choose one account from the list to view detailed status.",
-                {"user_id": resolved_user_id, "account_options": options, "instruction": "Ask user to reply with option number, bank name, or account last 4 digits."},
-            )
-            return {"response_type": "selection_required", "response": response_text, "session_id": new_session_id, "options": options}
+            return {
+                "response_type": "selection_required",
+                "response": fmt_multiple_last4(last4, options),
+                "session_id": new_session_id,
+                "options": options,
+            }
 
-        if intent == "APPLICATION_STATUS":
-            resolved_user_id = extract_user_id(question, user_id)
-            if not resolved_user_id:
-                return {
-                    "response_type": "auth_required",
-                    "response": "Please sign in to check your application progress.",
-                }
-            application_id = extract_application_id(question)
-            if not application_id:
-                response_text = llm_text(
-                    model_name,
-                    "Ask user to provide application ID to check application progress.",
-                    {"required_field": "application_id", "example": "APP123456"},
-                )
-                return {"response_type": "final_answer", "response": response_text}
-            status_details = get_application_status(application_id)
-            response_text = llm_text(
-                model_name,
-                "Write a formal bank notification about the application status. Include key milestone dates and current status as bullet points. End professionally.",
-                clean_application_status(status_details, application_id),
-            )
-            return {"response_type": "final_answer", "response": response_text}
+        accounts = get_accounts_by_user_id(resolved_user_id)
+        if not accounts:
+            return {"response_type": "final_answer", "response": fmt_no_accounts(resolved_user_id)}
 
-    # ── RAG pipeline: ChromaDB vector search + Ollama LLM ────────────────────
-    # Handles intent == "UNKNOWN" and general banking knowledge-base questions.
+        if len(accounts) == 1:
+            return {"response_type": "final_answer", "response": fmt_account_status(clean_account(accounts[0]))}
+
+        new_session_id = uuid.uuid4().hex
+        save_session(
+            new_session_id,
+            {
+                "flow_type": "account_selection",
+                "user_id": resolved_user_id,
+                "accounts": accounts,
+                "created_at": time.time(),
+            },
+        )
+        options = selection_options(accounts)
+        return {
+            "response_type": "selection_required",
+            "response": fmt_selection_prompt(options),
+            "session_id": new_session_id,
+            "options": options,
+        }
+
+    if is_application_status_intent(question):
+        resolved_user_id = extract_user_id(question, user_id)
+        if not resolved_user_id:
+            return {
+                "response_type": "auth_required",
+                "response": "Please sign in to check your application progress.",
+            }
+
+        application_id = extract_application_id(question)
+        if not application_id:
+            return {"response_type": "final_answer", "response": fmt_ask_application_id()}
+
+        status_details = get_application_status(application_id)
+        return {"response_type": "final_answer", "response": fmt_application_status(clean_application_status(status_details, application_id))}
+
+    # Try RAG first for knowledge-base questions (banking concepts, FAQs from documents).
+    # If relevant documents are found, use them to ground the LLM response factually.
     retrieved_docs = rag_retriever.retrieve(question, top_k=top_k)
     if retrieved_docs:
         try:
@@ -1416,6 +1527,7 @@ def orchestrate_query(
         except Exception:
             pass  # Fall through to guided general response
 
-    # Final fallback: guided LLM with full capability context for any question
-    # the RAG pipeline could not answer (navigation, unsupported features, etc.)
+    # For everything else — navigation queries, unsupported features, account creation
+    # guidance, unknown questions, or RAG failures — use the guided LLM with the full
+    # capability context so it answers any phrasing honestly and accurately.
     return guided_general_response(question, model_name, user_id, user_type)
