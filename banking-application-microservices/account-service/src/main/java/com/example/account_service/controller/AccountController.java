@@ -321,6 +321,18 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/account-id/{accountId}/documents")
+    public ResponseEntity<List<DocumentMetadata>> getAccountDocumentsById(@PathVariable Long accountId) {
+        try {
+            List<DocumentMetadata> documents = accountService.getAccountDocumentsById(accountId);
+            return ResponseEntity.ok(documents);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     
     @GetMapping("/user/{userId}/documents")
     public ResponseEntity<List<DocumentMetadata>> getUserDocuments(@PathVariable String userId) {

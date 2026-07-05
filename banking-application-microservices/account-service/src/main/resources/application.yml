@@ -44,3 +44,8 @@ spring:
 admin:
   service:
     url: http://localhost:8083
+
+app:
+  document-storage:
+    path: uploads/documents
+    max-file-size-bytes: 5242880
