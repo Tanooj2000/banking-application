@@ -1,177 +1,153 @@
-﻿/* ============================================================
-   ROOT ADMIN SIGN IN — Premium dark theme.
-   Playfair Display headline. DM Mono labels/inputs.
-   Gold accent. Sharp geometry. Maximum authority feel.
-   ============================================================ */
-
-/* ---- Reset & page wrapper ---- */
-*,
+﻿*,
 *::before,
-*::after { box-sizing: border-box; }
-
-body {
-  margin: 0; padding: 0;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #060b18;
-  color: #FFFFFF;
-  -webkit-font-smoothing: antialiased;
+*::after {
+  box-sizing: border-box;
 }
 
-/* Design tokens (local, no dependency on main app) */
-:root {
-  --ra-bg:          #060b18;
-  --ra-bg-s:        #0b1428;
-  --ra-bg-surf:     #0e1a30;
-  --ra-bg-surf-alt: #0c1626;
-  --ra-gold:        #C9A84C;
-  --ra-gold-dim:    rgba(201,168,76,0.38);
-  --ra-gold-sub:    rgba(201,168,76,0.10);
-  --ra-gold-bdr:    rgba(201,168,76,0.22);
-  --ra-border:      rgba(201,168,76,0.18);
-  --ra-border-sub:  rgba(201,168,76,0.09);
-  --ra-text:        #FFFFFF;
-  --ra-text-2:      #E8E3D8;
-  --ra-muted:       #7A7060;
-  --ra-serif:       'Playfair Display', Georgia, serif;
-  --ra-mono:        'DM Mono', 'Courier New', monospace;
-  --ra-body:        'Outfit', -apple-system, sans-serif;
-  --ra-ease:        220ms ease;
-  --ra-spring:      cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* ---- Page ---- */
 .signin-container {
+  --ra-bg: #060b18;
+  --ra-bg-secondary: #0f1a31;
+  --ra-surface: rgba(10, 18, 34, 0.88);
+  --ra-text: #f7f3e9;
+  --ra-muted: #b6ab95;
+  --ra-border: rgba(201, 168, 76, 0.26);
+  --ra-accent: #c9a84c;
+  --ra-input-bg: #fffdf8;
+  --ra-input-text: #11111a;
+  --ra-button-text: #11111a;
+  --ra-shadow: rgba(0, 0, 0, 0.55);
   min-height: 100vh;
-  background: var(--ra-bg);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(201, 168, 76, 0.17) 0%, transparent 44%),
+    radial-gradient(circle at 82% 0%, rgba(52, 82, 150, 0.26) 0%, transparent 36%),
+    linear-gradient(150deg, var(--ra-bg) 0%, var(--ra-bg-secondary) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
   position: relative;
   overflow: hidden;
+  color: var(--ra-text);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 320ms ease, color 320ms ease;
 }
 
-/* Ambient gold bloom */
-.signin-container::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 55% 50% at 50% 48%,
-    rgba(201,168,76,0.065) 0%,
-    transparent 65%
-  );
-  pointer-events: none;
-  z-index: 0;
+.signin-container * {
+  transition: background-color 260ms ease, color 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
 }
 
-/* Remove old geometric shapes */
+.signin-container[data-theme='light'] {
+  --ra-bg: #ece2cf;
+  --ra-bg-secondary: #f7f2e7;
+  --ra-surface: rgba(255, 253, 246, 0.93);
+  --ra-text: #1b1a1a;
+  --ra-muted: #655d4f;
+  --ra-border: rgba(121, 95, 32, 0.34);
+  --ra-accent: #8f6f20;
+  --ra-input-bg: #ffffff;
+  --ra-input-text: #171714;
+  --ra-button-text: #fff8e9;
+  --ra-shadow: rgba(50, 44, 33, 0.2);
+}
+
 .signin-background,
 .geometric-shapes,
-.shape { display: none; }
+.shape {
+  display: none;
+}
 
-/* ---- Card ---- */
 .signin-content {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
-  padding: 0;
+  max-width: 460px;
 }
 
 .signin-card {
-  background: var(--ra-bg-s);
+  background: var(--ra-surface);
   border: 1px solid var(--ra-border);
-  border-radius: 0;
-  padding: 0;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-  animation: ra-rise 560ms var(--ra-spring) both;
+  box-shadow: 0 26px 58px var(--ra-shadow);
+  animation: ra-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  backdrop-filter: blur(9px);
+  position: relative;
   overflow: hidden;
 }
 
-@keyframes ra-rise {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Gold top border accent */
 .signin-card::before {
   content: '';
   display: block;
   height: 2px;
-  background: linear-gradient(to right, transparent, var(--ra-gold), transparent);
+  background: linear-gradient(to right, transparent, var(--ra-accent), transparent);
 }
 
-/* ---- Header ---- */
+.theme-toggle {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  border: 1px solid var(--ra-border);
+  background: transparent;
+  color: var(--ra-muted);
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  transition: all 220ms ease;
+}
+
+.theme-toggle:hover {
+  color: var(--ra-text);
+  border-color: var(--ra-accent);
+  background: color-mix(in srgb, var(--ra-accent) 12%, transparent);
+}
+
 .signin-header {
   text-align: center;
-  padding: 2.75rem 2.75rem 0.5rem;
-  margin-bottom: 0;
+  padding: 2.9rem 2.75rem 0.6rem;
 }
 
-/* Eyebrow above title */
 .signin-header::before {
   content: 'INTERBANKHUB';
   display: block;
-  font-family: var(--ra-mono);
+  font-family: 'DM Mono', 'Courier New', monospace;
   font-size: 0.58rem;
   font-weight: 300;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--ra-gold);
-  opacity: 0.65;
-  margin-bottom: 1rem;
+  color: var(--ra-accent);
+  opacity: 0.9;
+  margin-bottom: 0.95rem;
 }
 
-.logo-container { margin-bottom: 0.5rem; }
-
-/* Override the gradient text */
 .signin-header h1 {
-  font-family: var(--ra-serif) !important;
-  font-size: 1.75rem !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.02em !important;
-  line-height: 1.2 !important;
-  color: var(--ra-text) !important;
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  -webkit-text-fill-color: unset !important;
-  background-clip: unset !important;
-  margin: 0 0 0.4rem !important;
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.95rem;
+  font-weight: 400;
+  color: var(--ra-text);
+  letter-spacing: -0.01em;
 }
 
-.signin-header p {
-  font-family: var(--ra-mono) !important;
-  font-size: 0.62rem !important;
-  font-weight: 300 !important;
-  letter-spacing: 0.18em !important;
-  text-transform: uppercase !important;
-  color: var(--ra-muted) !important;
-  margin: 0 !important;
-}
-
-/* ---- Form ---- */
 .signin-form {
-  padding: 2rem 2.75rem 0;
-  margin-bottom: 0;
+  padding: 1.95rem 2.75rem 0;
 }
 
 .form-group {
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.12rem;
 }
 
 .form-group label {
   display: block;
-  font-family: var(--ra-mono);
-  font-size: 0.58rem;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 0.6rem;
   font-weight: 300;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.17em;
   text-transform: uppercase;
   color: var(--ra-muted);
   margin-bottom: 0.45rem;
 }
 
-/* Input wrapper */
 .input-container {
   position: relative;
   display: flex;
@@ -183,107 +159,78 @@ body {
   left: 0.9rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--ra-gold) !important;
-  opacity: 0.55;
+  color: var(--ra-accent);
+  opacity: 0.75;
   z-index: 2;
   pointer-events: none;
-  flex-shrink: 0;
 }
 
 .input-container input {
   width: 100%;
-  background: #FFFFFF !important;
-  color: #000000;
   border: 1px solid var(--ra-border);
+  background: var(--ra-input-bg);
+  color: var(--ra-input-text);
   border-radius: 0;
-  font-family: var(--ra-body);
-  font-size: 0.88rem;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9rem;
   font-weight: 300;
-  padding: 0.78rem 1rem 0.78rem 2.6rem;
+  padding: 0.79rem 1rem 0.79rem 2.6rem;
   outline: none;
-  transition: border-color var(--ra-ease);
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.input-container input::placeholder {
-  color: #9CA3A3;
-  font-weight: 300;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
 }
 
 .input-container input:focus {
-  border-color: var(--ra-gold);
-  background: #FFFFFF !important;
-  box-shadow: none;
+  border-color: var(--ra-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ra-accent) 24%, transparent);
 }
 
-/* ---- Sign-in button ---- */
+.input-container input::placeholder {
+  color: color-mix(in srgb, var(--ra-input-text) 48%, white);
+}
+
 .signin-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
   width: 100%;
-  background: var(--ra-gold);
-  color: var(--ra-bg);
   border: none;
-  border-radius: 0;
-  font-family: var(--ra-mono);
+  background: var(--ra-accent);
+  color: var(--ra-button-text);
+  padding: 0.92rem 1rem;
+  margin-top: 1.45rem;
+  margin-bottom: 0.2rem;
+  font-family: 'DM Mono', 'Courier New', monospace;
   font-size: 0.72rem;
   font-weight: 400;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.21em;
   text-transform: uppercase;
-  padding: 0.95rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.58rem;
   cursor: pointer;
-  margin-top: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  transition: color var(--ra-ease);
+  transition: filter 220ms ease;
 }
 
-.signin-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.14);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
-}
-
-.signin-button:hover:not(:disabled)::before {
-  transform: scaleX(1);
+.signin-button:hover:not(:disabled) {
+  filter: brightness(1.07);
 }
 
 .signin-button:disabled,
 .signin-button.loading {
-  opacity: 0.5;
+  opacity: 0.58;
   cursor: not-allowed;
 }
 
-.signin-button:active {
-  transform: none;
-}
-
-/* ---- Spinner inside button ---- */
 .spinner {
   width: 14px;
   height: 14px;
-  border: 1px solid rgba(6,11,24,0.25);
-  border-top-color: var(--ra-bg);
+  border: 1px solid color-mix(in srgb, var(--ra-button-text) 34%, transparent);
+  border-top-color: var(--ra-button-text);
   border-radius: 50%;
   animation: ra-spin 0.85s linear infinite;
-  flex-shrink: 0;
 }
 
-@keyframes ra-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ---- Footer ---- */
 .signin-footer {
   text-align: center;
-  padding: 1.5rem 2.75rem 2.75rem;
+  padding: 1.5rem 2.75rem 2.6rem;
 }
 
 .security-notice {
@@ -291,7 +238,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: var(--ra-mono);
+  font-family: 'DM Mono', 'Courier New', monospace;
   font-size: 0.58rem;
   font-weight: 300;
   letter-spacing: 0.12em;
@@ -300,16 +247,50 @@ body {
 }
 
 .security-notice svg {
-  color: var(--ra-gold) !important;
-  opacity: 0.65;
-  flex-shrink: 0;
+  color: var(--ra-accent);
+  opacity: 0.85;
 }
 
-/* ---- Responsive ---- */
+@keyframes ra-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ra-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 480px) {
-  .signin-container { padding: 1.5rem 1rem; }
-  .signin-header { padding: 2rem 1.5rem 0.5rem; }
-  .signin-form { padding: 1.75rem 1.5rem 0; }
-  .signin-footer { padding: 1.25rem 1.5rem 2rem; }
-  .signin-header h1 { font-size: 1.5rem !important; }
+  .signin-container {
+    padding: 1.3rem 0.95rem;
+  }
+
+  .theme-toggle {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+
+  .signin-header {
+    padding: 2.5rem 1.5rem 0.55rem;
+  }
+
+  .signin-header h1 {
+    font-size: 1.58rem;
+  }
+
+  .signin-form {
+    padding: 1.65rem 1.5rem 0;
+  }
+
+  .signin-footer {
+    padding: 1.2rem 1.5rem 2rem;
+  }
 }

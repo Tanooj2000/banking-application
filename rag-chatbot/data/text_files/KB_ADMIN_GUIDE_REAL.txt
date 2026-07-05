@@ -1,0 +1,486 @@
+# InterBankHub - Admin Guide
+
+Complete guide for bank administrators using InterBankHub.
+
+---
+
+## What is an Admin?
+
+An Admin (Bank Administrator) is a staff member of a bank who manages account applications from customers. Admins review, approve, or reject account applications on behalf of their bank.
+
+**Admin vs User Roles:**
+- **User:** Customer who creates bank accounts
+- **Admin:** Bank staff who processes and approves accounts
+
+---
+
+## Getting Started as an Admin
+
+### Step 1: Sign Up as Admin
+
+1. Go to home page and click "Sign Up"
+2. Select "Admin" as account type
+3. Fill in your information:
+   - Email address
+   - Password (strong password recommended)
+   - Confirm password
+   - Username
+   - Phone number
+   - **Bank Name** (select from available banks)
+   - **Country** (India, USA, or UK)
+4. Click "Sign Up"
+5. You'll be redirected to Sign In Page
+
+### Step 2: Log In to Admin Dashboard
+
+1. Click "Sign In"
+2. Enter email and password
+3. Click "Sign In"
+4. You'll see the Admin Dashboard
+
+---
+
+## Admin Dashboard Overview
+
+Your dashboard has a left sidebar with four sections:
+
+**Sidebar Sections:**
+1. **My Profile** - View your info, edit details, change password, logout
+2. **Dashboard** - Overview stats and quick actions
+3. **Applications** - Review, approve, and reject account applications
+4. **New Branch** - Create a new branch for your bank
+
+**Theme Toggle:**
+- A Light/Dark mode toggle is at the bottom of the sidebar
+- Your theme preference is saved automatically
+
+**Key Information displayed:**
+- Your bank name
+- Your admin username
+- Number of pending, approved, rejected, and total applications
+
+---
+
+## Managing Applications
+
+### View All Applications
+
+1. **Click "Applications" in the sidebar**
+2. **Each application card shows:**
+   - Applicant name
+   - Current status badge (Pending / Approved / Rejected)
+   - Email
+   - Country
+   - Bank name
+
+### Filter Applications
+
+Use the **"Filter by Status"** dropdown:
+- **Pending** - Applications waiting for your decision
+- **Approved** - Successfully processed applications
+- **Rejected** - Applications that did not meet requirements
+- **All Applications** - Show all applications at once
+
+### View Application Details
+
+1. Click the **"View Details"** button (eye icon) on any application card
+2. A modal opens showing:
+   - Applicant name
+   - Email
+   - Country
+   - Bank name
+   - Current status
+3. Click outside the modal or the close button to dismiss it
+
+---
+
+## Reviewing an Application
+
+### Step 1: Open Application Details
+
+1. Go to **Applications** in the sidebar
+2. Find the application you want to review
+3. Click the **"View Details"** button (eye icon)
+4. A modal shows: applicant name, email, country, bank, and status
+
+### Step 2: Make a Decision
+
+For **Pending** applications, two action buttons appear on the application card:
+- **Approve** button - to approve the application
+- **Reject** button - to reject the application
+
+A confirmation dialog will appear before either action is applied.
+
+---
+
+## Making a Decision
+
+### Approve an Application
+
+**When to approve:**
+- All documents are clear and valid
+- Information is consistent and complete
+- Income is sufficient for account type
+- No red flags or inconsistencies
+- All requirements met
+
+**To approve:**
+1. Go to Applications and find the Pending application
+2. Click the **"Approve"** button on the application card
+3. Confirm in the dialog that appears
+4. The application status updates to "Approved" immediately
+
+---
+
+### Reject an Application
+
+**When to reject:**
+- Documents are unclear or incomplete
+- Information is inconsistent or doesn't match
+- Income insufficient for account type
+- Documents expired or invalid
+- Required information is missing
+- Red flags detected
+
+**To reject:**
+1. Go to Applications and find the Pending application
+2. Click the **"Reject"** button on the application card
+3. Confirm in the dialog that appears
+4. The application status updates to "Rejected" immediately
+
+**Common rejection reasons:**
+- "Documents are not clear or readable"
+- "Address on ID does not match provided address"
+- "Aadhaar/SSN/NIN is invalid or expired"
+- "Income is insufficient for this account type"
+- "Missing required documents"
+- "Information is inconsistent"
+- "Employment verification failed"
+
+---
+
+## Managing Your Profile
+
+### View Your Profile
+
+1. **Click "My Profile" in the sidebar**
+2. **You'll see:**
+   - Bank Name
+   - Email Address
+   - Username
+   - Admin Role (Bank Administrator)
+
+### Edit Your Profile
+
+1. **Click "My Profile" in the sidebar**
+2. **Click "Edit Details" button**
+3. **Update your information in the modal:**
+   - Username
+   - Email
+   - Note: Bank Name is shown but cannot be changed
+4. **Click "Update Details"**
+5. Changes are saved immediately and the modal closes automatically
+
+---
+
+## Change Your Password
+
+### Steps to Change Password
+
+1. **Click "My Profile" in the sidebar**
+2. **Click "Change Password" button**
+3. A modal titled "Reset Password" opens
+4. **Enter your current password**
+5. **Enter your new password** (must be different from current)
+6. **Confirm new password** (must match exactly)
+7. **Click "Update Password"**
+8. On success you'll see: "Password updated successfully!"
+
+### Password Requirements
+
+- Minimum 8 characters
+- Must contain letters and numbers
+- Should contain special characters for security
+- Cannot be the same as your current password
+
+### Tips for Strong Passwords
+
+✅ Use a mix of uppercase and lowercase
+✅ Include numbers (0-9)
+✅ Include special characters (@, #, $, !, &, etc.)
+✅ Make it at least 12 characters for better security
+✅ Don't use easily guessable words
+✅ Don't share your password
+
+---
+
+## Dashboard Overview
+
+### Stat Cards
+
+The Dashboard section shows four summary cards:
+- **Pending Applications** - Number of applications waiting for review
+- **Approved Accounts** - Number of approved applications
+- **Rejected Applications** - Number of rejected applications
+- **Total Applications** - Total count of all applications
+
+### Quick Action Buttons
+
+Below the stat cards:
+- **View Applications** - Navigates directly to the Applications section
+- **Add New Branch** - Navigates directly to the New Branch section
+
+---
+
+## Adding a New Branch
+
+Admins can create new branch locations for their bank.
+
+### Steps to Add a Branch
+
+1. **Click "New Branch" in the sidebar** (or click "Add New Branch" from the Dashboard)
+2. Click the **"Add New Branch"** button on the page
+3. A modal titled "Add New Branch" opens with the following fields:
+   - **Country** - Auto-filled from your admin profile (read-only)
+   - **City** - Enter the city name (required)
+   - **Bank Name** - Auto-filled from your admin profile (read-only)
+   - **Branch Name** - Enter a name for the branch (required)
+   - **Branch Code** - Enter a unique code (minimum 3 characters, required)
+4. Click **"Create Branch"**
+5. On success you'll see: "Branch created successfully!"
+
+**Note:** Country and Bank Name are automatically filled from your admin account and cannot be changed.
+
+---
+
+## Application Workflow
+
+### The Complete Process:
+
+1. **Application Submitted**
+   - Customer submits account application
+   - Status: "Pending"
+   - Admin sees it in dashboard
+
+2. **Review & Verification** (Your role)
+   - You review documents
+   - You verify information
+   - You make decision
+
+3. **Decision Made** (Your action)
+   - **APPROVE:** Application approved
+   - **REJECT:** Application rejected with reason
+
+4. **Customer Notified**
+   - Customer receives email about decision
+   - For approval: Customer can now use account
+   - For rejection: Reason provided, can resubmit
+
+5. **Record Kept**
+   - Approved applications stay in "Approved" section
+   - Rejected applications in "Rejected" section
+   - You can always review past decisions
+
+---
+
+## Daily Admin Tasks
+
+### Morning Routine:
+1. Log in to Admin Dashboard
+2. Check number of pending applications
+3. Review "Pending" applications
+4. Process applications one by one
+
+### During Day:
+1. Review new applications as they come in
+2. Verify documents and information
+3. Approve or reject applications
+4. Keep notes on decisions if needed
+
+### End of Day:
+1. Review what was processed
+2. Ensure all pending applications are addressed
+3. Log out when done
+
+---
+
+## Best Practices for Admins
+
+### Document Verification:
+✓ Carefully review each document
+✓ Check for authenticity and validity
+✓ Compare information across documents
+✓ Note any inconsistencies
+✓ Verify addresses match
+
+### Decision Making:
+✓ Be consistent in your decisions
+✓ Follow your bank's policies
+✓ Document your reasoning
+✓ Treat all applications fairly
+✓ Take time to review carefully
+
+### Communication:
+✓ Provide clear rejection reasons
+✓ Be professional and courteous
+✓ Document your actions
+✓ Follow up if needed
+✓ Maintain confidentiality
+
+---
+
+## Common Scenarios
+
+### Scenario 1: Clear Application
+
+**Situation:** All documents are clear, information is complete and consistent
+
+**Action:**
+- All information matches
+- Income is sufficient
+- No inconsistencies
+- Documents are valid
+
+**Decision:** APPROVE ✓
+
+---
+
+### Scenario 2: Unclear Documents
+
+**Situation:** Photos are blurry or incomplete
+
+**Action:**
+- Cannot verify document authenticity
+- Information cannot be confirmed
+- Risk of fraud
+
+**Decision:** REJECT (Reason: "Documents are not clear or readable")
+
+---
+
+### Scenario 3: Address Mismatch
+
+**Situation:** Address on ID doesn't match application address
+
+**Action:**
+- Addresses must match for verification
+- Could indicate fraud or error
+- Cannot proceed without matching addresses
+
+**Decision:** REJECT (Reason: "Address mismatch between documents")
+
+---
+
+### Scenario 4: Insufficient Income
+
+**Situation:** Stated income is too low for account type
+
+**Action:**
+- Check bank's minimum income requirements
+- Current account typically requires higher income
+- Savings account has lower requirements
+
+**Decision:** REJECT (Reason: "Income insufficient for this account type")
+
+---
+
+### Scenario 5: Missing Information
+
+**Situation:** One field was left blank
+
+**Action:**
+- Application is incomplete
+- Cannot process without all information
+- Need to request resubmission
+
+**Decision:** REJECT (Reason: "Missing required information")
+
+---
+
+## Troubleshooting
+
+### "I can't see all applications"
+- Refresh your browser
+- Log out and log back in
+- Try a different browser
+- Check if you're viewing the right status filter
+
+### "Documents are not loading"
+- Try a different browser
+- Refresh the page
+- Clear browser cache
+- Check your internet connection
+
+### "I accidentally approved/rejected an application"
+- Contact support immediately: noreplyinterbankinghub@gmail.com
+- Explain the situation
+- They may be able to help correct it
+
+### "Application status is not updating"
+- Refresh the page
+- Wait a few seconds (status updates may take time)
+- Log out and log back in
+- Contact support if issue persists
+
+---
+
+## Security & Confidentiality
+
+### Important Reminders:
+
+🔒 **Protect Applicant Data**
+- Never share customer information
+- Keep passwords secure
+- Log out when leaving your desk
+- Don't leave account open unattended
+
+🔒 **Verify Before Acting**
+- Double-check before approving/rejecting
+- Ensure documents are authentic
+- Never approve based on incomplete info
+- Take your time to review carefully
+
+🔒 **Follow Procedures**
+- Always verify identity of person submitting
+- Keep records of your decisions
+- Report suspicious applications
+- Follow your bank's policies
+
+---
+
+## Support & Help
+
+### Getting Help:
+
+**For Application Issues:**
+- Contact your bank supervisor
+- Check this guide for common scenarios
+- Document what's unclear
+
+**For Technical Issues:**
+- Email: noreplyinterbankinghub@gmail.com
+- Describe the issue clearly
+- Include screenshots if helpful
+- Mention your browser and device
+
+**For Questions:**
+- Email: noreplyinterbankinghub@gmail.com
+- Your admin team lead
+- Supervisor or manager
+
+---
+
+## Contact Information
+
+**Support Email:** noreplyinterbankinghub@gmail.com
+**Support Hours:** 24/5 (Monday-Friday)
+**Response Time:** 24-48 hours
+
+**When contacting support, include:**
+- Your admin email
+- Your bank name
+- Description of issue
+- Application ID if applicable
+- Screenshots if helpful
+
+---

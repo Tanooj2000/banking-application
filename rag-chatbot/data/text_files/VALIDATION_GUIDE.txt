@@ -1,0 +1,226 @@
+INTERBANKHUB VALIDATION GUIDE
+
+Last Updated: May 8, 2026
+Source of Truth: src/utils/validation.js and form pages
+
+==================================================
+1) GLOBAL VALIDATION FUNCTIONS
+==================================================
+
+1. validateGmail(email)
+- Required
+- Must match Gmail format only: example@gmail.com
+- Non-Gmail domains are rejected
+- Error message: "Please enter a valid Gmail address (example@gmail.com)"
+
+2. validatePassword(password)
+- Required
+- Minimum 8 characters
+- Must include at least:
+  - one lowercase letter
+  - one uppercase letter
+  - one number
+  - one special character
+- Example special chars accepted: !@#$%^&*() and similar
+
+3. validateName(name)
+- Required
+- Minimum 5 characters
+- Letters only (A-Z, a-z)
+- No spaces, numbers, or special characters
+
+4. validateFullName(name)
+- Required
+- Minimum 6 characters
+- Letters and single spaces allowed
+- Cannot start/end with spaces
+- Cannot contain multiple consecutive spaces
+
+5. validateConfirmPassword(password, confirmPassword)
+- Required
+- Must exactly match password
+
+6. validateMobile(mobile)
+- Required
+- Must be exactly 10 digits (0-9)
+
+7. validateBankName(bankName)
+- Required
+- Minimum 2 characters
+
+8. validatePAN(pan)
+- Required where used (India account form)
+- Format: 5 letters + 4 digits + 1 letter
+- Example: ABCDE1234F
+
+9. validateAadhaar(aadhaar)
+- Required where used (India account form)
+- Must be exactly 12 digits
+- Non-digit characters are removed before length check
+
+10. getErrorMessage(error)
+- Converts backend/axios/network errors into readable user messages
+- Supports string JSON, response.data.message, response.data.error, timeout, network fallback
+
+11. formatBackendErrorMessage(errorMessage)
+- Cleans and formats backend account-creation errors for UI display
+- Removes "Account creation failed:" prefix and formats sections/newlines
+
+
+==================================================
+2) SIGN UP VALIDATIONS (src/pages/SignUp.jsx)
+==================================================
+
+A) Common for both User and Admin sign up
+- Email is required
+- Email must pass validateGmail() (Gmail-only rule)
+
+B) User Sign Up required fields
+- name (required + validateName)
+- mobile (required + validateMobile)
+- password (required + validatePassword)
+- confirmPassword (required + validateConfirmPassword)
+
+C) Admin Sign Up required fields
+- country (required)
+- bankName (required + validateBankName)
+- adminPassword (required + validatePassword)
+- name may be validated with validateName if provided
+
+
+==================================================
+3) SIGN IN VALIDATIONS (src/pages/SignIn.jsx)
+==================================================
+
+- usernameOrEmail is required
+- password is required
+- No Gmail-format enforcement at sign-in step
+- Backend errors are surfaced via getErrorMessage()
+
+
+==================================================
+4) USER PROFILE VALIDATIONS (src/pages/UserPage.jsx)
+==================================================
+
+A) Edit profile modal
+- username -> validateName
+- email -> validateGmail
+- phonenumber (optional in form logic): if present -> validateMobile
+
+B) Change password modal
+- currentPassword required
+- newPassword -> validatePassword
+- confirmPassword -> validateConfirmPassword
+- currentPassword and newPassword must be different
+
+
+==================================================
+5) ADMIN PROFILE VALIDATIONS (src/pages/AdminPage.jsx)
+==================================================
+
+A) Update admin details
+- username -> validateName
+- email -> validateGmail
+
+B) Update admin password
+- currentPassword required
+- newPassword -> validatePassword
+- confirmPassword -> validateConfirmPassword
+- currentPassword and newPassword must be different
+
+
+==================================================
+6) CREATE ACCOUNT STEP VALIDATIONS (src/pages/CreateAccount.jsx)
+==================================================
+
+Step 1: Branch Selection
+- Must select a branch to continue
+
+Required fields per step are enforced based on country schema.
+For required text fields, empty/whitespace values are rejected.
+
+Additional field-specific checks in step validation:
+- fullName -> validateFullName
+- email -> validateGmail
+- mobile/phone -> validateMobile
+- pan -> validatePAN
+- aadhaar -> validateAadhaar
+
+Country-specific note:
+- USA SSN and UK NIN are required fields by schema, but no strict regex validator is currently applied in frontend code.
+
+
+==================================================
+7) FILE VALIDATION DURING ACCOUNT SUBMIT (src/api/accountApi.js)
+==================================================
+
+Before API request is sent, createAccount() checks required files:
+- idProof
+- addressProof
+- incomeProof
+- photo
+
+If any file is missing or not a File object:
+- Throws: "Missing required files: ..."
+
+The request is sent as multipart/form-data.
+Backend response handling includes:
+- 400: validation/request errors
+- 500: server errors
+- network/no response: connectivity message
+
+
+==================================================
+8) IMPORTANT BEHAVIOR NOTES
+==================================================
+
+1. Gmail-only policy is strict in validation utilities.
+- This affects sign-up, create-account email fields, and profile email updates.
+
+2. Name vs Full Name rules are different:
+- validateName: no spaces, minimum 5
+- validateFullName: spaces allowed, minimum 6
+
+3. Mobile rule is strict 10 digits.
+- This may be restrictive for non-India formats unless changed.
+
+4. Frontend and backend both may validate.
+- Frontend catches early and backend may still return additional validation errors.
+
+
+==================================================
+9) QUICK TEST CHECKLIST
+==================================================
+
+Use these quick tests for QA:
+
+Email (Gmail-only)
+- Pass: user.test@gmail.com
+- Fail: user@test.com
+
+Password
+- Pass: Abcd@1234
+- Fail: abcdefgh (missing uppercase/number/special)
+
+Name
+- Pass: Rahul
+- Fail: Rahul Kumar (space not allowed in validateName)
+
+Full Name
+- Pass: Rahul Kumar
+- Fail: Rahul  Kumar (double spaces)
+
+Mobile
+- Pass: 9876543210
+- Fail: +919876543210
+
+PAN
+- Pass: ABCDE1234F
+- Fail: AB12E1234F
+
+Aadhaar
+- Pass: 123456789012
+- Fail: 1234 5678
+
+
+End of Validation Guide

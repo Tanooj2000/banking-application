@@ -5,6 +5,11 @@
  * Handles various error response formats and returns clean message
  */
 export const getErrorMessage = (error) => {
+  // Prefer explicitly provided user-safe message (ApiError.userMessage)
+  if (error?.userMessage && typeof error.userMessage === 'string') {
+    return error.userMessage;
+  }
+
   // If it's already a string, check if it's a JSON string
   if (typeof error === 'string') {
     try {
@@ -25,6 +30,10 @@ export const getErrorMessage = (error) => {
 
   // Check if it's an error object with a message
   if (error?.message) {
+    if (typeof error.message === 'string' && error.message.toLowerCase().includes('failed to fetch')) {
+      return 'Unable to connect to the server. Please try again.';
+    }
+
     // Check if the message itself is a JSON string
     if (typeof error.message === 'string') {
       try {

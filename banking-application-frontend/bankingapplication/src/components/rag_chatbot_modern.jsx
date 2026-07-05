@@ -1,0 +1,268 @@
+import React, { useState, useRef, useEffect } from 'react';
+import './rag_chatbot.css';
+import { sendRagChatMessage } from '../api/rag_chatbotApi';
+import { AuthGuard } from '../utils/authGuard';
+
+/**
+ * Modern RAG Chatbot component.
+ *
+ * Handles three response types from the backend:
+ *  - final_answer       → display text response normally
+ *  - selection_required → display numbered option buttons; clicking one sends it back
+ *  - auth_required      → prompt the user to log in
+ */
+const RagChatbotModern = ({ onClose }) => {
+  const [messages, setMessages]   = useState([
+    {
+      id: 0,
+      type: 'bot',
+      text: 'Hi! I\'m your Banking Assistant. Ask me anything about your account or banking services.',
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading]       = useState(false);
+  const [sessionId, setSessionId]       = useState(null);
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to newest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  /** Get the user type: 'user' or 'admin'. */
+  const getUserType = () => {
+    return localStorage.getItem('userType') || sessionStorage.getItem('userType') || null;
+  };
+
+  /** Get the logged-in user's ID — handles both regular users and admins. */
+  const getLoggedInUserId = () => {
+    const userType = getUserType();
+    if (userType === 'admin') {
+      const adminData = AuthGuard.getAdminData?.() || null;
+      return (
+        adminData?.id ||
+        adminData?.adminId ||
+        sessionStorage.getItem('adminId') ||
+        null
+      );
+    }
+    const user = AuthGuard.getCurrentUser?.() || null;
+    return (
+      user?.userId ||
+      user?.id ||
+      user?.user_id ||
+      localStorage.getItem('userId') ||
+      null
+    );
+  };
+
+  const getAuthToken = () => {
+    const userType = getUserType();
+    if (userType === 'admin') {
+      return sessionStorage.getItem('userToken') || null;
+    }
+    return AuthGuard.getToken?.() || localStorage.getItem('authToken') || null;
+  };
+
+  const appendMessage = (msg) => setMessages((prev) => [...prev, msg]);
+
+  /** Core send function — used by text input and option buttons. */
+  const sendMessage = async (text) => {
+    if (!text.trim()) return;
+
+    // Show the user's message in the chat
+    appendMessage({
+      id: Date.now(),
+      type: 'user',
+      text: text.trim(),
+      timestamp: new Date(),
+    });
+
+    setIsLoading(true);
+    try {
+      const userId = getLoggedInUserId();
+      const authToken = getAuthToken();
+      const userType = getUserType();
+      const result = await sendRagChatMessage({
+        message:  text.trim(),
+        userId:   userId || undefined,
+        sessionId: sessionId || undefined,
+        authToken: authToken || undefined,
+        userType:  userType || undefined,
+      });
+
+      // Persist session ID for multi-turn flows (account selection, etc.)
+      if (result.sessionId) {
+        setSessionId(result.sessionId);
+      }
+
+      if (result.responseType === 'auth_required') {
+        appendMessage({
+          id: Date.now() + 1,
+          type: 'bot',
+          text: result.response || 'Please log in to view your account details.',
+          responseType: 'auth_required',
+          timestamp: new Date(),
+        });
+      } else if (result.responseType === 'selection_required' && result.options?.length) {
+        appendMessage({
+          id: Date.now() + 1,
+          type: 'bot',
+          text: result.response,
+          responseType: 'selection_required',
+          options: result.options,
+          timestamp: new Date(),
+        });
+      } else {
+        // final_answer or any other type
+        appendMessage({
+          id: Date.now() + 1,
+          type: 'bot',
+          text: result.response,
+          responseType: 'final_answer',
+          timestamp: new Date(),
+        });
+      }
+    } catch (err) {
+      appendMessage({
+        id: Date.now() + 2,
+        type: 'bot',
+        text: err?.message || 'Sorry, I could not reach the chatbot service. Please try again.',
+        isError: true,
+        timestamp: new Date(),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSend = () => {
+    const text = inputMessage.trim();
+    if (!text || isLoading) return;
+    setInputMessage('');
+    sendMessage(text);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  /** Called when user clicks one of the selection option buttons. */
+  const handleOptionClick = (option) => {
+    // Send the option label (or index string) as the next message
+    const choice = option.label || String(option.index ?? option);
+    sendMessage(choice);
+  };
+
+  return (
+    <div className="rag-chatbot-container rag-chatbot-modern" role="dialog" aria-label="Banking Assistant chat">
+      {/* Header */}
+      <div className="rag-chatbot-header">
+        <div className="rag-chatbot-title-wrap">
+          <span className="rag-chatbot-title">Banking Assistant</span>
+          <span className="rag-chatbot-subtitle">Secure support for your account questions</span>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="rag-chatbot-close"
+            aria-label="Close chat"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Messages */}
+      <div className="rag-messages-area">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`rag-message ${msg.type} ${msg.isError ? 'error' : ''}`}>
+            <div className="rag-message-bubble">
+              {msg.responseType === 'auth_required' ? (
+                // Render auth_required as structured component
+                <div className="auth-required-message">
+                  <div className="auth-title">Sign In Required</div>
+                  <div className="auth-description">{msg.text || 'You need to be signed in to continue.'}</div>
+                  <div className="auth-actions">
+                    <div className="auth-action">
+                      → Already have an account? <a href="/signin" className="chatbot-link">Sign In</a>
+                    </div>
+                    <div className="auth-action">
+                      → New here? <a href="/signup" className="chatbot-link">Sign Up</a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Render plain text for other responses
+                <span className="rag-message-text">{msg.text}</span>
+              )}
+
+              {/* Render clickable option buttons for selection_required */}
+              {msg.responseType === 'selection_required' && msg.options?.length > 0 && (
+                <div className="rag-options-list">
+                  {msg.options.map((opt, idx) => (
+                    <button
+                      type="button"
+                      key={idx}
+                      onClick={() => handleOptionClick({ label: String(idx + 1), ...opt })}
+                      disabled={isLoading}
+                      className="rag-option-button"
+                    >
+                      {idx + 1}. {opt.label || opt.bankName || opt.accountId || JSON.stringify(opt)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="rag-message-meta">
+              {msg.type === 'user' ? 'You' : 'Assistant'} · {msg.timestamp.toLocaleTimeString()}
+            </div>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="rag-message bot">
+            <div className="rag-message-bubble rag-typing-indicator">
+              <span className="typing-dot" style={dotStyle(0)} />
+              <span className="typing-dot" style={dotStyle(0.2)} />
+              <span className="typing-dot" style={dotStyle(0.4)} />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="rag-input-area">
+        <textarea
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a message...."
+          disabled={isLoading}
+          rows={1}
+          className="rag-message-input"
+        />
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={!inputMessage.trim() || isLoading}
+          className="rag-send-button"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const dotStyle = (delay) => ({
+  animationDelay: `${delay}s`,
+});
+
+export default RagChatbotModern;

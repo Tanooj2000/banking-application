@@ -1,16 +1,31 @@
-# React + Vite
+# root-admin (Root Admin Frontend App)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dedicated root-admin portal built with React + Vite.
 
-Currently, two official plugins are available:
+## Quick Start
+1. Install dependencies:
+	- `npm install`
+2. Run development server:
+	- `npm run dev`
+3. Build production assets:
+	- `npm run build`
+4. Lint code:
+	- `npm run lint`
+5. Preview production build:
+	- `npm run preview`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Full Documentation
+Use the consolidated frontend docs hub:
 
-## React Compiler
+- `../docs/frontend/README.md`
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Root-admin specific and related sections:
+- `../docs/frontend/apps/root-admin.md`
+- `../docs/frontend/architecture.md`
+- `../docs/frontend/contracts/api-reference.md`
+- `../docs/frontend/workflows/user-journeys.md`
 
-## Expanding the ESLint configuration
+## Chatbot Documentation Add-On
+Chatbot guidance remains intentionally separate as an add-on:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `../docs/frontend/chatbot-addon/README.md`

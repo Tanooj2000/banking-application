@@ -17,6 +17,10 @@ const HomePage = () => {
           <MainBottom />
         </div>
       </main>
+      
+      {/* Banking Assistant ChatBot */}
+      <ChatBotButton userId="guest" />
+      
       <Footer />
       {/* Banking Assistant ChatBot */}
       <ChatBotButton userId="guest" />

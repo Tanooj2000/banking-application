@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShield, FiCheckCircle, FiActivity } from 'react-icons/fi';
 import './MainBottom.css';
+import { AuthGuard } from '../utils/authGuard';
 
 // Import banking assets
 import hdfcBank from '../assets/banks/hdfc-bank.webp';
@@ -64,13 +65,17 @@ const MainBottom = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('userToken');
-    const type = sessionStorage.getItem('userType');
-    const adminData = sessionStorage.getItem('adminData');
-    const loggedOut = sessionStorage.getItem('loggedOut');
-    const isAdminAuth = type === 'admin' && adminData && loggedOut !== 'true';
-    const isUserAuth = type === 'user' && token;
-    setIsSignedIn(isAdminAuth || isUserAuth);
+    const syncAuthState = () => {
+      const isAdminAuth = AuthGuard.isAdminAuthenticated();
+      const isUserAuth = AuthGuard.isAuthenticated() && AuthGuard.getUserType() !== 'admin';
+      setIsSignedIn(isAdminAuth || isUserAuth);
+    };
+
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+    };
   }, []);
 
   useEffect(() => {

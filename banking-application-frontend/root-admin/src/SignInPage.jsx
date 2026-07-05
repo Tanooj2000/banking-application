@@ -1,13 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignInPage.css';
 import { adminSignIn } from './services/adminAuthAPI';
+import { getInitialRootAdminTheme, setRootAdminTheme } from './rootAdminTheme';
 
 const SignInPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [theme, setTheme] = useState('dark');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setTheme(getInitialRootAdminTheme());
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    setRootAdminTheme(nextTheme);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +51,7 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="signin-container">
+    <div className="signin-container" data-theme={theme}>
       <div className="signin-background">
         <div className="geometric-shapes">
           <div className="shape shape-1"></div>
@@ -51,6 +63,15 @@ const SignInPage = () => {
       
       <div className="signin-content">
         <div className="signin-card">
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+          </button>
+
           <div className="signin-header">
             <div className="logo-container">
               <h1>Root Admin Portal</h1>

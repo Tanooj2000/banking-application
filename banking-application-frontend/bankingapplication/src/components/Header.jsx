@@ -33,46 +33,27 @@ const Header = () => {
     setMenuOpen(false);
   }, [location]);
 
-  // Auth detection — original logic preserved exactly
+  // Auth detection from central guard
   useEffect(() => {
-    const token = sessionStorage.getItem('userToken');
-    const type = sessionStorage.getItem('userType');
-    const adminData = sessionStorage.getItem('adminData');
-    const loggedOut = sessionStorage.getItem('loggedOut');
-
-    const isAdminAuth = type === 'admin' && adminData && loggedOut !== 'true' && AuthGuard.isAuthenticated();
-    const isUserAuth = type === 'user' && token;
-
-    setIsSignedIn(isAdminAuth || isUserAuth);
-    setUserType(isAdminAuth ? 'admin' : isUserAuth ? 'user' : null);
-
-    const handleStorage = () => {
-      const currentToken = sessionStorage.getItem('userToken');
-      const currentType = sessionStorage.getItem('userType');
-      const currentAdminData = sessionStorage.getItem('adminData');
-      const currentLoggedOut = sessionStorage.getItem('loggedOut');
-
-      const currentIsAdminAuth = currentType === 'admin' && currentAdminData && currentLoggedOut !== 'true' && AuthGuard.isAuthenticated();
-      const currentIsUserAuth = currentType === 'user' && currentToken;
-
-      setIsSignedIn(currentIsAdminAuth || currentIsUserAuth);
-      setUserType(currentIsAdminAuth ? 'admin' : currentIsUserAuth ? 'user' : null);
+    const syncAuthState = () => {
+      const isAdminAuth = AuthGuard.isAdminAuthenticated();
+      const isUserAuth = AuthGuard.isAuthenticated() && AuthGuard.getUserType() !== 'admin';
+      setIsSignedIn(isAdminAuth || isUserAuth);
+      setUserType(isAdminAuth ? 'admin' : isUserAuth ? 'user' : null);
     };
 
-    const checkAuth = () => { if (type === 'admin') handleStorage(); };
-    const interval = setInterval(checkAuth, 1000);
-    window.addEventListener('storage', handleStorage);
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
     return () => {
-      window.removeEventListener('storage', handleStorage);
-      clearInterval(interval);
+      window.removeEventListener('storage', syncAuthState);
     };
-  }, [location]);
+  }, [location.pathname]);
 
-  const handleLogout = () => {
-    if (userType === 'admin' || sessionStorage.getItem('adminData')) {
-      AuthGuard.logout();
+  const handleLogout = async () => {
+    if (userType === 'admin' || AuthGuard.isAdminAuthenticated()) {
+      AuthGuard.logoutAdmin();
     } else {
-      AuthGuard.logoutUser();
+      await AuthGuard.logout();
     }
     setIsSignedIn(false);
     setUserType(null);

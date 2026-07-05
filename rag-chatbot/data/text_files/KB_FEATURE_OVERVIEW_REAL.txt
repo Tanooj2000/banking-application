@@ -1,0 +1,703 @@
+# InterBankHub - Feature Overview
+
+Complete overview of all InterBankHub features for users and admins.
+
+---
+
+## Platform Overview
+
+**What is InterBankHub?**
+
+InterBankHub is a digital banking platform that enables customers to create and manage bank accounts across three countries:
+- India
+- USA  
+- UK
+
+Through a user-friendly interface, you can discover banks, complete account applications, and manage all your accounts in one place.
+
+---
+
+## User Features
+
+### 1. User Registration & Authentication
+
+**Sign Up Process:**
+- Create account with email, password, phone number
+- Select your country (India, USA, UK)
+- Simple and fast (3-5 minutes)
+- Secure password requirements
+
+**Sign In Process:**
+- Login with email and password
+- Automatic redirection to your dashboard
+- Secure session management
+
+**Security:**
+- SSL encryption for all data
+- Secure password storage
+- Session timeout for security
+- Two-level storage system (localStorage for users, sessionStorage for admins)
+
+---
+
+
+
+**Features:**
+- Real-time search functionality
+- City-wise filtering
+- Bank information display
+- Branch selection
+- Duplicate account prevention (shows if you already have account with that bank/branch)
+
+**Supported Banks by Country:**
+- **India:** HDFC, SBI, ICICI, Kotak, Axis, PNB, Canara, Union Bank, Bank of Baroda, Indian Bank, Central Bank, Yes Bank
+- **USA:** JPMorgan Chase, Bank of America, Wells Fargo, Citibank, Goldman Sachs, Morgan Stanley, US Bank, PNC, Capital One, TD Bank, Fifth Third, Regions Bank
+- **UK:** HSBC, Barclays, Lloyds, NatWest, Santander, RBS, TSB, Metro Bank, Virgin Money, Monzo, Starling Bank
+
+---
+
+### 3. Account Creation
+
+**Multi-Step Form Process:**
+Complete 6-step wizard to create new accounts:
+
+**Step 1: Select Branch**
+- Choose your bank branch
+- Location-based options
+- Only available branches shown
+
+**Step 2: Personal Details**
+- Full name, date of birth, gender
+- Contact information (email, phone)
+- Address
+- Country-specific ID numbers:
+  - **India:** Aadhaar, PAN
+  - **USA:** Social Security Number (SSN)
+  - **UK:** National Insurance Number (NIN)
+
+**Step 3: Educational Details**
+- Education level (country-specific options)
+- Institution name
+- Course/degree
+- Year of completion
+- Grade/GPA (optional)
+
+**Step 4: Income Details**
+- Employment status (6 options)
+- Employer name (if applicable)
+- Occupation
+- Monthly and annual income
+- Income source (5 options)
+- Currency varies by country (INR, USD, GBP)
+
+**Step 5: Nominee Details**
+- Nominee full name
+- Relationship to applicant
+- Nominee date of birth
+- Contact information
+- Address
+
+**Step 6: Documents & Account**
+- Upload 4 documents:
+  - ID Proof
+  - Address Proof
+  - Income Proof
+  - Passport Photo
+- Select account type
+- Enter initial deposit
+- Accept terms & conditions
+
+**Account Types Available:**
+
+**India (INR):**
+- Savings Account
+- Current Account
+- Salary Account
+- Fixed Deposit
+
+**USA (USD):**
+- Checking Account
+- Savings Account
+- Money Market Account
+- Certificate of Deposit
+
+**UK (GBP):**
+- Current Account
+- Savings Account
+- ISA (Individual Savings Account)
+- Fixed Term Account
+
+---
+
+### 4. Account Management
+
+**View Your Accounts:**
+- List of all created accounts
+- Account status (Pending, Approved, Rejected)
+- Filter by status
+- Account details accessible
+- Documents viewable
+
+**Account Status Types:**
+- **Pending:** Application under review (typically 2-5 business days)
+- **Approved:** Ready to use
+- **Rejected:** Application declined (reason provided)
+
+**Download Documents:**
+- Download any uploaded document
+- PDF, JPG, PNG formats supported
+- Keep records locally
+
+---
+
+### 5. Profile Management
+
+**View Profile:**
+- Username
+- Email address
+- Phone number
+- Account creation date
+
+**Edit Profile:**
+- Update username
+- Update email address
+- Update phone number
+- Changes saved immediately
+
+**Change Password:**
+- Enter current password
+- Enter new password (must be different)
+- Confirm new password
+- Requirements:
+  - Minimum 8 characters
+  - Mix of letters and numbers
+  - Special characters recommended
+
+---
+
+### 6. Theme Toggle
+
+**Dark/Light Mode:**
+- Toggle between dark and light themes
+- Preference saved in browser
+- Persists across sessions
+- Eye-friendly display options
+
+---
+
+### 7. Logout
+
+**Secure Logout:**
+- Clears session information
+- Prevents unauthorized access
+- Requires re-login for next access
+
+---
+
+## Admin Features
+
+### 1. Admin Registration & Authentication
+
+**Admin Sign Up:**
+- Create account with email, password, phone number
+- Select bank name from available list
+- Select country
+- Account verified and ready to use
+
+**Admin Sign In:**
+- Login redirects to Admin Dashboard
+- Session management
+- Secure authentication
+
+---
+
+### 2. Application Management
+
+**View All Applications:**
+- Complete list of account applications
+- Applicant information
+- Application details
+- Submitted documents
+- Current status
+
+**Filter Applications:**
+
+**By Status:**
+- **Pending:** Applications waiting for review
+- **Approved:** Approved applications
+- **Rejected:** Rejected applications
+
+**Search & Sort:**
+- By applicant name
+- By application date
+- By account type
+- By status
+
+---
+
+### 3. Application Review
+
+**Complete Application Details:**
+- Personal information
+- Educational background
+- Income information
+- Nominee details
+- Account type requested
+- Initial deposit amount
+
+**Document Verification:**
+- View all 4 uploaded documents
+- ID Proof verification
+- Address Proof verification
+- Income Proof verification
+- Passport Photo review
+
+**Document Requirements:**
+- Clear and readable
+- Valid and not expired
+- Matches applicant information
+- In accepted format (JPG, PNG, PDF)
+- Properly sized and oriented
+
+---
+
+### 4. Application Decision
+
+**Approve Applications:**
+- Review all information
+- Verify documents
+- Confirm accuracy
+- One-click approval
+- Application moves to "Approved" section
+- Applicant can check status in their dashboard
+
+**Reject Applications:**
+- Review and identify issues
+- Optional: Add rejection reason
+- One-click rejection
+- Application moves to "Rejected" section
+- Applicant can check status and reason in their dashboard
+
+**Common Decision Criteria:**
+- ✓ All documents clear and valid
+- ✓ Information complete and consistent
+- ✓ Income matches stated amount
+- ✓ Documents match applicant details
+- ✓ Address verified
+- ✓ ID numbers valid
+- ✓ Account type appropriate for income
+
+---
+
+### 5. Admin Profile Management
+
+**View Admin Profile:**
+- Admin username
+- Email address
+- Bank name
+- Country
+- Phone number
+
+**Edit Admin Profile:**
+- Update username
+- Update email
+- Changes saved immediately
+
+**Change Admin Password:**
+- Current password required
+- New password must differ
+- Confirmation required
+- Same security requirements as users
+
+---
+
+### 6. Dashboard Overview
+
+**Admin Dashboard Includes:**
+- Count of pending applications
+- Quick access to applications by status
+- Admin profile information
+- Navigation to profile settings
+- Logout option
+
+---
+
+## Account Creation Flow
+
+### Complete User Journey:
+
+1. **Sign Up**
+   - Create user account
+   - Set password
+   - Set country
+
+2. **Log In**
+   - Enter credentials
+   - Access dashboard
+
+3. **Browse Banks**
+   - Select country
+   - Search/filter banks
+   - Browse available banks
+   - Select bank and branch
+
+4. **Create Account**
+   - Click "Create Account"
+   - Fill 6-step form
+   - Upload documents
+   - Submit application
+
+5. **Wait for Approval**
+   - Admin reviews application
+   - Status shows as "Pending"
+   - Typically 2-5 business days
+
+6. **Receive Decision**
+   - Check account status in dashboard
+   - View approval or rejection reason
+   - Status updates automatically
+
+7. **Start Using Account**
+   - Account approved
+   - Download documents
+   - Manage account
+
+---
+
+## Admin Application Processing Flow:
+
+### Complete Admin Journey:
+
+1. **Sign Up/Log In**
+   - Create admin account or log in
+   - Access Admin Dashboard
+
+2. **View Pending Applications**
+   - Dashboard shows pending count
+   - Click to view pending applications
+   - List displays all waiting applications
+
+3. **Review Application**
+   - Click on application
+   - View all applicant details
+   - Review all documents
+   - Check for completeness and accuracy
+
+4. **Make Decision**
+   - Approve if all good
+   - Reject if issues found
+   - Optionally add reason for rejection
+
+5. **Application Complete**
+   - Application moves to Approved or Rejected section
+   - Applicant can view status in their dashboard
+   - Record maintained for future reference
+
+---
+
+## Supported Countries & Requirements
+
+### India
+
+**ID Requirements:**
+- Aadhaar Number (12 digits)
+- PAN Number (10 characters)
+
+**Account Types:**
+- Savings Account
+- Current Account
+- Salary Account  
+- Fixed Deposit
+
+**Currency:** Indian Rupee (INR)
+
+**Education Options:**
+- High School
+- Diploma
+- Graduate
+- Post Graduate
+- Professional
+
+**Documents Needed:**
+- ID Proof (Aadhaar, Passport, License)
+- Address Proof (Bill, Government letter)
+- Income Proof (Salary slip, Tax return)
+- Passport Photo
+
+---
+
+### USA
+
+**ID Requirements:**
+- Social Security Number (SSN)
+
+**Account Types:**
+- Checking Account
+- Savings Account
+- Money Market Account
+- Certificate of Deposit
+
+**Currency:** US Dollar (USD)
+
+**Education Options:**
+- High School
+- Associate Degree
+- Bachelor Degree
+- Master Degree
+- Doctoral Degree
+
+**Documents Needed:**
+- ID Proof (Passport, Driver's License, State ID)
+- Address Proof (Utility bill, Bank statement, Lease)
+- Income Proof (Pay stub, Tax return)
+- Passport Photo
+
+---
+
+### UK
+
+**ID Requirements:**
+- National Insurance Number (NIN)
+
+**Account Types:**
+- Current Account
+- Savings Account
+- ISA (Individual Savings Account)
+- Fixed Term Account
+
+**Currency:** British Pound (GBP)
+
+**Education Options:**
+- GCSE
+- A-Levels
+- Undergraduate Degree
+- Postgraduate Degree
+- Professional Qualification
+
+**Documents Needed:**
+- ID Proof (Passport, Driving License, National ID)
+- Address Proof (Utility bill, Council Tax bill, Bank statement)
+- Income Proof (Pay stub, Tax return)
+- Passport Photo
+
+---
+
+## Security Features
+
+### User Security:
+
+✓ SSL encryption for all data transmission
+✓ Secure password storage
+✓ Session-based authentication
+✓ Automatic logout on inactivity
+✓ Password requirements:
+  - Minimum 8 characters
+  - Letters and numbers
+  - Special characters recommended
+
+### Data Protection:
+
+✓ Bank-level security standards
+✓ Document encryption
+✓ User data separation
+✓ Admin data separation
+✓ Regular security audits
+✓ Confidentiality maintained
+
+### Admin Security:
+
+✓ Admin-only dashboard
+✓ Secure document review
+✓ User data protected
+✓ Audit trails maintained
+✓ Logout required for security
+
+---
+
+## Key Statistics
+
+### Accounts Per Country:
+
+- **India:** 4 account types
+- **USA:** 4 account types
+- **UK:** 4 account types
+- **Total:** 12 account types available
+
+### Form Steps:
+
+- **Total:** 6 steps per account
+- **Personal Details:** Step 2
+- **Educational Info:** Step 3
+- **Income Details:** Step 4
+- **Nominee Info:** Step 5
+- **Documents:** Step 6
+
+### Required Documents:
+
+- **Total:** 4 documents per account
+- ID Proof
+- Address Proof
+- Income Proof
+- Passport Photo
+
+### Processing Time:
+
+- **Typical:** 2-5 business days
+- **Not including:** Weekends and holidays
+- **Varies by:** Bank processing, document completeness
+
+---
+
+## Browser & Device Support
+
+**Supported Browsers:**
+- Google Chrome (recommended)
+- Mozilla Firefox
+- Microsoft Edge
+- Safari
+
+**Device Support:**
+- Desktop computers
+- Tablets (iPad, Android tablets)
+- Smartphones (iOS, Android)
+- Responsive design for all screen sizes
+
+**Browser Requirements:**
+- Modern browser (updated within last 6 months)
+- JavaScript enabled
+- Cookies enabled
+- SSL/TLS support
+
+---
+
+## Integration Points
+
+**What Connects to InterBankHub:**
+
+1. **User Service** (localhost:8081)
+   - User authentication
+   - User profile management
+   - User data storage
+
+2. **Admin Service** (localhost:8083)
+   - Admin authentication
+   - Admin profile management
+   - Admin data storage
+
+3. **Bank Service** (localhost:8082)
+   - Bank and branch information
+   - Country and location data
+   - Bank details and listings
+
+4. **Account Service** (localhost:8085)
+   - Account creation
+   - Document storage
+   - Application management
+   - Account approval/rejection
+
+5. **RAG Chatbot Service** (localhost:8080)
+   - Customer support chatbot
+   - FAQ answers
+   - Help and guidance
+
+---
+
+## API Endpoints Used
+
+### User Endpoints:
+- Sign up user: POST /api/user/signup
+- Sign in user: POST /api/user/signin
+- Get user: GET /api/user/{userId}
+- Update user: PUT /api/user/{userId}
+- Change password: POST /api/user/changePassword
+
+### Admin Endpoints:
+- Sign up admin: POST /api/admin/signup
+- Get admin: GET /api/admin/{adminId}
+- Update admin: PUT /api/admin/{adminId}
+- Change admin password: POST /api/admin/changePassword
+
+### Bank Endpoints:
+- Get countries: GET /api/bank/countries
+- Get banks: GET /api/bank/{country}
+- Get bank details: GET /api/bank/{bankId}
+- Create branch: POST /api/bank/branch
+
+### Account Endpoints:
+- Create account: POST /api/account/create
+- Get user accounts: GET /api/account/user/{userId}
+- Get all accounts: GET /api/account/all
+- Approve account: POST /api/account/{accountId}/approve
+- Reject account: POST /api/account/{accountId}/reject
+- View document: GET /api/account/document/{docId}
+- Download document: GET /api/account/download/{docId}
+
+### Chatbot Endpoint:
+- Send message: POST /chat
+
+---
+
+## Accessibility Features
+
+**Features for All Users:**
+- Clear navigation
+- Readable text and fonts
+- Good color contrast
+- Responsive design
+- Keyboard accessible (with Tab key)
+- Form validation with clear error messages
+- Dark/Light mode options
+
+**Mobile Optimization:**
+- Responsive layout
+- Touch-friendly buttons
+- Easy-to-read forms
+- Document upload from phone
+
+---
+
+## What's Not Included
+
+**Features not currently available:**
+- Video banking
+- Live chat with agent
+- Mobile app (web only)
+- International accounts (only India, USA, UK)
+- Multi-currency exchange
+- Loan application
+- Investment products
+- Insurance products
+- Card application
+
+---
+
+## Future Features (Planned)
+
+**Coming Soon:**
+- Mobile app for iOS and Android
+- More countries supported
+- Multiple currencies
+- Advanced filtering options
+- Export account statements
+- API for third-party integration
+
+---
+
+## Getting Help with Features
+
+**For Feature Questions:**
+- Check FAQ section
+- Review this Feature Overview
+- Read Getting Started guide
+- Contact support: support@interbankshub.com
+
+**For Technical Issues:**
+- Check Troubleshooting guide
+- Try different browser
+- Clear cache and retry
+- Email support@interbankshub.com
+
+**Support Email:** support@interbankshub.com
+**Response Time:** 24-48 hours
+
+---

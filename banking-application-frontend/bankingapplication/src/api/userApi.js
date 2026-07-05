@@ -17,7 +17,7 @@ const ErrorTypes = {
 };
 
 const UserFriendlyMessages = {
-  [ErrorTypes.NETWORK]: 'Unable to connect to the server. Please check your internet connection and try again.',
+  [ErrorTypes.NETWORK]: 'Unable to connect. Please check your internet connection and try again.',
   [ErrorTypes.AUTHENTICATION]: 'Your session has expired. Please sign in again.',
   [ErrorTypes.VALIDATION]: 'Please check the information you entered and try again.',
   [ErrorTypes.SERVER]: 'A server error occurred. Our team has been notified. Please try again later.',
@@ -27,6 +27,29 @@ const UserFriendlyMessages = {
   [ErrorTypes.TIMEOUT]: 'The request timed out. Please try again.'
 };
 
+const resolveUserMessage = (message, type, statusCode) => {
+  const trimmed = typeof message === 'string' ? message.trim() : '';
+  const genericStatusPattern = /^Request failed with status\s+\d+$/i;
+
+  // For validation/auth/not-found errors, prefer specific backend message.
+  if ([ErrorTypes.VALIDATION, ErrorTypes.AUTHENTICATION, ErrorTypes.NOT_FOUND].includes(type)) {
+    if (trimmed && !genericStatusPattern.test(trimmed)) {
+      return trimmed;
+    }
+  }
+
+  // Keep friendly generic messages for transport/server style failures.
+  if ([ErrorTypes.NETWORK, ErrorTypes.SERVER, ErrorTypes.TIMEOUT, ErrorTypes.RATE_LIMIT, ErrorTypes.PERMISSION].includes(type)) {
+    return UserFriendlyMessages[type] || trimmed || 'An unexpected error occurred. Please try again.';
+  }
+
+  // Fallback to backend message if meaningful; otherwise generic type message.
+  if (trimmed && !genericStatusPattern.test(trimmed)) {
+    return trimmed;
+  }
+  return UserFriendlyMessages[type] || `Request failed (${statusCode || 'unknown'}). Please try again.`;
+};
+
 class ApiError extends Error {
   constructor(message, type, statusCode = null, originalError = null) {
     super(message);
@@ -34,20 +57,26 @@ class ApiError extends Error {
     this.type = type;
     this.statusCode = statusCode;
     this.originalError = originalError;
-    this.userMessage = UserFriendlyMessages[type] || message;
+    this.userMessage = resolveUserMessage(message, type, statusCode);
     this.timestamp = new Date().toISOString();
   }
 }
 
 const logError = (operation, error, context = {}) => {
+  const isNetworkFetchNoise = error?.type === ErrorTypes.NETWORK &&
+    (error?.message?.includes('Failed to fetch') || error?.message?.toLowerCase?.().includes('fetch'));
+  const isLoginOperation = operation === 'User Login';
+  const isExpectedLoginFailure = isLoginOperation &&
+    [ErrorTypes.VALIDATION, ErrorTypes.AUTHENTICATION, ErrorTypes.NETWORK].includes(error?.type);
+
   const errorLog = {
     operation,
     error: {
       name: error.name,
-      message: error.message,
+      message: isNetworkFetchNoise ? 'Network request failed' : error.message,
       type: error.type || 'UNKNOWN',
       statusCode: error.statusCode,
-      stack: error.stack
+      stack: isNetworkFetchNoise ? undefined : error.stack
     },
     context,
     timestamp: new Date().toISOString()
@@ -55,7 +84,24 @@ const logError = (operation, error, context = {}) => {
   
   // Log to console in development, send to monitoring service in production
   if (process.env.NODE_ENV === 'development') {
-    console.error('User API Error:', errorLog);
+    if (isLoginOperation) {
+      console.warn('User Login Failed:', {
+        type: error?.type || 'UNKNOWN',
+        statusCode: error?.statusCode ?? null,
+        timestamp: errorLog.timestamp,
+      });
+      return;
+    }
+
+    if (isNetworkFetchNoise) {
+      console.warn('User API Network Error:', {
+        operation,
+        type: error.type,
+        timestamp: errorLog.timestamp,
+      });
+    } else {
+      console.error('User API Error:', errorLog);
+    }
   }
   
   // In production, send to monitoring service
@@ -65,7 +111,8 @@ const logError = (operation, error, context = {}) => {
 const determineErrorType = (response, error) => {
   // Network errors
   if (!navigator.onLine) return ErrorTypes.NETWORK;
-  if (error && (error.name === 'TypeError' && error.message.includes('fetch')) || error.message === 'Failed to fetch') {
+  const errorMessage = typeof error?.message === 'string' ? error.message : '';
+  if (error && ((error.name === 'TypeError' && errorMessage.includes('fetch')) || errorMessage === 'Failed to fetch')) {
     return ErrorTypes.NETWORK;
   }
   
@@ -123,13 +170,18 @@ const makeApiRequest = async (url, options = {}, operation = 'API Request') => {
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
   
   try {
+    const { skipAuth = false, ...restOptions } = options;
+    const requestHeaders = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(skipAuth ? {} : getAuthHeaders()),
+      ...(restOptions.headers || {})
+    };
+
     const defaultOptions = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders()
-      },
+      headers: requestHeaders,
       signal: controller.signal,
-      ...options
+      ...restOptions
     };
     
     const response = await fetch(url, defaultOptions);
@@ -153,7 +205,7 @@ const makeApiRequest = async (url, options = {}, operation = 'API Request') => {
     
     // Handle network errors
     const networkError = new ApiError(
-      error.message || 'Network connection failed',
+      UserFriendlyMessages[ErrorTypes.NETWORK],
       ErrorTypes.NETWORK,
       null,
       error
@@ -242,6 +294,7 @@ export const signUpUser = async (userData) => {
       `${BASE_URL}register`,
       {
         method: 'POST',
+        skipAuth: true,
         body: JSON.stringify(userData),
       },
       'User Registration'
@@ -254,15 +307,29 @@ export const signUpUser = async (userData) => {
 export const signInUser = async (credentials) => {
   return await retryRequest(async () => {
     // Validate credentials
-    if (!credentials || !credentials.usernameOrEmail || !credentials.password) {
+    const usernameOrEmail = credentials?.usernameOrEmail?.trim?.() || '';
+    const password = credentials?.password || '';
+
+    if (!usernameOrEmail || !password) {
       throw new ApiError('Username/email and password are required', ErrorTypes.VALIDATION);
     }
+
+    // Ensure stale auth data never interferes with login call.
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('userType');
+
+    const loginPayload = {
+      usernameOrEmail,
+      password,
+    };
     
     const response = await makeApiRequest(
       `${BASE_URL}login`,
       {
         method: 'POST',
-        body: JSON.stringify(credentials),
+        skipAuth: true,
+        body: JSON.stringify(loginPayload),
       },
       'User Login'
     );
@@ -278,16 +345,24 @@ export const signInUser = async (credentials) => {
       localStorage.setItem('userType', 'user');
       
       if (userObj) {
-        localStorage.setItem('currentUser', JSON.stringify(userObj));
+        const normalizedUser = { ...userObj };
+        const normalizedId = normalizedUser.id ?? normalizedUser.userId ?? normalizedUser.user_id ?? null;
+        if (normalizedId !== null && normalizedId !== undefined && normalizedId !== '') {
+          normalizedUser.id = normalizedId;
+          normalizedUser.userId = normalizedId;
+          localStorage.setItem('userId', String(normalizedId));
+        }
+        localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
       } else if (data.id) {
         localStorage.setItem('currentUser', JSON.stringify(data));
+        localStorage.setItem('userId', String(data.id));
       }
     } else {
       throw new ApiError('Authentication token not received from server', ErrorTypes.AUTHENTICATION);
     }
     
     return data;
-  });
+  }, 0);
 };
 
 export const signUpAdmin = async (adminData) => {
