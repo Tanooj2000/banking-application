@@ -32,8 +32,8 @@ const ChatBotButton = ({ userId }) => {
 
       {/* Chat Component */}
       {isChatOpen && (
-        <div style={{position: 'fixed', bottom: 100, right: 24, zIndex: 10000}}>
-          <RagChatbotModern onClose={handleCloseChat} />
+        <div style={{ position: 'fixed', bottom: 100, right: 24, zIndex: 10000 }}>
+          <RagChatbotModern onClose={handleCloseChat} userId={userId} />
         </div>
       )}
     </>

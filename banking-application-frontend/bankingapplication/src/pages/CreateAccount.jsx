@@ -320,6 +320,109 @@ const CreateAccount = () => {
     setFormStatus({ loading: false, success: null, error: null });
   };
 
+  const getTrimmedValue = (value) => (typeof value === 'string' ? value.trim() : value);
+
+  const isEmptyValue = (value) => {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'boolean') return value === false;
+    if (typeof value === 'string') return value.trim() === '';
+    return false;
+  };
+
+  const validateTextValue = (value, label, { minLength = 2, maxLength = 80, pattern = /^[a-zA-Z0-9 .,'&/-]+$/ } = {}) => {
+    const text = String(value || '').trim();
+    if (text.length < minLength) return `${label} must be at least ${minLength} characters long`;
+    if (text.length > maxLength) return `${label} must be ${maxLength} characters or less`;
+    if (!/[a-zA-Z]/.test(text)) return `${label} must contain at least one letter`;
+    if (!pattern.test(text)) return `${label} contains unsupported characters`;
+    return null;
+  };
+
+  const validateAddressValue = (value, label) => {
+    const text = String(value || '').trim();
+    if (text.length < 10) return `${label} must be at least 10 characters long`;
+    if (text.length > 250) return `${label} must be 250 characters or less`;
+    if (!/[a-zA-Z]/.test(text)) return `${label} must contain at least one letter`;
+    return null;
+  };
+
+  const getAge = (dateValue) => {
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      age -= 1;
+    }
+    return { age, date, today };
+  };
+
+  const validateDobValue = (value, label, { minimumAge = 0, maximumAge = 120 } = {}) => {
+    const result = getAge(value);
+    if (!result) return `${label} must be a valid date`;
+    if (result.date > result.today) return `${label} cannot be in the future`;
+    if (result.age < minimumAge) return `${label} must show an age of at least ${minimumAge} years`;
+    if (result.age > maximumAge) return `${label} must show an age of ${maximumAge} years or less`;
+    return null;
+  };
+
+  const validateYearValue = (value, label) => {
+    const year = Number(value);
+    const currentYear = new Date().getFullYear();
+    if (!Number.isInteger(year)) return `${label} must be a valid year`;
+    if (year < 1950 || year > currentYear) return `${label} must be between 1950 and ${currentYear}`;
+    return null;
+  };
+
+  const validateAmountValue = (value, label) => {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return `${label} must be a valid number`;
+    if (amount <= 0) return `${label} must be greater than 0`;
+    return null;
+  };
+
+  const validateOptionalGradeValue = (value, label) => {
+    if (isEmptyValue(value)) return null;
+    const text = String(value).trim();
+    if (text.length > 20) return `${label} must be 20 characters or less`;
+    if (!/^[a-zA-Z0-9 ./%+-]+$/.test(text)) return `${label} contains unsupported characters`;
+    const numeric = Number(text.replace('%', ''));
+    if (Number.isFinite(numeric) && (numeric < 0 || numeric > 100)) {
+      return `${label} must be between 0 and 100 when entered as a number or percentage`;
+    }
+    return null;
+  };
+
+  const validateUsSsn = (value) => {
+    const digits = String(value || '').replace(/\D/g, '');
+    if (!/^\d{9}$/.test(digits)) return 'SSN must contain exactly 9 digits';
+    if (/^(\d)\1{8}$/.test(digits)) return 'SSN cannot use the same digit repeated 9 times';
+    return null;
+  };
+
+  const validateUkNin = (value) => {
+    const normalized = String(value || '').replace(/\s/g, '').toUpperCase();
+    if (!/^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]$/.test(normalized)) {
+      return 'National Insurance Number must use the format QQ123456C';
+    }
+    return null;
+  };
+
+  const validateFileValue = (value, field) => {
+    if (!value) return null;
+    const maxFileSizeBytes = 5 * 1024 * 1024;
+    const extension = value.name?.split('.').pop()?.toLowerCase();
+    const allowedExtensions = field.accept?.split(',').map(item => item.trim().replace('.', '').toLowerCase()) || [];
+    if (allowedExtensions.length && !allowedExtensions.includes(extension)) {
+      return `${field.label} must be one of: ${field.accept}`;
+    }
+    if (value.size && value.size > maxFileSizeBytes) {
+      return `${field.label} must be 5 MB or smaller`;
+    }
+    return null;
+  };
+
   // Validate current step and return field-specific errors
   const validateCurrentStep = () => {
     const newFieldErrors = {};
@@ -334,51 +437,143 @@ const CreateAccount = () => {
       return true;
     }
     
-    const requiredFields = currentFields.filter(field => field.required);
-
-    for (const field of requiredFields) {
+    for (const field of currentFields) {
       const value = formData[field.name];
       
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
+      if (field.required && isEmptyValue(value)) {
         newFieldErrors[field.name] = `${field.label} is required`;
         continue;
       }
 
-      // Specific validations
-      if (field.name === 'fullName' && value) {
-        const nameValidation = validateFullName(value);
+      if (!field.required && isEmptyValue(value)) {
+        continue;
+      }
+
+      const trimmedValue = getTrimmedValue(value);
+
+      if (field.name === 'fullName') {
+        const nameValidation = validateFullName(trimmedValue);
         if (!nameValidation.isValid) {
           newFieldErrors[field.name] = nameValidation.message;
         }
       }
 
-      if (field.name === 'email' && value) {
-        const emailValidation = validateGmail(value);
+      if (field.name === 'email') {
+        const emailValidation = validateGmail(trimmedValue);
         if (!emailValidation.isValid) {
           newFieldErrors[field.name] = emailValidation.message;
         }
       }
 
-      if ((field.name === 'mobile' || field.name === 'phone') && value) {
-        const mobileValidation = validateMobile(value);
+      if (field.name === 'mobile') {
+        const mobileValidation = validateMobile(trimmedValue);
         if (!mobileValidation.isValid) {
           newFieldErrors[field.name] = mobileValidation.message;
         }
       }
 
-      if (field.name === 'panCard' && value) {
-        const panValidation = validatePAN(value);
+      if (field.name === 'phone') {
+        const digits = String(trimmedValue).replace(/\D/g, '');
+        if (digits.length < 10 || digits.length > 15) {
+          newFieldErrors[field.name] = 'Phone Number must contain 10 to 15 digits';
+        }
+      }
+
+      if (field.name === 'pan') {
+        const panValidation = validatePAN(trimmedValue);
         if (!panValidation.isValid) {
           newFieldErrors[field.name] = panValidation.message;
         }
       }
 
-      if (field.name === 'aadhaarNumber' && value) {
-        const aadhaarValidation = validateAadhaar(value);
+      if (field.name === 'aadhaar') {
+        const aadhaarValidation = validateAadhaar(trimmedValue);
         if (!aadhaarValidation.isValid) {
           newFieldErrors[field.name] = aadhaarValidation.message;
         }
       }
+
+      if (field.name === 'ssn') {
+        const ssnError = validateUsSsn(trimmedValue);
+        if (ssnError) newFieldErrors[field.name] = ssnError;
+      }
+
+      if (field.name === 'nin') {
+        const ninError = validateUkNin(trimmedValue);
+        if (ninError) newFieldErrors[field.name] = ninError;
+      }
+
+      if (field.name === 'dob') {
+        const dobError = validateDobValue(trimmedValue, field.label, { minimumAge: 18, maximumAge: 100 });
+        if (dobError) newFieldErrors[field.name] = dobError;
+      }
+
+      if (field.name === 'nomineeDob') {
+        const nomineeDobError = validateDobValue(trimmedValue, field.label, { minimumAge: 0, maximumAge: 120 });
+        if (nomineeDobError) newFieldErrors[field.name] = nomineeDobError;
+      }
+
+      if (field.name === 'address' || field.name === 'nomineeAddress') {
+        const addressError = validateAddressValue(trimmedValue, field.label);
+        if (addressError) newFieldErrors[field.name] = addressError;
+      }
+
+      if (field.name === 'nomineeName') {
+        const nomineeNameValidation = validateFullName(trimmedValue);
+        if (!nomineeNameValidation.isValid) {
+          newFieldErrors[field.name] = nomineeNameValidation.message.replace('Full name', 'Nominee full name');
+        }
+      }
+
+      if (['institutionName', 'course', 'occupation'].includes(field.name)) {
+        const textError = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 100 });
+        if (textError) newFieldErrors[field.name] = textError;
+      }
+
+      if (field.name === 'employerName') {
+        const employerError = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 100 });
+        if (employerError) newFieldErrors[field.name] = employerError;
+      }
+
+      if (field.name === 'yearOfCompletion') {
+        const yearError = validateYearValue(trimmedValue, field.label);
+        if (yearError) newFieldErrors[field.name] = yearError;
+      }
+
+      if (field.name === 'grade') {
+        const gradeError = validateOptionalGradeValue(trimmedValue, field.label);
+        if (gradeError) newFieldErrors[field.name] = gradeError;
+      }
+
+      if (field.name === 'monthlyIncome' || field.name === 'annualIncome' || field.name === 'deposit') {
+        const amountError = validateAmountValue(trimmedValue, field.label);
+        if (amountError) newFieldErrors[field.name] = amountError;
+      }
+
+      if (field.name === 'nomineeContact') {
+        const digits = String(trimmedValue).replace(/\D/g, '');
+        if (digits.length < 10 || digits.length > 15) {
+          newFieldErrors[field.name] = 'Nominee Contact Number must contain 10 to 15 digits';
+        }
+      }
+
+      if (field.type === 'file') {
+        const fileError = validateFileValue(value, field);
+        if (fileError) newFieldErrors[field.name] = fileError;
+      }
+    }
+
+    const monthlyIncome = Number(formData.monthlyIncome);
+    const annualIncome = Number(formData.annualIncome);
+    if (
+      currentStepId === 'income' &&
+      Number.isFinite(monthlyIncome) &&
+      Number.isFinite(annualIncome) &&
+      monthlyIncome > 0 &&
+      annualIncome > 0 &&
+      annualIncome < monthlyIncome * 12
+    ) {
+      newFieldErrors.annualIncome = 'Annual Income should be at least 12 times Monthly Income';
     }
 
     setFieldErrors(newFieldErrors);

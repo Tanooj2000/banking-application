@@ -22,6 +22,8 @@ const HomePage = () => {
       <ChatBotButton userId="guest" />
       
       <Footer />
+      {/* Banking Assistant ChatBot */}
+      <ChatBotButton userId="guest" />
     </div>
   );
 };
