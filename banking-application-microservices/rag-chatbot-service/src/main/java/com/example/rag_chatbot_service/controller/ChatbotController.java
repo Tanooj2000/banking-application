@@ -5,6 +5,7 @@ import com.example.rag_chatbot_service.dto.ChatResponseDTO;
 import com.example.rag_chatbot_service.service.ChatbotService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/chat")
@@ -35,5 +36,14 @@ public class ChatbotController {
             return authorizationHeader.substring(prefix.length()).trim();
         }
         return authorizationHeader.trim();
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ChatResponseDTO> handleUnexpected(Exception ex) {
+        ChatResponseDTO dto = new ChatResponseDTO();
+        dto.setResponse("Something went wrong on our end. Please try again shortly.");
+        dto.setResponseType("final_answer");
+        dto.setOptions(Collections.emptyList());
+        return ResponseEntity.ok(dto);
     }
 }

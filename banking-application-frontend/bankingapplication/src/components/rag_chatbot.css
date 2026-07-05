@@ -118,6 +118,20 @@
   white-space: pre-wrap;
 }
 
+/* Typewriter cursor */
+.rag-cursor {
+  display: inline-block;
+  color: var(--gold);
+  animation: rag-blink 0.7s step-end infinite;
+  font-weight: 400;
+  margin-left: 1px;
+}
+
+@keyframes rag-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 .rag-message-meta {
   margin-top: 4px;
   color: var(--rag-text-muted);
@@ -300,6 +314,150 @@
   }
 }
 
+/* ── Suggestion panel ─────────────────────────────────────── */
+.rag-suggestions-section {
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--rag-border);
+  background: linear-gradient(180deg, #fffef9 0%, #faf6ea 100%);
+  animation: rag-suggestions-in 240ms ease-out;
+}
+
+/* Category row */
+.rag-suggestions-categories {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.rag-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--gold-border);
+  background: linear-gradient(135deg, #fffdf5 0%, #f9f0d0 100%);
+  color: #1f2937;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(201, 168, 76, 0.12);
+  transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.rag-cat-chip:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #f9eec9 0%, #f3e1ad 100%);
+  box-shadow: 0 6px 14px rgba(201, 168, 76, 0.26);
+}
+
+.rag-cat-chip--active {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #f3e1ad 0%, #e8ce85 100%);
+  box-shadow: 0 4px 12px rgba(201, 168, 76, 0.32);
+}
+
+.rag-cat-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sub-question chips */
+.rag-sub-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: rag-suggestions-in 200ms ease-out;
+  border-top: 1px dashed var(--gold-border);
+  padding-top: 7px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-border) transparent;
+}
+
+.rag-sub-questions::-webkit-scrollbar {
+  width: 5px;
+}
+
+.rag-sub-questions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rag-sub-questions::-webkit-scrollbar-thumb {
+  background: var(--gold-border);
+  border-radius: 4px;
+}
+
+.rag-sub-questions::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+.rag-sub-chip {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--gold-border);
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.13s ease, background 0.13s ease, border-color 0.13s ease;
+}
+
+.rag-sub-chip:hover:not(:disabled) {
+  transform: translateX(3px);
+  border-color: var(--gold);
+  background: linear-gradient(90deg, #fffdf0 0%, #fdf3cc 100%);
+}
+
+.rag-sub-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Suggestions toggle button (💡) in input row */
+.rag-suggestions-toggle {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--gold-border);
+  background: linear-gradient(135deg, #fffdf5 0%, #f9f0d0 100%);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+  box-shadow: 0 2px 6px rgba(201, 168, 76, 0.14);
+}
+
+.rag-suggestions-toggle:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f9eec9 0%, #f3e1ad 100%);
+  box-shadow: 0 5px 12px rgba(201, 168, 76, 0.28);
+}
+
+.rag-suggestions-toggle--active {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #f3e1ad 0%, #e8ce85 100%);
+}
+
+@keyframes rag-suggestions-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
 @keyframes rag-enter {
   from {
     opacity: 0;

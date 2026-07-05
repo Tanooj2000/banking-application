@@ -6,6 +6,7 @@ import com.example.rag_chatbot_service.dto.ChatResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
@@ -92,11 +93,22 @@ public class ChatbotService {
             }
 
             return dto;
+        } catch (ResourceAccessException ex) {
+            ChatResponseDTO dto = new ChatResponseDTO();
+            dto.setQuestion(question);
+            dto.setResponse("Our assistant service is temporarily unavailable. Please try again in a moment.");
+            dto.setResponseType("final_answer");
+            dto.setSessionId(requestData.getSessionId());
+            dto.setOptions(Collections.emptyList());
+            return dto;
         } catch (RestClientResponseException ex) {
-            throw new RuntimeException(
-                "FastAPI HTTP error " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString(),
-                ex
-            );
+            ChatResponseDTO dto = new ChatResponseDTO();
+            dto.setQuestion(question);
+            dto.setResponse("I'm sorry, I couldn't complete your request right now. Please try again shortly.");
+            dto.setResponseType("final_answer");
+            dto.setSessionId(requestData.getSessionId());
+            dto.setOptions(Collections.emptyList());
+            return dto;
         }
     }
 
