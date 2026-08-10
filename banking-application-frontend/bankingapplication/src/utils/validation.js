@@ -100,17 +100,17 @@ export const getErrorMessage = (error) => {
 };
 
 /**
- * Validates Gmail address
- * Must be a valid Gmail address ending with @gmail.com
+ * Validates email address
+ * Accepts any standard email format (not just Gmail)
  */
 export const validateGmail = (email) => {
   if (!email) return { isValid: false, message: 'Email is required' };
   
-  const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-  if (!gmailRegex.test(email)) {
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
     return { 
       isValid: false, 
-      message: 'Please enter a valid Gmail address (example@gmail.com)' 
+      message: 'Please enter a valid email address (example@domain.com)' 
     };
   }
   
@@ -269,8 +269,15 @@ export const validateFullName = (name) => {
       message: 'Full name must be at least 6 characters long' 
     };
   }
+
+  if (name.length > 30) {
+    return {
+      isValid: false,
+      message: 'Full name must be 30 characters or less'
+    };
+  }
   
-  // Check for numbers or special characters (except spaces)
+  // Check for numbers or special characters (no digits, no symbols)
   const hasInvalidChars = /[^a-zA-Z\s]/.test(name);
   if (hasInvalidChars) {
     return { 

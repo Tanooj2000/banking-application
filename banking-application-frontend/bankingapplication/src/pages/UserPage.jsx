@@ -263,64 +263,6 @@ const UserPage = () => {
       return;
     }
     
-     
-    
-    // Check each account and log the comparison
-    bankAccounts.forEach((account, index) => {
-      console.log(`Account ${index}:`, {
-        fullAccount: account, // Show the complete account object
-        accountId: account.id,
-        accountBank: account.bank,
-        accountBankName: account.bankName, // Check if this field exists instead
-        accountCountry: account.country,
-        selectedBank: selectedBank,
-        selectedCountry: selectedCountry,
-        bankMatch: account.bank === selectedBank,
-        bankNameMatch: account.bankName === selectedBank, // Check this comparison too
-        countryMatch: account.country === selectedCountry,
-        // Case-insensitive comparisons
-        bankMatchCI: account.bank && selectedBank && account.bank.toLowerCase() === selectedBank.toLowerCase(),
-        countryMatchCI: account.country && selectedCountry && account.country.toLowerCase() === selectedCountry.toLowerCase(),
-        bothMatch: account.bank === selectedBank && account.country === selectedCountry,
-        bothMatchBankName: account.bankName === selectedBank && account.country === selectedCountry,
-        bothMatchCI: account.bank && account.country && selectedBank && selectedCountry &&
-                     account.bank.toLowerCase() === selectedBank.toLowerCase() && 
-                     account.country.toLowerCase() === selectedCountry.toLowerCase()
-      });
-    });
-    
-    // Check if user already has an account with this bank
-    // Check multiple possible field names for bank (bank, bankName) 
-    const existingAccount = bankAccounts.find(account => {
-      const accountBank = account.bank || account.bankName;
-      const accountCountry = account.country;
-      
-      // Case-insensitive comparison for both bank and country
-      const bankMatch = accountBank && selectedBank && 
-                       accountBank.toLowerCase() === selectedBank.toLowerCase();
-      const countryMatch = accountCountry && selectedCountry && 
-                          accountCountry.toLowerCase() === selectedCountry.toLowerCase();
-      
-      console.log('Checking account:', {
-        accountBank,
-        accountCountry,
-        selectedBank,
-        selectedCountry,
-        bankMatch,
-        countryMatch,
-        bothMatch: bankMatch && countryMatch
-      });
-      
-      return bankMatch && countryMatch;
-    });
-    
-    
-    
-    if (existingAccount) {
-      setBankSelectionError(`You already have an account with ${selectedBank} in ${selectedCountry}. Multiple accounts with the same bank are not allowed.`);
-      return;
-    }
-    
     // Find branches for selected bank and city
     const availableBranches = banks.filter(bank => 
       bank.bankName === selectedBank && bank.city === selectedCity
@@ -725,12 +667,7 @@ const UserPage = () => {
             <p>Select your preferred bank and city to start your application.</p>
           </div>
           
-          {/* Error Message - Show at top if exists */}
-          {bankSelectionError && (
-            <div className="create-account-error">
-              ⚠️ {bankSelectionError}
-            </div>
-          )}
+
           
           {/* Bank Selection - Single Column Layout */}
           <div className="bank-selection-container">
@@ -958,26 +895,57 @@ const UserPage = () => {
               </div>
             )}
 
-            {/* Create Account Button - Simple */}
-            {selectedBank && selectedCity && (
-              <div className="action-container">
-                <button
-                  className="create-account-btn"
-                  onClick={handleCreateBankAccount}
-                  disabled={!selectedBank || !selectedCity}
-                  style={{
-                    border: 'none',
-                    padding: '1rem 2rem',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-              >
-                  Create Account with {selectedBank}
-                </button>
-              </div>
-            )}
+            {/* Create Account Button */}
+            {selectedBank && selectedCity && (() => {
+              const alreadyHasAccount = bankAccounts.some(account => {
+                const accountBank = account.bank || account.bankName;
+                return accountBank && account.country &&
+                       accountBank.toLowerCase() === selectedBank.toLowerCase() &&
+                       account.country.toLowerCase() === selectedCountry.toLowerCase();
+              });
+              return (
+                <div className="action-container">
+                  <button
+                    className="create-account-btn"
+                    onClick={handleCreateBankAccount}
+                    disabled={alreadyHasAccount}
+                    style={{
+                      border: 'none',
+                      padding: '1rem 2rem',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: alreadyHasAccount ? 'not-allowed' : 'pointer',
+                      opacity: alreadyHasAccount ? 0.5 : 1,
+                      backgroundColor: alreadyHasAccount ? '#9ca3af' : undefined,
+                      color: alreadyHasAccount ? '#fff' : undefined,
+                    }}
+                  >
+                    Create Account with {selectedBank}
+                  </button>
+                  {alreadyHasAccount && (
+                    <p style={{
+                      marginTop: '10px',
+                      color: '#dc2626',
+                      fontWeight: '600',
+                      fontSize: '0.92rem',
+                    }}>
+                      ⚠️ You already have an account with {selectedBank} in {selectedCountry}. Please select a different bank.
+                    </p>
+                  )}
+                  {!alreadyHasAccount && bankSelectionError && (
+                    <p style={{
+                      marginTop: '10px',
+                      color: '#dc2626',
+                      fontWeight: '600',
+                      fontSize: '0.92rem',
+                    }}>
+                      ⚠️ {bankSelectionError}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

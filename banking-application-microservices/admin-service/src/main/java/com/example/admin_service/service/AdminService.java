@@ -2,6 +2,8 @@ package com.example.admin_service.service;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,11 +13,18 @@ import org.springframework.stereotype.Service;
 import com.example.admin_service.dto.AdminLoginRequest;
 import com.example.admin_service.dto.AdminLoginResponse;
 import com.example.admin_service.dto.AdminRegisterRequest;
+import com.example.admin_service.dto.ApplicationActionRequest;
 import com.example.admin_service.dto.ChangePasswordRequest;
 import com.example.admin_service.entity.Admin;
 import com.example.admin_service.entity.ApplicationStatus;
 import com.example.admin_service.repository.AdminRepository;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,18 +36,24 @@ public class AdminService {
     private final JwtService jwtService;
     private final SessionService sessionService;
 
+    @Value("${root.admin.username}")
+    private String rootAdminUsername;
+
+    @Value("${root.admin.password}")
+    private String rootAdminPassword;
+
     public ResponseEntity<String> register(AdminRegisterRequest request) {
         if (adminRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            return ResponseEntity.badRequest().body("Username already exists.");
         }
         if (adminRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.badRequest().body("Email already exists.");
         }
-        
-        java.util.List<Admin> adminsForBank = adminRepository.findByBankname(request.getBankname());
+
+        List<Admin> adminsForBank = adminRepository.findByBankname(request.getBankname());
         boolean verifiedAdminExists = adminsForBank.stream().anyMatch(Admin::isVerifiedByRoot);
         if (verifiedAdminExists) {
-            return ResponseEntity.badRequest().body("Verified Bank Admin already exists");
+            return ResponseEntity.badRequest().body("A verified admin already exists for this bank.");
         }
 
         Admin admin = new Admin();
@@ -47,173 +62,146 @@ public class AdminService {
         admin.setBankname(request.getBankname());
         admin.setCountry(request.getCountry());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
-        admin.setVerifiedByRoot(false); // initially not verified
-        //admin.setVerifiedByRoot(true); // automatically verified for admin service
+        admin.setVerifiedByRoot(false);
         admin.setApplicationStatus(ApplicationStatus.PENDING);
-        //admin.setApplicationStatus(ApplicationStatus.APPROVED); // auto-approved
-        admin.setCreatedDate(java.time.LocalDateTime.now());
+        admin.setCreatedDate(LocalDateTime.now());
         adminRepository.save(admin);
 
-        // Send welcome notification email
         emailService.sendWelcomeNotification(
-            admin.getEmail(),
-            admin.getUsername(),
-            admin.getBankname(),
-            admin.getCountry()
+            admin.getEmail(), admin.getUsername(), admin.getBankname(), admin.getCountry()
         );
 
-        // return ResponseEntity.ok("Admin registered successfully. Welcome email sent. Awaiting root verification.");
-        return ResponseEntity.ok("Admin registered successfully and activated. You can now login.");
+        return ResponseEntity.ok("Admin registered successfully. Awaiting root verification.");
     }
 
     public ResponseEntity<AdminLoginResponse> login(AdminLoginRequest request) {
         Admin admin = null;
-        // Try to find user by username
         if (request.getUsernameOrEmail() != null && !request.getUsernameOrEmail().isEmpty()) {
-            admin = adminRepository.findByUsername(request.getUsernameOrEmail()).orElse(null);
-            if (admin == null) {
-                // Try to find user by email
-                admin = adminRepository.findByEmail(request.getUsernameOrEmail()).orElse(null);
-            }
+            admin = adminRepository.findByUsername(request.getUsernameOrEmail())
+                    .orElse(adminRepository.findByEmail(request.getUsernameOrEmail()).orElse(null));
         }
+
         if (admin == null) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Admin not found", null, null, null));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials.", null, null, null));
         }
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials", null, null, null));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Invalid credentials.", null, null, null));
         }
-        // Additional validation based on application status
+
         if (admin.getApplicationStatus() == ApplicationStatus.PENDING) {
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Your application is still pending approval. Please wait for verification.", null, null, null));
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Your application is pending approval.", null, null, null));
         }
-        
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
-            String rejectionMessage = "Your application has been rejected.";
-            if (admin.getRejectionReason() != null && !admin.getRejectionReason().isEmpty()) {
-                rejectionMessage += " Reason: " + admin.getRejectionReason();
-            }
-            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, rejectionMessage, null, null, null));
+            String reason = admin.getRejectionReason() != null && !admin.getRejectionReason().isEmpty()
+                    ? " Reason: " + admin.getRejectionReason() : "";
+            return ResponseEntity.badRequest().body(new AdminLoginResponse(false, "Your application has been rejected." + reason, null, null, null));
         }
 
-        // Determine user role
-        String userRole = determineUserRole(admin);
-        
-        // Generate JWT token with role
-        String jwtToken = jwtService.generateToken(admin.getUsername(), admin.getId(), userRole);
+        String jwtToken = jwtService.generateToken(admin.getUsername(), admin.getId(), "ADMIN");
         long expirationTime = jwtService.getExpirationTime();
-        
-        // Create admin DTO without sensitive information
-        AdminLoginResponse.AdminDto adminDto = new AdminLoginResponse.AdminDto(
-            admin.getId(),
-            admin.getUsername(), 
-            admin.getEmail(),
-            admin.getBankname(),
-            admin.getCountry(),
-            admin.isVerifiedByRoot(),
-            admin.getApplicationStatus().toString()
-        );
-        
-        return ResponseEntity.ok(new AdminLoginResponse(
-            true, 
-            "Login successful.", 
-            jwtToken, 
-            expirationTime,
-            adminDto
-        ));
-    }
-    
-    private String determineUserRole(Admin admin) {
-        // This service only creates ADMIN tokens
-        // ROOT_ADMIN tokens are created by root-admin-service
-        return "ADMIN";
+
+        return ResponseEntity.ok(new AdminLoginResponse(true, "Login successful.", jwtToken, expirationTime, buildAdminDto(admin)));
     }
 
-    public String verifyAdmin(String username, String rootUsername, String rootPassword) {
-        // Hardcoded root admin credentials
-        if (!rootUsername.equals("rootadmin") || !rootPassword.equals("rootpass")) {
-            return "Invalid root admin credentials.";
+    public ResponseEntity<String> verifyAdmin(String username, String incomingRootUsername, String incomingRootPassword) {
+        if (!rootAdminUsername.equals(incomingRootUsername) || !rootAdminPassword.equals(incomingRootPassword)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid root admin credentials.");
         }
 
-        Admin admin = adminRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+        Optional<Admin> optionalAdmin = adminRepository.findByUsername(username);
+        if (optionalAdmin.isEmpty()) {
+            return ResponseEntity.badRequest().body("Admin not found.");
+        }
 
+        Admin admin = optionalAdmin.get();
         admin.setVerifiedByRoot(true);
         admin.setApplicationStatus(ApplicationStatus.APPROVED);
         adminRepository.save(admin);
 
-        // Send account approval notification
-        emailService.sendAccountApprovalNotification(
-            admin.getEmail(),
-            admin.getUsername(),
-            admin.getBankname()
-        );
-
-        return "Admin verified successfully. Approval notification sent.";
+        emailService.sendAccountApprovalNotification(admin.getEmail(), admin.getUsername(), admin.getBankname());
+        return ResponseEntity.ok("Admin verified successfully. Approval notification sent.");
     }
 
-    // Update admin details
     public ResponseEntity<?> updateAdminDetails(Long id, AdminRegisterRequest request) {
-        Admin admin = adminRepository.findById(id).orElse(null);
-        if (admin == null) {
-            return ResponseEntity.badRequest().body("Admin not found");
-        }
-        // Update fields (except password and verification)
-        admin.setUsername(request.getUsername());
-        admin.setEmail(request.getEmail());
-        admin.setBankname(request.getBankname());
-        adminRepository.save(admin);
-        return ResponseEntity.ok("Admin details updated successfully");
-    }
-
-    // Update admin password (using ChangePasswordRequest)
-    public ResponseEntity<?> updateAdminPassword(Long id, ChangePasswordRequest request) {
-        Admin admin = adminRepository.findById(id).orElse(null);
-        if (admin == null) {
-            return ResponseEntity.badRequest().body("Admin not found");
-        }
-        if (!passwordEncoder.matches(request.getOldPassword(), admin.getPassword())) {
-            return ResponseEntity.badRequest().body("Old password is incorrect");
-        }
-        if (passwordEncoder.matches(request.getNewPassword(), admin.getPassword())) {
-            return ResponseEntity.badRequest().body("New and old password cannot be same");
-        }
-        admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        adminRepository.save(admin);
-        return ResponseEntity.ok("Password updated successfully");
-    }
-
-    // Get all unverified admin applications
-    public ResponseEntity<java.util.List<Admin>> getUnverifiedApplications() {
-        java.util.List<Admin> pendingAdmins = adminRepository.findByApplicationStatus(ApplicationStatus.PENDING);
-        return ResponseEntity.ok(pendingAdmins);
-    }
-
-    // Approve admin application (JWT authenticated ROOT_ADMIN only)
-    public ResponseEntity<String> approveApplication(Long adminId, com.example.admin_service.dto.ApplicationActionRequest request) {
-        // Get authenticated root admin from security context
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String rootAdminUsername = authentication.getName();
-
-        Admin admin = adminRepository.findById(adminId).orElse(null);
-        if (admin == null) {
+        Optional<Admin> optionalAdmin = adminRepository.findById(id);
+        if (optionalAdmin.isEmpty()) {
             return ResponseEntity.badRequest().body("Admin not found.");
         }
 
-        if (admin.getApplicationStatus() == ApplicationStatus.APPROVED) {
-            return ResponseEntity.badRequest().body("Admin application is already approved.");
+        Admin admin = optionalAdmin.get();
+
+        if (request.getUsername() != null && !request.getUsername().equals(admin.getUsername())) {
+            Optional<Admin> conflict = adminRepository.findByUsername(request.getUsername());
+            if (conflict.isPresent() && !conflict.get().getId().equals(id)) {
+                return ResponseEntity.badRequest().body("Username already in use.");
+            }
+            admin.setUsername(request.getUsername());
         }
 
+        if (request.getEmail() != null && !request.getEmail().equals(admin.getEmail())) {
+            Optional<Admin> conflict = adminRepository.findByEmail(request.getEmail());
+            if (conflict.isPresent() && !conflict.get().getId().equals(id)) {
+                return ResponseEntity.badRequest().body("Email already in use.");
+            }
+            admin.setEmail(request.getEmail());
+        }
+
+        if (request.getBankname() != null) {
+            admin.setBankname(request.getBankname());
+        }
+
+        adminRepository.save(admin);
+        return ResponseEntity.ok("Admin details updated successfully.");
+    }
+
+    public ResponseEntity<?> updateAdminPassword(Long id, ChangePasswordRequest request) {
+        Optional<Admin> optionalAdmin = adminRepository.findById(id);
+        if (optionalAdmin.isEmpty()) {
+            return ResponseEntity.badRequest().body("Admin not found.");
+        }
+
+        Admin admin = optionalAdmin.get();
+
+        if (!passwordEncoder.matches(request.getOldPassword(), admin.getPassword())) {
+            return ResponseEntity.badRequest().body("Old password is incorrect.");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), admin.getPassword())) {
+            return ResponseEntity.badRequest().body("New password must differ from old password.");
+        }
+
+        admin.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        adminRepository.save(admin);
+        return ResponseEntity.ok("Password updated successfully.");
+    }
+
+    public ResponseEntity<List<Admin>> getUnverifiedApplications() {
+        List<Admin> pendingAdmins = adminRepository.findByApplicationStatus(ApplicationStatus.PENDING);
+        return ResponseEntity.ok(pendingAdmins);
+    }
+
+    public ResponseEntity<String> approveApplication(Long adminId, ApplicationActionRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String actingAdmin = authentication.getName();
+
+        Optional<Admin> optionalAdmin = adminRepository.findById(adminId);
+        if (optionalAdmin.isEmpty()) {
+            return ResponseEntity.badRequest().body("Admin not found.");
+        }
+
+        Admin admin = optionalAdmin.get();
+
+        if (admin.getApplicationStatus() == ApplicationStatus.APPROVED) {
+            return ResponseEntity.badRequest().body("Application is already approved.");
+        }
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
             return ResponseEntity.badRequest().body("Cannot approve a rejected application.");
         }
 
-        // Check if another admin for the same bank is already verified
-        java.util.List<Admin> adminsForBank = adminRepository.findByBankname(admin.getBankname());
-        boolean verifiedAdminExists = adminsForBank.stream()
-                .filter(a -> !a.getId().equals(adminId)) // Exclude current admin
+        List<Admin> adminsForBank = adminRepository.findByBankname(admin.getBankname());
+        boolean anotherApproved = adminsForBank.stream()
+                .filter(a -> !a.getId().equals(adminId))
                 .anyMatch(a -> a.getApplicationStatus() == ApplicationStatus.APPROVED);
-        
-        if (verifiedAdminExists) {
+        if (anotherApproved) {
             return ResponseEntity.badRequest().body("Another admin for this bank is already verified.");
         }
 
@@ -221,159 +209,130 @@ public class AdminService {
         admin.setApplicationStatus(ApplicationStatus.APPROVED);
         adminRepository.save(admin);
 
-        // Send approval notification email
-        emailService.sendAccountApprovalNotification(
-            admin.getEmail(),
-            admin.getUsername(),
-            admin.getBankname()
-        );
-
-        return ResponseEntity.ok("Admin application approved successfully by " + rootAdminUsername + ". Notification email sent.");
+        emailService.sendAccountApprovalNotification(admin.getEmail(), admin.getUsername(), admin.getBankname());
+        return ResponseEntity.ok("Application approved by " + actingAdmin + ". Notification sent.");
     }
 
-    // Reject admin application (JWT authenticated ROOT_ADMIN only)
-    public ResponseEntity<String> rejectApplication(Long adminId, com.example.admin_service.dto.ApplicationActionRequest request) {
-        // Get authenticated root admin from security context
+    public ResponseEntity<String> rejectApplication(Long adminId, ApplicationActionRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String rootAdminUsername = authentication.getName();
+        String actingAdmin = authentication.getName();
 
-        Admin admin = adminRepository.findById(adminId).orElse(null);
-        if (admin == null) {
+        Optional<Admin> optionalAdmin = adminRepository.findById(adminId);
+        if (optionalAdmin.isEmpty()) {
             return ResponseEntity.badRequest().body("Admin not found.");
         }
+
+        Admin admin = optionalAdmin.get();
 
         if (admin.getApplicationStatus() == ApplicationStatus.APPROVED) {
             return ResponseEntity.badRequest().body("Cannot reject an already approved application.");
         }
-
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
             return ResponseEntity.badRequest().body("Application is already rejected.");
         }
 
-        // Mark as rejected instead of deleting
         admin.setApplicationStatus(ApplicationStatus.REJECTED);
         admin.setRejectionReason(request.getReason());
         adminRepository.save(admin);
 
-        // Send rejection notification email
         emailService.sendAccountRejectionNotification(
-            admin.getEmail(),
-            admin.getUsername(),
-            admin.getBankname(),
-            request.getReason()
+            admin.getEmail(), admin.getUsername(), admin.getBankname(), request.getReason()
         );
 
-        String reason = request.getReason() != null && !request.getReason().isEmpty() 
-                ? " Reason: " + request.getReason() 
-                : "";
-        
-        return ResponseEntity.ok("Admin application rejected successfully by " + rootAdminUsername + ". Notification email sent." + reason);
+        return ResponseEntity.ok("Application rejected by " + actingAdmin + ". Notification sent.");
     }
 
-    // Check application status by username or email
     public ResponseEntity<?> checkApplicationStatus(String usernameOrEmail) {
         Admin admin = adminRepository.findByUsername(usernameOrEmail)
                 .orElse(adminRepository.findByEmail(usernameOrEmail).orElse(null));
-        
+
         if (admin == null) {
             return ResponseEntity.badRequest().body("Admin not found.");
         }
-        
-        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        Map<String, Object> response = new HashMap<>();
         response.put("username", admin.getUsername());
         response.put("email", admin.getEmail());
         response.put("bankname", admin.getBankname());
         response.put("applicationStatus", admin.getApplicationStatus().toString());
-        
+
         if (admin.getApplicationStatus() == ApplicationStatus.REJECTED) {
             response.put("rejectionReason", admin.getRejectionReason());
         }
-        
+
         return ResponseEntity.ok(response);
     }
 
-    // Get admin emails by bank name
     public ResponseEntity<?> getAdminEmailsByBankName(String bankName) {
-        java.util.List<Admin> admins = adminRepository.findByBankname(bankName);
-        
+        List<Admin> admins = adminRepository.findByBankname(bankName);
+
         if (admins.isEmpty()) {
             return ResponseEntity.badRequest().body("No admins found for bank: " + bankName);
         }
-        
-        // Filter only verified admins and extract their emails
-        java.util.List<String> adminEmails = admins.stream()
+
+        List<String> adminEmails = admins.stream()
                 .filter(Admin::isVerifiedByRoot)
                 .map(Admin::getEmail)
-                .collect(java.util.stream.Collectors.toList());
-        
+                .collect(Collectors.toList());
+
         if (adminEmails.isEmpty()) {
             return ResponseEntity.badRequest().body("No verified admins found for bank: " + bankName);
         }
-        
-        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        Map<String, Object> response = new HashMap<>();
         response.put("bankName", bankName);
         response.put("adminEmails", adminEmails);
         response.put("count", adminEmails.size());
-        
+
         return ResponseEntity.ok(response);
     }
 
-    // Logout user by blacklisting the token
     public ResponseEntity<String> logout(String authHeader) {
         try {
-            // Extract token from Bearer header
-            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
-            
-            // Validate token before blacklisting
+            String token = stripBearer(authHeader);
             if (!jwtService.isTokenValid(token)) {
-                return ResponseEntity.badRequest().body("Invalid token");
+                return ResponseEntity.badRequest().body("Invalid token.");
             }
-            
-            // Blacklist the token
             sessionService.blacklistToken(token);
-            return ResponseEntity.ok("Logged out successfully");
+            return ResponseEntity.ok("Logged out successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Logout failed: " + e.getMessage());
         }
     }
-    
-    // Get current admin details from token
-    public ResponseEntity<?> getCurrentAdminDetails(String authHeader) {
+
+    public ResponseEntity<?> getCurrentAdminDetails() {
         try {
-            // Extract token from Bearer header
-            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
-            
-            // Check if token is blacklisted
-            if (sessionService.isTokenBlacklisted(token)) {
-                return ResponseEntity.badRequest().body("Token has been invalidated");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated.");
             }
-            
-            // Extract username from token
-            String username = jwtService.extractUsername(token);
-            
-            // Find admin by username
-            Admin admin = adminRepository.findByUsername(username)
-                    .orElse(null);
-            
-            if (admin == null) {
-                return ResponseEntity.badRequest().body("Admin not found");
+            String username = authentication.getName();
+            Optional<Admin> optionalAdmin = adminRepository.findByUsername(username);
+            if (optionalAdmin.isEmpty()) {
+                return ResponseEntity.badRequest().body("Admin not found.");
             }
-            
-            // Create admin DTO without sensitive information
-            AdminLoginResponse.AdminDto adminDto = new AdminLoginResponse.AdminDto(
-                admin.getId(),
-                admin.getUsername(),
-                admin.getEmail(),
-                admin.getBankname(),
-                admin.getCountry(),
-                admin.isVerifiedByRoot(),
-                admin.getApplicationStatus().toString()
-            );
-            
-            return ResponseEntity.ok(adminDto);
+            return ResponseEntity.ok(buildAdminDto(optionalAdmin.get()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to get admin details: " + e.getMessage());
         }
+    }
+
+    // --- Helpers ---
+
+    private String stripBearer(String authHeader) {
+        return authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+    }
+
+    private AdminLoginResponse.AdminDto buildAdminDto(Admin admin) {
+        return new AdminLoginResponse.AdminDto(
+            admin.getId(),
+            admin.getUsername(),
+            admin.getEmail(),
+            admin.getBankname(),
+            admin.getCountry(),
+            admin.isVerifiedByRoot(),
+            admin.getApplicationStatus().toString()
+        );
     }
 }
 

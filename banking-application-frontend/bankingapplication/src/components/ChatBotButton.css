@@ -15,12 +15,13 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
   background: #c9a84c;
   border: 1px solid #c9a84c;
   color: #060b18;
-  font-size: 18px;
+  font-size: 22px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -45,6 +46,7 @@
 .chatbot-fab.active {
   background: #0e1a30;
   border-color: rgba(201,168,76,0.45);
+  border-radius: 50%;
   color: #c9a84c;
   animation: none;
 }

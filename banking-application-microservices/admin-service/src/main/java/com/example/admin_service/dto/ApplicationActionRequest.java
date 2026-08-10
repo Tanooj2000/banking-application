@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationActionRequest {
-    private String reason; // Optional reason for approval/rejection
+    private String reason;
 }

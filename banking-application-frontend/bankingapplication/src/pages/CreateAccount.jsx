@@ -255,12 +255,59 @@ const CreateAccount = () => {
         if (bankAccounts && bankAccounts.length > 0) {
           const firstAccount = bankAccounts[0];
           setExistingAccountData(firstAccount);
-          
-          // Pre-fill form data with existing account data, but preserve any saved form data
-          setFormData(prevData => ({
-            ...firstAccount,
-            ...prevData // Saved form data takes precedence
-          }));
+
+          // The API returns nested objects (personalDetails, educationalDetails, etc.)
+          // but form fields expect flat keys. Map them here.
+          const pd = firstAccount.personalDetails || {};
+          const ed = firstAccount.educationalDetails || {};
+          const inc = firstAccount.incomeDetails || {};
+          const nom = firstAccount.nomineeDetails || {};
+
+          const prefilled = {
+            // Personal — map backend field names → form field names
+            fullName:   pd.fullName   || '',
+            dob:        pd.dateOfBirth ? pd.dateOfBirth.slice(0, 10) : '', // LocalDate → "YYYY-MM-DD"
+            gender:     pd.gender     || '',
+            email:      pd.email      || '',
+            address:    pd.address    || '',
+            mobile:     pd.mobile     || '',
+            phone:      pd.phone      || '',
+            aadhaar:    pd.aadhaar    || '',
+            pan:        pd.pan        || '',
+            ssn:        pd.ssn        || '',
+            nin:        pd.nin        || '',
+            // Educational
+            educationLevel:   ed.educationLevel   || '',
+            institutionName:  ed.institutionName  || '',
+            course:           ed.course           || '',
+            yearOfCompletion: ed.yearOfCompletion ? String(ed.yearOfCompletion) : '',
+            grade:            ed.grade            || '',
+            // Income
+            employmentStatus: inc.employmentStatus || '',
+            employerName:     inc.employerName     || '',
+            occupation:       inc.occupation       || '',
+            monthlyIncome:    inc.monthlyIncome    ? String(inc.monthlyIncome)  : '',
+            annualIncome:     inc.annualIncome     ? String(inc.annualIncome)   : '',
+            incomeSource:     inc.incomeSource     || '',
+            // Nominee
+            nomineeName:      nom.nomineeName      || '',
+            nomineeRelation:  nom.nomineeRelation  || '',
+            nomineeDob:       nom.nomineeDateOfBirth ? nom.nomineeDateOfBirth.slice(0, 10) : '',
+            nomineeContact:   nom.nomineeContact   || '',
+            nomineeAddress:   nom.nomineeAddress   || '',
+          };
+
+          // Pre-fill form; only override fields that are empty in localStorage-saved data
+          setFormData(prevData => {
+            const merged = { ...prefilled };
+            // Keep any field the user already filled in this session
+            Object.keys(prevData).forEach(key => {
+              if (prevData[key] !== undefined && prevData[key] !== '' && prevData[key] !== null) {
+                merged[key] = prevData[key];
+              }
+            });
+            return merged;
+          });
         }
       } catch (error) {
         console.error('Failed to load bank account data:', error);
@@ -329,12 +376,15 @@ const CreateAccount = () => {
     return false;
   };
 
-  const validateTextValue = (value, label, { minLength = 2, maxLength = 80, pattern = /^[a-zA-Z0-9 .,'&/-]+$/ } = {}) => {
+  const validateTextValue = (value, label, { minLength = 2, maxLength = 80, allowDigits = false } = {}) => {
     const text = String(value || '').trim();
     if (text.length < minLength) return `${label} must be at least ${minLength} characters long`;
     if (text.length > maxLength) return `${label} must be ${maxLength} characters or less`;
-    if (!/[a-zA-Z]/.test(text)) return `${label} must contain at least one letter`;
-    if (!pattern.test(text)) return `${label} contains unsupported characters`;
+    if (!/^[a-zA-Z]/.test(text)) return `${label} must start with a letter`;
+    const pattern = allowDigits ? /^[a-zA-Z0-9 .,'&/()-]+$/ : /^[a-zA-Z .,'&/()-]+$/;
+    if (!pattern.test(text)) return allowDigits
+      ? `${label} contains unsupported characters`
+      : `${label} must contain letters only (no digits)`;
     return null;
   };
 
@@ -377,8 +427,9 @@ const CreateAccount = () => {
 
   const validateAmountValue = (value, label) => {
     const amount = Number(value);
-    if (!Number.isFinite(amount)) return `${label} must be a valid number`;
+    if (!Number.isFinite(amount) || isNaN(amount)) return `${label} must be a valid number`;
     if (amount <= 0) return `${label} must be greater than 0`;
+    if (amount > 999999999) return `${label} must be 999,999,999 or less`;
     return null;
   };
 
@@ -386,10 +437,20 @@ const CreateAccount = () => {
     if (isEmptyValue(value)) return null;
     const text = String(value).trim();
     if (text.length > 20) return `${label} must be 20 characters or less`;
-    if (!/^[a-zA-Z0-9 ./%+-]+$/.test(text)) return `${label} contains unsupported characters`;
-    const numeric = Number(text.replace('%', ''));
-    if (Number.isFinite(numeric) && (numeric < 0 || numeric > 100)) {
-      return `${label} must be between 0 and 100 when entered as a number or percentage`;
+    // If it starts with a digit it must be a pure numeric, percentage, or fraction (e.g. 8.5, 85%, 9.5/10)
+    if (/^[0-9]/.test(text)) {
+      if (!/^[0-9]+(\.[0-9]+)?(%|\/[0-9]+(\.[0-9]+)?)?$/.test(text)) {
+        return `${label} must be a number (e.g. 8.5, 85%, 9.5/10) or a letter grade (e.g. A+, Pass, Distinction)`;
+      }
+      const numeric = parseFloat(text);
+      if (Number.isFinite(numeric) && (numeric < 0 || numeric > 100)) {
+        return `${label} must be between 0 and 100 when entered as a number or percentage`;
+      }
+    } else {
+      // Text/letter grade — only letters, spaces, +/- allowed (e.g. A+, First Class, Pass)
+      if (!/^[A-Za-z][A-Za-z\s+\-]*$/.test(text)) {
+        return `${label} contains unsupported characters`;
+      }
     }
     return null;
   };
@@ -423,6 +484,72 @@ const CreateAccount = () => {
     return null;
   };
 
+  // Validate a single field — returns an error string or null
+  const validateField = (field, value) => {
+    if (field.required && isEmptyValue(value)) return `${field.label} is required`;
+    if (!field.required && isEmptyValue(value)) return null;
+    const trimmedValue = getTrimmedValue(value);
+
+    if (field.name === 'fullName') {
+      const r = validateFullName(trimmedValue);
+      if (!r.isValid) return r.message;
+    }
+    if (field.name === 'nomineeName') {
+      const r = validateFullName(trimmedValue);
+      if (!r.isValid) return r.message.replace('Full name', 'Nominee full name');
+    }
+    if (field.name === 'email') {
+      if (trimmedValue.length > 100) return `${field.label} must be 100 characters or less`;
+      const r = validateGmail(trimmedValue);
+      if (!r.isValid) return r.message;
+    }
+    if (field.name === 'mobile') {
+      const r = validateMobile(trimmedValue);
+      if (!r.isValid) return r.message;
+    }
+    if (field.name === 'phone') {
+      const digits = String(trimmedValue).replace(/\D/g, '');
+      if (digits.length < 10 || digits.length > 15) return `${field.label} must contain 10 to 15 digits`;
+    }
+    if (field.name === 'pan') {
+      const r = validatePAN(trimmedValue);
+      if (!r.isValid) return r.message;
+    }
+    if (field.name === 'aadhaar') {
+      const r = validateAadhaar(trimmedValue);
+      if (!r.isValid) return r.message;
+    }
+    if (field.name === 'ssn') { const e = validateUsSsn(trimmedValue); if (e) return e; }
+    if (field.name === 'nin') { const e = validateUkNin(trimmedValue); if (e) return e; }
+    if (field.name === 'dob') { const e = validateDobValue(trimmedValue, field.label, { minimumAge: 18, maximumAge: 100 }); if (e) return e; }
+    if (field.name === 'nomineeDob') { const e = validateDobValue(trimmedValue, field.label, { minimumAge: 0, maximumAge: 120 }); if (e) return e; }
+    if (field.name === 'address' || field.name === 'nomineeAddress') { const e = validateAddressValue(trimmedValue, field.label); if (e) return e; }
+    if (['institutionName', 'course', 'occupation'].includes(field.name)) { const e = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 30, allowDigits: false }); if (e) return e; }
+    if (field.name === 'employerName') { const e = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 30, allowDigits: true }); if (e) return e; }
+    if (field.name === 'yearOfCompletion') { const e = validateYearValue(trimmedValue, field.label); if (e) return e; }
+    if (field.name === 'grade') { const e = validateOptionalGradeValue(trimmedValue, field.label); if (e) return e; }
+    if (['monthlyIncome', 'annualIncome', 'deposit'].includes(field.name)) { const e = validateAmountValue(trimmedValue, field.label); if (e) return e; }
+    if (field.name === 'nomineeContact') {
+      const digits = String(trimmedValue).replace(/\D/g, '');
+      if (digits.length < 10 || digits.length > 15) return `${field.label} must contain 10 to 15 digits`;
+    }
+    if (field.type === 'file') { const e = validateFileValue(value, field); if (e) return e; }
+    return null;
+  };
+
+  // Blur handler — validates the field immediately when user leaves it
+  const handleBlur = (field) => {
+    const error = validateField(field, formData[field.name]);
+    setFieldErrors(prev => {
+      if (!error) {
+        const next = { ...prev };
+        delete next[field.name];
+        return next;
+      }
+      return { ...prev, [field.name]: error };
+    });
+  };
+
   // Validate current step and return field-specific errors
   const validateCurrentStep = () => {
     const newFieldErrors = {};
@@ -439,128 +566,8 @@ const CreateAccount = () => {
     
     for (const field of currentFields) {
       const value = formData[field.name];
-      
-      if (field.required && isEmptyValue(value)) {
-        newFieldErrors[field.name] = `${field.label} is required`;
-        continue;
-      }
-
-      if (!field.required && isEmptyValue(value)) {
-        continue;
-      }
-
-      const trimmedValue = getTrimmedValue(value);
-
-      if (field.name === 'fullName') {
-        const nameValidation = validateFullName(trimmedValue);
-        if (!nameValidation.isValid) {
-          newFieldErrors[field.name] = nameValidation.message;
-        }
-      }
-
-      if (field.name === 'email') {
-        const emailValidation = validateGmail(trimmedValue);
-        if (!emailValidation.isValid) {
-          newFieldErrors[field.name] = emailValidation.message;
-        }
-      }
-
-      if (field.name === 'mobile') {
-        const mobileValidation = validateMobile(trimmedValue);
-        if (!mobileValidation.isValid) {
-          newFieldErrors[field.name] = mobileValidation.message;
-        }
-      }
-
-      if (field.name === 'phone') {
-        const digits = String(trimmedValue).replace(/\D/g, '');
-        if (digits.length < 10 || digits.length > 15) {
-          newFieldErrors[field.name] = 'Phone Number must contain 10 to 15 digits';
-        }
-      }
-
-      if (field.name === 'pan') {
-        const panValidation = validatePAN(trimmedValue);
-        if (!panValidation.isValid) {
-          newFieldErrors[field.name] = panValidation.message;
-        }
-      }
-
-      if (field.name === 'aadhaar') {
-        const aadhaarValidation = validateAadhaar(trimmedValue);
-        if (!aadhaarValidation.isValid) {
-          newFieldErrors[field.name] = aadhaarValidation.message;
-        }
-      }
-
-      if (field.name === 'ssn') {
-        const ssnError = validateUsSsn(trimmedValue);
-        if (ssnError) newFieldErrors[field.name] = ssnError;
-      }
-
-      if (field.name === 'nin') {
-        const ninError = validateUkNin(trimmedValue);
-        if (ninError) newFieldErrors[field.name] = ninError;
-      }
-
-      if (field.name === 'dob') {
-        const dobError = validateDobValue(trimmedValue, field.label, { minimumAge: 18, maximumAge: 100 });
-        if (dobError) newFieldErrors[field.name] = dobError;
-      }
-
-      if (field.name === 'nomineeDob') {
-        const nomineeDobError = validateDobValue(trimmedValue, field.label, { minimumAge: 0, maximumAge: 120 });
-        if (nomineeDobError) newFieldErrors[field.name] = nomineeDobError;
-      }
-
-      if (field.name === 'address' || field.name === 'nomineeAddress') {
-        const addressError = validateAddressValue(trimmedValue, field.label);
-        if (addressError) newFieldErrors[field.name] = addressError;
-      }
-
-      if (field.name === 'nomineeName') {
-        const nomineeNameValidation = validateFullName(trimmedValue);
-        if (!nomineeNameValidation.isValid) {
-          newFieldErrors[field.name] = nomineeNameValidation.message.replace('Full name', 'Nominee full name');
-        }
-      }
-
-      if (['institutionName', 'course', 'occupation'].includes(field.name)) {
-        const textError = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 100 });
-        if (textError) newFieldErrors[field.name] = textError;
-      }
-
-      if (field.name === 'employerName') {
-        const employerError = validateTextValue(trimmedValue, field.label, { minLength: 2, maxLength: 100 });
-        if (employerError) newFieldErrors[field.name] = employerError;
-      }
-
-      if (field.name === 'yearOfCompletion') {
-        const yearError = validateYearValue(trimmedValue, field.label);
-        if (yearError) newFieldErrors[field.name] = yearError;
-      }
-
-      if (field.name === 'grade') {
-        const gradeError = validateOptionalGradeValue(trimmedValue, field.label);
-        if (gradeError) newFieldErrors[field.name] = gradeError;
-      }
-
-      if (field.name === 'monthlyIncome' || field.name === 'annualIncome' || field.name === 'deposit') {
-        const amountError = validateAmountValue(trimmedValue, field.label);
-        if (amountError) newFieldErrors[field.name] = amountError;
-      }
-
-      if (field.name === 'nomineeContact') {
-        const digits = String(trimmedValue).replace(/\D/g, '');
-        if (digits.length < 10 || digits.length > 15) {
-          newFieldErrors[field.name] = 'Nominee Contact Number must contain 10 to 15 digits';
-        }
-      }
-
-      if (field.type === 'file') {
-        const fileError = validateFileValue(value, field);
-        if (fileError) newFieldErrors[field.name] = fileError;
-      }
+      const fieldError = validateField(field, value);
+      if (fieldError) newFieldErrors[field.name] = fieldError;
     }
 
     const monthlyIncome = Number(formData.monthlyIncome);
@@ -585,6 +592,7 @@ const CreateAccount = () => {
     const isValid = validateCurrentStep();
     
     if (!isValid) {
+      setFormStatus({ loading: false, success: null, error: null });
       return;
     }
 
@@ -610,16 +618,13 @@ const CreateAccount = () => {
     const isValid = validateCurrentStep();
     
     if (!isValid) {
+      setFormStatus({ loading: false, success: null, error: null });
       return;
     }
 
     setCompletedSteps(prev => new Set([...prev, currentStep]));
-    
-    // Force save to localStorage immediately
-    localStorage.setItem(`${formStorageKey}_formData`, JSON.stringify(formData));
-    localStorage.setItem(`${formStorageKey}_step`, currentStep.toString());
-    localStorage.setItem(`${formStorageKey}_completedSteps`, JSON.stringify([...completedSteps, currentStep]));
-    
+    // Note: formData, currentStep and completedSteps are already auto-persisted
+    // to localStorage by their respective useEffect hooks — no manual writes needed.
     setFormStatus({ loading: false, success: 'Progress saved successfully! Data will persist even after logout.', error: null });
   };
 
@@ -628,6 +633,7 @@ const CreateAccount = () => {
     const isValid = validateCurrentStep();
     
     if (!isValid) {
+      setFormStatus({ loading: false, success: null, error: null });
       return;
     }
 
@@ -655,44 +661,6 @@ const CreateAccount = () => {
       // Remove selectedBranch from submission data as backend doesn't need it
       delete submissionData.selectedBranch;
 
-      // Log the complete data being sent (for debugging)
-      console.log('=== ACCOUNT CREATION SUBMISSION ===');
-      console.log('Complete submission data being sent to backend:', submissionData);
-      console.log('Total fields in submission:', Object.keys(submissionData).length);
-      
-      // Log each section for debugging  
-      console.log('System Fields:', {
-        userId: submissionData.userId,
-        bank: submissionData.bank,
-        branch: submissionData.branch,
-        ifscCode: submissionData.ifscCode,
-        status: submissionData.status,
-        accountNumber: submissionData.accountNumber,
-        country: submissionData.country
-      });
-      
-      // Log file fields separately (these become @RequestParam in backend)
-      const fileFields = ['idProof', 'addressProof', 'incomeProof', 'photo'];
-      const files = {};
-      fileFields.forEach(field => {
-        if (submissionData[field]) {
-          files[field] = submissionData[field].name || 'File selected';
-        }
-      });
-      console.log('File Fields (sent as @RequestParam):', files);
-      
-      // Log all other form data (these become @ModelAttribute DTO fields)
-      const otherFields = Object.keys(submissionData).filter(key => 
-        !['userId', 'bank', 'branch', 'ifscCode', 'status', 'accountNumber', 'country', ...fileFields].includes(key)
-      );
-      const otherData = {};
-      otherFields.forEach(field => {
-        otherData[field] = submissionData[field];
-      });
-      console.log('DTO Form Fields (sent as @ModelAttribute):', otherData);
-      console.log(`Endpoint: /api/accounts/create/${country.toLowerCase()}`);
-      console.log('=====================================');
-      
       await createAccount(submissionData, country);
       
       // Clear saved form data on successful submission
@@ -713,13 +681,7 @@ const CreateAccount = () => {
       errorMessage = formatBackendErrorMessage(errorMessage);
       
       console.error('Account creation error:', err);
-      console.error('Formatted error message:', errorMessage);
       setFormStatus({ loading: false, success: null, error: errorMessage });
-      
-      // Navigate after showing error message for 5 seconds
-      //setTimeout(() => {
-       // navigate('/userpage');
-      //}, 5000);
     }
   };
 
@@ -754,6 +716,130 @@ const CreateAccount = () => {
     </div>
   );
 
+  // Returns extra props (maxLength, inputMode, pattern, onChange guard) per field
+  const getInputConstraints = (field) => {
+    const name = field.name;
+
+    // ── Name fields — letters and spaces only ────────────────────────
+    if (['fullName', 'nomineeName'].includes(name)) {
+      return {
+        maxLength: 30,
+        onInput: (e) => { e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, '').slice(0, 30); },
+      };
+    }
+
+    // ── Text-only institution / course / occupation — letters only ────
+    if (['institutionName', 'course', 'occupation'].includes(name)) {
+      return {
+        maxLength: 30,
+        onInput: (e) => { e.target.value = e.target.value.replace(/[^a-zA-Z\s.,'&/()-]/g, '').slice(0, 30); },
+      };
+    }
+
+    // ── Employer name — letters + digits allowed (e.g. 3M, 7-Eleven) ──
+    if (name === 'employerName') {
+      return {
+        maxLength: 30,
+        onInput: (e) => { e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s.,'&/()-]/g, '').slice(0, 30); },
+      };
+    }
+
+    // ── Mobile / phone / nominee contact — digits only ─────────────────
+    if (['mobile', 'phone', 'nomineeContact'].includes(name)) {
+      return {
+        maxLength: 15,
+        inputMode: 'numeric',
+        onInput: (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 15); },
+      };
+    }
+
+    // ── Aadhaar — exactly 12 digits ────────────────────────────────────
+    if (name === 'aadhaar') {
+      return {
+        maxLength: 12,
+        inputMode: 'numeric',
+        onInput: (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 12); },
+      };
+    }
+
+    // ── PAN — 5 letters + 4 digits + 1 letter (10 chars) ──────────────
+    if (name === 'pan') {
+      return {
+        maxLength: 10,
+        style: { textTransform: 'uppercase' },
+        onInput: (e) => {
+          const raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+          e.target.value = raw;
+        },
+      };
+    }
+
+    // ── SSN — 9 digits (allow dashes while typing) ─────────────────────
+    if (name === 'ssn') {
+      return {
+        maxLength: 11,       // 9 digits + 2 dashes
+        inputMode: 'numeric',
+        placeholder: 'XXX-XX-XXXX',
+        onInput: (e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 9);
+          if (digits.length <= 3) e.target.value = digits;
+          else if (digits.length <= 5) e.target.value = `${digits.slice(0,3)}-${digits.slice(3)}`;
+          else e.target.value = `${digits.slice(0,3)}-${digits.slice(3,5)}-${digits.slice(5)}`;
+        },
+      };
+    }
+
+    // ── NIN — QQ123456C pattern ────────────────────────────────────────
+    if (name === 'nin') {
+      return {
+        maxLength: 9,
+        style: { textTransform: 'uppercase' },
+        placeholder: 'QQ123456C',
+        onInput: (e) => {
+          e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 9);
+        },
+      };
+    }
+
+    // ── Email — reasonable length cap ──────────────────────────────────
+    if (name === 'email') {
+      return { maxLength: 100 };
+    }
+
+    // ── Year of completion — 4 digits ──────────────────────────────────
+    if (name === 'yearOfCompletion') {
+      return {
+        maxLength: 4,
+        inputMode: 'numeric',
+        min: 1950,
+        max: new Date().getFullYear(),
+        onInput: (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); },
+      };
+    }
+
+    // ── Grade / GPA / percentage ───────────────────────────────────────
+    if (name === 'grade') {
+      return {
+        maxLength: 10,
+        onInput: (e) => { e.target.value = e.target.value.replace(/[^0-9./%a-zA-Z+\s-]/g, '').slice(0, 10); },
+      };
+    }
+
+    // ── Income / deposit amounts — positive numbers ────────────────────
+    if (['monthlyIncome', 'annualIncome', 'deposit'].includes(name)) {
+      return {
+        inputMode: 'numeric',
+        min: 1,
+        max: 999999999,
+        onInput: (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 9);
+        },
+      };
+    }
+
+    return {};
+  };
+
   // Render field component
   const renderField = (field) => {
     const value = formData[field.name] || '';
@@ -773,6 +859,7 @@ const CreateAccount = () => {
             name={field.name}
             value={value}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
+            onBlur={() => handleBlur(field)}
             required={field.required}
             disabled={isDisabled}
             className={hasError ? 'field-error' : ''}
@@ -791,6 +878,7 @@ const CreateAccount = () => {
     }
 
     if (field.type === 'textarea') {
+      const isAddress = ['address', 'nomineeAddress'].includes(field.name);
       return (
         <div className="createaccount-form-group" key={field.name} style={{ gridColumn: '1 / span 2' }}>
           <label htmlFor={field.name}>
@@ -805,7 +893,9 @@ const CreateAccount = () => {
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             required={field.required}
             rows={3}
+            maxLength={isAddress ? 250 : 500}
             disabled={isDisabled}
+            onBlur={() => handleBlur(field)}
             className={hasError ? 'field-error' : ''}
             style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
           />
@@ -870,6 +960,7 @@ const CreateAccount = () => {
     }
 
     // Default input field
+    const { onInput, style: constraintStyle, ...restConstraints } = getInputConstraints(field);
     return (
       <div className="createaccount-form-group" key={field.name}>
         <label htmlFor={field.name}>
@@ -883,10 +974,16 @@ const CreateAccount = () => {
           name={field.name}
           value={value}
           onChange={(e) => handleInputChange(field.name, e.target.value)}
+          onInput={onInput}
+          onBlur={() => handleBlur(field)}
           required={field.required}
           disabled={isDisabled}
           className={hasError ? 'field-error' : ''}
-          style={isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}}
+          style={{
+            ...(isDisabled ? { backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' } : {}),
+            ...(constraintStyle || {}),
+          }}
+          {...restConstraints}
         />
         {hasError && (
           <div className="field-error-message">

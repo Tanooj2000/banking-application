@@ -140,16 +140,21 @@ const handleApiResponse = async (response, operation) => {
     let errorDetails = null;
     
     try {
+      const responseText = await response.text();
       const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || `Request failed with status ${response.status}`;
-        errorDetails = errorData;
+      if (contentType && contentType.includes('application/json') && responseText) {
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorData.error || responseText || `Request failed with status ${response.status}`;
+          errorDetails = errorData;
+        } catch {
+          errorMessage = responseText || `Request failed with status ${response.status}`;
+        }
       } else {
-        errorMessage = await response.text() || `Request failed with status ${response.status}`;
+        errorMessage = responseText || `Request failed with status ${response.status}`;
       }
     } catch (parseError) {
-      errorMessage = `Server error (${response.status}). Please try again later.`;
+      errorMessage = `Request failed with status ${response.status}`;
     }
     
     const errorType = determineErrorType(response);

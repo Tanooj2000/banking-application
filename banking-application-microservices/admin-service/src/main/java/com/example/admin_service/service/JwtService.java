@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class JwtService {
     @Value("${jwt.secret:myAdminSecretKey}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
+    @Value("${jwt.expiration:3600000}") // 1 hour in milliseconds
     private Integer jwtExpiration;
 
     public String extractUsername(String token) {
@@ -44,27 +45,16 @@ public class JwtService {
     }
 
     public String generateToken(String username, Long adminId) {
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("adminId", adminId);
-        extraClaims.put("role", "ADMIN"); // Default role
-        return Jwts
-                .builder()
-                .setClaims(extraClaims)
-                .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(username, adminId, "ADMIN");
     }
-    
+
     public String generateToken(String username, Long adminId, String role) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("adminId", adminId);
         extraClaims.put("role", role);
         extraClaims.put("tokenType", "STATELESS");
-        
-        return Jwts
-                .builder()
+
+        return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -128,7 +118,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = jwtSecret.getBytes();
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -139,27 +129,11 @@ public class JwtService {
     
     public String extractRole(String token) {
         try {
-            Claims claims = extractAllClaims(token);
-            
-            String role = claims.get("role", String.class);
-            
-            if (role == null || role.isEmpty()) {
-                String username = claims.getSubject();
-                
-                if (username != null && (username.equals("rootadmin") || 
-                    username.startsWith("root") || 
-                    username.contains("rootadmin"))) {
-                    role = "ROOT_ADMIN";
-                } else {
-                    role = "ADMIN";
-                }
-            }
-            
+            String role = extractAllClaims(token).get("role", String.class);
             if (role != null && role.startsWith("ROLE_")) {
                 role = role.substring(5);
             }
-            
-            return role != null ? role : "ADMIN";
+            return role != null && !role.isEmpty() ? role : "ADMIN";
         } catch (Exception e) {
             return "ADMIN";
         }

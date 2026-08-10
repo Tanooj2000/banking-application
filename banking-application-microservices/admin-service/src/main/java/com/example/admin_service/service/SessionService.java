@@ -1,7 +1,9 @@
 package com.example.admin_service.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,13 +22,12 @@ public class SessionService {
         return blacklistedTokens.contains(token);
     }
 
+    @Scheduled(fixedRate = 3_600_000)
     public void cleanup() {
-        // Remove expired tokens from blacklist
         blacklistedTokens.removeIf(token -> {
             try {
                 return !jwtService.isTokenValid(token);
             } catch (Exception e) {
-                // If token validation fails, consider it expired
                 return true;
             }
         });

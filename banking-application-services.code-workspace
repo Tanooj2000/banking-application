@@ -13,5 +13,7 @@
 			"path": "banking-application-microservices/admin-service"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"java.debug.settings.onBuildFailureProceed": true
+	}
 }

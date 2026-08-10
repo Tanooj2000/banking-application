@@ -31,13 +31,13 @@ public class UserService {
 
     public ResponseEntity<String> register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("This username is already taken. Please choose a different username.");
+            return ResponseEntity.badRequest().body("Username already taken.");
         }
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("An account with this email already exists. Please use a different email or login.");
+            return ResponseEntity.badRequest().body("Email already existed.");
         }
         if (userRepository.findByPhonenumber(request.getPhonenumber()).isPresent()) {
-            return ResponseEntity.badRequest().body("An account with this phone number already exists. Please use a different phone number.");
+            return ResponseEntity.badRequest().body("Phone number already existed.");
         }
 
         User user = new User();
