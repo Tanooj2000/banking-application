@@ -40,7 +40,7 @@ public class AccountService {
     private EmailNotificationService emailNotificationService;
     
     @Autowired
-    private Validator validator;
+    private Validator validator; 
     
     @Value("${app.document-storage.path:uploads/documents}")
     private String documentUploadPath;
