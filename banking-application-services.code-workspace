@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "banking-application-microservices/admin-service"
+		},
+		{
+			"path": "banking-application-microservices/root-admin-service"
 		}
 	],
 	"settings": {
