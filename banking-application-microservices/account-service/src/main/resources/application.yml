@@ -2,6 +2,8 @@ server:
   port: 8085
 
 spring:
+  application:
+    name: account-service
   datasource:
     url: jdbc:mysql://localhost:3306/accountdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
     username: root

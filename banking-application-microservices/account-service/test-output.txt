@@ -1,8 +1,6 @@
-15:08:10.439 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest]: AccountControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-15:08:11.170 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest
-15:08:11.304 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$QueryEndpoints]: QueryEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-15:08:11.334 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$QueryEndpoints
-15:08:11.712 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+14:17:29.874 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.account_service.AccountServiceApplicationTests]: AccountServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:17:30.556 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.AccountServiceApplicationTests
+14:17:31.788 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -13,60 +11,99 @@
 
  :: Spring Boot ::                (v3.5.5)
 
-2026-08-12T15:08:13.884+05:30  INFO 31024 --- [           main] c.e.a.controller.AccountControllerTest   : Starting AccountControllerTest using Java 22.0.1 with PID 31024 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\account-service)
-2026-08-12T15:08:13.889+05:30  INFO 31024 --- [           main] c.e.a.controller.AccountControllerTest   : No active profile set, falling back to 1 default profile: "default"
-Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
-WARNING: A Java agent has been loaded dynamically (C:\Users\PI20587195\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.7\byte-buddy-agent-1.17.7.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-2026-08-12T15:08:21.902+05:30  INFO 31024 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-08-12T15:08:21.902+05:30  INFO 31024 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-08-12T15:08:21.907+05:30  INFO 31024 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
-2026-08-12T15:08:22.394+05:30  INFO 31024 --- [           main] c.e.a.controller.AccountControllerTest   : Started AccountControllerTest in 10.757 seconds (process running for 15.407)
-2026-08-12T15:08:23.647+05:30  INFO 31024 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$DocumentEndpoints]: DocumentEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-08-12T15:08:23.694+05:30  INFO 31024 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$DocumentEndpoints
-2026-08-12T15:08:23.906+05:30  INFO 31024 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$CreateAccountEndpoints]: CreateAccountEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-08-12T15:08:23.941+05:30  INFO 31024 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$CreateAccountEndpoints
-2026-08-12T15:08:24.104+05:30  WARN 31024 --- [           main] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.multipart.support.MissingServletRequestPartException: Required part 'addressProof' is not present.]
-2026-08-12T15:08:24.142+05:30  INFO 31024 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.AccountRepositoryTest]: AccountRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-08-12T15:08:24.221+05:30  INFO 31024 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.AccountRepositoryTest
-2026-08-12T15:08:24.228+05:30  INFO 31024 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
-
- :: Spring Boot ::                (v3.5.5)
-
-2026-08-12T15:08:24.310+05:30  INFO 31024 --- [           main] c.e.a.repository.AccountRepositoryTest   : Starting AccountRepositoryTest using Java 22.0.1 with PID 31024 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\account-service)
-2026-08-12T15:08:24.311+05:30  INFO 31024 --- [           main] c.e.a.repository.AccountRepositoryTest   : No active profile set, falling back to 1 default profile: "default"
-2026-08-12T15:08:24.904+05:30  INFO 31024 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-08-12T15:08:25.079+05:30  INFO 31024 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 143 ms. Found 2 JPA repository interfaces.
-2026-08-12T15:08:25.281+05:30  INFO 31024 --- [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
-2026-08-12T15:08:25.524+05:30  INFO 31024 --- [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:81c47657-33e2-466b-a7d2-45dcf62df678;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
-2026-08-12T15:08:26.717+05:30  INFO 31024 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-08-12T15:08:27.020+05:30  INFO 31024 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
-2026-08-12T15:08:27.186+05:30  INFO 31024 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-08-12T15:08:27.954+05:30  INFO 31024 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-08-12T15:08:28.216+05:30  WARN 31024 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 2.3.232 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
-2026-08-12T15:08:28.221+05:30  WARN 31024 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-08-12T15:08:28.337+05:30  INFO 31024 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@3c070ade']
+2026-08-19T14:17:33.786+05:30  INFO 13208 --- [           main] c.e.a.AccountServiceApplicationTests     : Starting AccountServiceApplicationTests using Java 22.0.1 with PID 13208 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\account-service)
+2026-08-19T14:17:33.792+05:30  INFO 13208 --- [           main] c.e.a.AccountServiceApplicationTests     : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:17:38.135+05:30  INFO 13208 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-19T14:17:39.234+05:30  INFO 13208 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1051 ms. Found 2 JPA repository interfaces.
+2026-08-19T14:17:41.727+05:30  INFO 13208 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-19T14:17:43.208+05:30  INFO 13208 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:accountdb-test user=SA
+2026-08-19T14:17:43.222+05:30  INFO 13208 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-19T14:17:43.845+05:30  INFO 13208 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-19T14:17:44.401+05:30  INFO 13208 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2026-08-19T14:17:44.703+05:30  INFO 13208 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-19T14:17:46.444+05:30  INFO 13208 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-19T14:17:46.670+05:30  WARN 13208 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 2.3.232 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-08-19T14:17:46.681+05:30  WARN 13208 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-19T14:17:46.750+05:30  INFO 13208 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-08-12T15:08:31.463+05:30  INFO 31024 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-08-12T15:08:31.470+05:30  INFO 31024 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-08-12T15:08:32.102+05:30  INFO 31024 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-08-12T15:08:33.152+05:30  INFO 31024 --- [           main] c.e.a.repository.AccountRepositoryTest   : Started AccountRepositoryTest in 8.925 seconds (process running for 26.165)
+2026-08-19T14:17:49.991+05:30  INFO 13208 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-19T14:17:50.002+05:30  INFO 13208 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-19T14:17:51.157+05:30  INFO 13208 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-19T14:17:54.355+05:30  WARN 13208 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-19T14:17:55.504+05:30  INFO 13208 --- [           main] c.e.a.AccountServiceApplicationTests     : Started AccountServiceApplicationTests in 23.809 seconds (process running for 30.38)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\PI20587195\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.7\byte-buddy-agent-1.17.7.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-08-19T14:17:57.533+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest]: AccountControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:17:57.652+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest
+2026-08-19T14:17:57.663+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$CreateAccountEndpoints]: CreateAccountEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:17:57.691+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$CreateAccountEndpoints
+2026-08-19T14:17:57.704+05:30  INFO 13208 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+2026-08-19T14:17:57.776+05:30  INFO 13208 --- [           main] c.e.a.controller.AccountControllerTest   : Starting AccountControllerTest using Java 22.0.1 with PID 13208 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\account-service)
+2026-08-19T14:17:57.776+05:30  INFO 13208 --- [           main] c.e.a.controller.AccountControllerTest   : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:17:59.049+05:30  INFO 13208 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-08-19T14:17:59.050+05:30  INFO 13208 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-08-19T14:17:59.057+05:30  INFO 13208 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-08-19T14:17:59.199+05:30  INFO 13208 --- [           main] c.e.a.controller.AccountControllerTest   : Started AccountControllerTest in 1.496 seconds (process running for 34.076)
+2026-08-19T14:18:00.347+05:30  WARN 13208 --- [           main] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.multipart.support.MissingServletRequestPartException: Required part 'addressProof' is not present.]
+2026-08-19T14:18:00.402+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$DocumentEndpoints]: DocumentEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:18:00.441+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$DocumentEndpoints
+2026-08-19T14:18:00.679+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.controller.AccountControllerTest$QueryEndpoints]: QueryEndpoints does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:18:00.748+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.controller.AccountControllerTest$QueryEndpoints
+2026-08-19T14:18:01.101+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.AccountRepositoryTest]: AccountRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:18:01.242+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.AccountRepositoryTest
+2026-08-19T14:18:01.252+05:30  INFO 13208 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+2026-08-19T14:18:01.389+05:30  INFO 13208 --- [           main] c.e.a.repository.AccountRepositoryTest   : Starting AccountRepositoryTest using Java 22.0.1 with PID 13208 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\account-service)
+2026-08-19T14:18:01.390+05:30  INFO 13208 --- [           main] c.e.a.repository.AccountRepositoryTest   : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:18:01.810+05:30  INFO 13208 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-19T14:18:01.877+05:30  INFO 13208 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 63 ms. Found 2 JPA repository interfaces.
+2026-08-19T14:18:01.936+05:30  INFO 13208 --- [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-08-19T14:18:02.029+05:30  INFO 13208 --- [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:4c2a5abb-a864-4570-9a49-cb828a8c5aeb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-08-19T14:18:02.130+05:30  INFO 13208 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-19T14:18:02.147+05:30  INFO 13208 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-19T14:18:02.207+05:30  INFO 13208 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-19T14:18:02.218+05:30  WARN 13208 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 2.3.232 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-08-19T14:18:02.220+05:30  WARN 13208 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-08-19T14:18:02.225+05:30  INFO 13208 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@22d7063e']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-19T14:18:02.487+05:30  INFO 13208 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-19T14:18:02.491+05:30  INFO 13208 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-19T14:18:02.780+05:30  INFO 13208 --- [           main] c.e.a.repository.AccountRepositoryTest   : Started AccountRepositoryTest in 1.529 seconds (process running for 37.656)
 Hibernate: 
     insert 
     into
@@ -74,8 +111,8 @@ Hibernate:
         (account_number, account_type, application_stage, bank, branch, consent, country, created_by, created_date, deposit_amount, course, education_level, grade, institution_name, year_of_completion, ifsc_code, annual_income, currency_code, employer_name, employment_status, income_source, monthly_income, occupation, nominee_address, nominee_contact, nominee_dob, nominee_name, nominee_relation, aadhaar, address, date_of_birth, email, full_name, gender, mobile, nin, pan, phone, ssn, status, updated_date, user_id) 
     values
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-2026-08-12T15:08:33.624+05:30  INFO 31024 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.AccountRepositoryTest$QueryMethods]: QueryMethods does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-08-12T15:08:33.645+05:30  INFO 31024 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.AccountRepositoryTest$QueryMethods
+2026-08-19T14:18:03.671+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.AccountRepositoryTest$QueryMethods]: QueryMethods does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:18:03.702+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.AccountRepositoryTest$QueryMethods
 Hibernate: 
     insert 
     into
@@ -687,8 +724,8 @@ Hibernate:
     where
         a1_0.country=? 
         and a1_0.status=?
-2026-08-12T15:08:34.078+05:30  INFO 31024 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.DocumentRepositoryTest]: DocumentRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-08-12T15:08:34.094+05:30  INFO 31024 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.DocumentRepositoryTest
+2026-08-19T14:18:05.098+05:30  INFO 13208 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.account_service.repository.DocumentRepositoryTest]: DocumentRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:18:05.133+05:30  INFO 13208 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.account_service.AccountServiceApplication for test class com.example.account_service.repository.DocumentRepositoryTest
 Hibernate: 
     insert 
     into
@@ -821,31 +858,37 @@ Hibernate:
         dm1_0.account_id=? 
         and dm1_0.upload_status=?
 === VALIDATION ERRORS ===
-Field: annualIncome | Value: 'null' | Error: must not be null
-Field: aadhaar | Value: 'null' | Error: must not be blank
-Field: gender | Value: 'null' | Error: must not be blank
-Field: employmentStatus | Value: 'null' | Error: must not be blank
 Field: nomineeName | Value: 'null' | Error: must not be blank
+Field: dob | Value: 'null' | Error: must not be null
+Field: gender | Value: 'null' | Error: must not be blank
+Field: email | Value: 'null' | Error: must not be blank
+Field: fullName | Value: 'null' | Error: must not be blank
+Field: occupation | Value: 'null' | Error: must not be blank
+Field: nomineeRelation | Value: 'null' | Error: must not be blank
+Field: address | Value: 'null' | Error: must not be blank
+Field: deposit | Value: 'null' | Error: must not be null
+Field: nomineeDob | Value: 'null' | Error: must not be null
+Field: educationLevel | Value: 'null' | Error: must not be blank
 Field: userId | Value: 'null' | Error: must not be blank
 Field: branch | Value: 'null' | Error: must not be blank
-Field: deposit | Value: 'null' | Error: must not be null
-Field: incomeSource | Value: 'null' | Error: must not be blank
-Field: educationLevel | Value: 'null' | Error: must not be blank
-Field: nomineeAddress | Value: 'null' | Error: must not be blank
-Field: address | Value: 'null' | Error: must not be blank
-Field: monthlyIncome | Value: 'null' | Error: must not be null
-Field: fullName | Value: 'null' | Error: must not be blank
-Field: mobile | Value: 'null' | Error: must not be blank
-Field: nomineeDob | Value: 'null' | Error: must not be null
-Field: course | Value: 'null' | Error: must not be blank
-Field: consent | Value: 'null' | Error: must not be null
-Field: nomineeRelation | Value: 'null' | Error: must not be blank
-Field: email | Value: 'null' | Error: must not be blank
+Field: aadhaar | Value: 'null' | Error: must not be blank
 Field: institutionName | Value: 'null' | Error: must not be blank
-Field: nomineeContact | Value: 'null' | Error: must not be blank
-Field: yearOfCompletion | Value: 'null' | Error: must not be null
-Field: occupation | Value: 'null' | Error: must not be blank
+Field: monthlyIncome | Value: 'null' | Error: must not be null
+Field: consent | Value: 'null' | Error: must not be null
+Field: employmentStatus | Value: 'null' | Error: must not be blank
+Field: course | Value: 'null' | Error: must not be blank
+Field: incomeSource | Value: 'null' | Error: must not be blank
+Field: nomineeAddress | Value: 'null' | Error: must not be blank
 Field: bank | Value: 'null' | Error: must not be blank
 Field: accountType | Value: 'null' | Error: must not be null
 Field: pan | Value: 'null' | Error: must not be blank
-Field: dob | Value: 'null' | Error: must not be null
+Field: nomineeContact | Value: 'null' | Error: must not be blank
+Field: yearOfCompletion | Value: 'null' | Error: must not be null
+Field: mobile | Value: 'null' | Error: must not be blank
+Field: annualIncome | Value: 'null' | Error: must not be null
+2026-08-19T14:18:08.897+05:30  INFO 13208 --- [           main] c.e.a.service.AdminService               : Fetching admin email for bank: UnknownBank from URL: null/api/admin/emails/by-bank?bankName=UnknownBank
+2026-08-19T14:18:08.900+05:30  WARN 13208 --- [           main] c.e.a.service.AdminService               : No admin emails found for bank: UnknownBank
+2026-08-19T14:18:08.912+05:30  INFO 13208 --- [           main] c.e.a.service.AdminService               : Fetching admin email for bank: BankA from URL: null/api/admin/emails/by-bank?bankName=BankA
+2026-08-19T14:18:08.913+05:30  INFO 13208 --- [           main] c.e.a.service.AdminService               : Successfully fetched 2 admin email(s) for bank: BankA
+2026-08-19T14:18:08.925+05:30  INFO 13208 --- [           main] c.e.a.service.AdminService               : Fetching admin email for bank: BankA from URL: null/api/admin/emails/by-bank?bankName=BankA
+2026-08-19T14:18:08.926+05:30  INFO 13208 --- [           main] c.e.a.service.AdminService               : Successfully fetched 2 admin email(s) for bank: BankA
