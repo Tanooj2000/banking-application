@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "banking-application-microservices/user-service"
+		},
+		{
+			"path": "banking-application-microservices/account-service"
+		},
+		{
+			"path": "banking-application-microservices/bank-service"
+		},
+		{
+			"path": "banking-application-microservices/admin-service"
+		},
+		{
+			"path": "banking-application-microservices/root-admin-service"
+		},
+		{
+			"path": "banking-application-microservices/Notes"
+		},
+		{
+			"path": "../banking-application/banking-application-microservices/discovery-service"
+		},
+		{
+			"path": "../banking-application/banking-application-microservices/api-gateway"
+		}
+	],
+	"settings": {
+		"java.debug.settings.onBuildFailureProceed": true,
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}

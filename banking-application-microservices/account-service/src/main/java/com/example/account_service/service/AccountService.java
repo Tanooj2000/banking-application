@@ -1,6 +1,7 @@
 package com.example.account_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
@@ -39,9 +40,13 @@ public class AccountService {
     private EmailNotificationService emailNotificationService;
     
     @Autowired
-    private Validator validator;
+    private Validator validator; 
     
-    private final String documentUploadPath = "uploads/documents/";
+    @Value("${app.document-storage.path:uploads/documents}")
+    private String documentUploadPath;
+
+    @Value("${app.document-storage.max-file-size-bytes:5242880}")
+    private long maxDocumentFileSizeBytes;
     
     // Account creation - ALWAYS requires documents (no option without documents)
     public AccountCreationResponse createAccount(String country, Object requestDto,
@@ -76,9 +81,15 @@ public class AccountService {
                 return response;
             }
             
-            // Validate documents
+            // Validate documents before creating the account so a failed upload cannot leave a partial application.
             if (idProof.isEmpty() || addressProof.isEmpty() || incomeProof.isEmpty() || photo.isEmpty()) {
                 response.setMessage("All documents (ID Proof, Address Proof, Income Proof, Photo) are required");
+                return response;
+            }
+
+            List<String> documentValidationErrors = validateAccountCreationDocuments(idProof, addressProof, incomeProof, photo);
+            if (!documentValidationErrors.isEmpty()) {
+                response.setMessage("Please correct document upload errors: " + String.join("; ", documentValidationErrors));
                 return response;
             }
             
@@ -195,28 +206,20 @@ public class AccountService {
     private DocumentUploadResponse uploadDocumentForAccount(Account account, MultipartFile file, 
             DocumentMetadata.DocumentType documentType) {
         try {
-            // Validate file
-            if (file.isEmpty()) {
-                return new DocumentUploadResponse(null, account.getAccountNumber(), documentType, 
-                    null, null, 0L, DocumentMetadata.UploadStatus.REJECTED, null, "File is empty", false, "Please select a valid file");
-            }
-            
-            // Validate file type
-            if (!isValidDocumentType(file, documentType)) {
-                return new DocumentUploadResponse(null, account.getAccountNumber(), documentType, 
-                    file.getOriginalFilename(), null, file.getSize(), DocumentMetadata.UploadStatus.REJECTED, null, "Invalid file type", 
-                    false, "Please upload a valid file format (.jpg, .jpeg, .png, .pdf)");
-            }
+            validateDocumentFile(file, documentType);
             
             // Create upload directory if not exists
-            Path uploadDir = Paths.get(documentUploadPath);
+            Path uploadDir = Paths.get(documentUploadPath).toAbsolutePath().normalize();
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
             
             // Generate unique filename
             String storedFilename = generateUniqueFilename(file.getOriginalFilename(), account.getId());
-            Path filePath = uploadDir.resolve(storedFilename);
+            Path filePath = uploadDir.resolve(storedFilename).normalize();
+            if (!filePath.startsWith(uploadDir)) {
+                throw new IllegalArgumentException("Invalid document storage path");
+            }
             
             // Save file
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -261,28 +264,20 @@ public class AccountService {
             Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Account not found"));
             
-            // Validate file
-            if (file.isEmpty()) {
-                return new DocumentUploadResponse(null, accountNumber, documentType, null, null, 0L, 
-                    DocumentMetadata.UploadStatus.REJECTED, null, "File is empty", false, "Please select a valid file");
-            }
-            
-            // Validate file type
-            if (!isValidDocumentType(file, documentType)) {
-                return new DocumentUploadResponse(null, accountNumber, documentType, file.getOriginalFilename(), 
-                    null, file.getSize(), DocumentMetadata.UploadStatus.REJECTED, null, "Invalid file type", false, 
-                    "Please upload a valid file format (.jpg, .jpeg, .png, .pdf)");
-            }
+            validateDocumentFile(file, documentType);
             
             // Create upload directory if not exists
-            Path uploadDir = Paths.get(documentUploadPath);
+            Path uploadDir = Paths.get(documentUploadPath).toAbsolutePath().normalize();
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
             
             // Generate unique filename
             String storedFilename = generateUniqueFilename(file.getOriginalFilename(), account.getId());
-            Path filePath = uploadDir.resolve(storedFilename);
+            Path filePath = uploadDir.resolve(storedFilename).normalize();
+            if (!filePath.startsWith(uploadDir)) {
+                throw new IllegalArgumentException("Invalid document storage path");
+            }
             
             // Save file
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -578,22 +573,75 @@ public class AccountService {
     private List<String> getRequiredDocumentTypes() {
         return Arrays.asList("ID Proof", "Address Proof", "Income Proof", "Photo");
     }
+
+    private List<String> validateAccountCreationDocuments(MultipartFile idProof, MultipartFile addressProof,
+            MultipartFile incomeProof, MultipartFile photo) {
+        List<String> errors = new ArrayList<>();
+        validateDocumentForResponse(errors, idProof, DocumentMetadata.DocumentType.ID_PROOF, "ID Proof");
+        validateDocumentForResponse(errors, addressProof, DocumentMetadata.DocumentType.ADDRESS_PROOF, "Address Proof");
+        validateDocumentForResponse(errors, incomeProof, DocumentMetadata.DocumentType.INCOME_PROOF, "Income Proof");
+        validateDocumentForResponse(errors, photo, DocumentMetadata.DocumentType.PHOTO, "Photo");
+        return errors;
+    }
+
+    private void validateDocumentForResponse(List<String> errors, MultipartFile file,
+            DocumentMetadata.DocumentType documentType, String label) {
+        try {
+            validateDocumentFile(file, documentType);
+        } catch (IllegalArgumentException error) {
+            errors.add(label + ": " + error.getMessage());
+        }
+    }
+
+    private void validateDocumentFile(MultipartFile file, DocumentMetadata.DocumentType documentType) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("file is required");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            throw new IllegalArgumentException("filename is required");
+        }
+
+        if (originalFilename.contains("..") || originalFilename.contains("/") || originalFilename.contains("\\")) {
+            throw new IllegalArgumentException("filename cannot contain path characters");
+        }
+
+        if (file.getSize() <= 0) {
+            throw new IllegalArgumentException("file is empty");
+        }
+
+        if (file.getSize() > maxDocumentFileSizeBytes) {
+            throw new IllegalArgumentException("file must be " + (maxDocumentFileSizeBytes / (1024 * 1024)) + " MB or smaller");
+        }
+
+        if (!isValidDocumentType(file, documentType)) {
+            throw new IllegalArgumentException(documentType == DocumentMetadata.DocumentType.PHOTO
+                ? "only JPG, JPEG, or PNG files are allowed"
+                : "only JPG, JPEG, PNG, or PDF files are allowed");
+        }
+    }
     
     private boolean isValidDocumentType(MultipartFile file, DocumentMetadata.DocumentType documentType) {
         String contentType = file.getContentType();
-        if (contentType == null) return false;
+        String originalFilename = file.getOriginalFilename();
+        if (contentType == null || originalFilename == null || !originalFilename.contains(".")) return false;
+        String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
         
         if (documentType == DocumentMetadata.DocumentType.PHOTO) {
-            return contentType.equals("image/jpeg") || contentType.equals("image/jpg") || contentType.equals("image/png");
+            return (contentType.equals("image/jpeg") || contentType.equals("image/jpg") || contentType.equals("image/png"))
+                && Set.of("jpg", "jpeg", "png").contains(extension);
         } else {
-            return contentType.equals("image/jpeg") || contentType.equals("image/jpg") || 
-                   contentType.equals("image/png") || contentType.equals("application/pdf");
+            return (contentType.equals("image/jpeg") || contentType.equals("image/jpg") || 
+                   contentType.equals("image/png") || contentType.equals("application/pdf"))
+                && Set.of("jpg", "jpeg", "png", "pdf").contains(extension);
         }
     }
     
     private String generateUniqueFilename(String originalFilename, Long accountId) {
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        return accountId + "_" + System.currentTimeMillis() + extension;
+        String cleanFilename = Paths.get(originalFilename).getFileName().toString().replaceAll("[^a-zA-Z0-9._-]", "_");
+        String extension = cleanFilename.contains(".") ? cleanFilename.substring(cleanFilename.lastIndexOf(".")) : "";
+        return accountId + "_" + UUID.randomUUID() + "_" + System.currentTimeMillis() + extension.toLowerCase(Locale.ROOT);
     }
     
     private boolean allRequiredDocumentsUploaded(Long accountId) {
@@ -606,6 +654,12 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
             .orElseThrow(() -> new IllegalArgumentException("Account not found"));
         return documentRepository.findByAccountId(account.getId());
+    }
+
+    public List<DocumentMetadata> getAccountDocumentsById(Long accountId) {
+        accountRepository.findById(accountId)
+            .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        return documentRepository.findByAccountId(accountId);
     }
     
     public List<DocumentMetadata> getUserDocuments(String userId) {

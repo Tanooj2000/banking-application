@@ -231,6 +231,15 @@ export const getAccountDocuments = async (accountNumber) => {
   return text ? JSON.parse(text) : [];
 };
 
+export const getAccountDocumentsById = async (accountId) => {
+  const response = await fetch(`${BASE_URL}/account-id/${accountId}/documents`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch account documents (Status: ${response.status})`);
+  }
+  const text = await response.text();
+  return text ? JSON.parse(text) : [];
+};
+
 export const rejectAccount = async (accountId) => {
   try {
     const response = await fetch(`${BASE_URL}/reject/${accountId}`, {

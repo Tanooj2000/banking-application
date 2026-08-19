@@ -1,0 +1,98 @@
+14:18:55.473 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.bank_service.BankServiceApplicationTests]: BankServiceApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:18:56.385 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.bank_service.BankServiceApplication for test class com.example.bank_service.BankServiceApplicationTests
+14:18:58.012 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+2026-08-19T14:19:00.680+05:30  INFO 9836 --- [           main] c.e.b.BankServiceApplicationTests        : Starting BankServiceApplicationTests using Java 22.0.1 with PID 9836 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\bank-service)
+2026-08-19T14:19:00.686+05:30  INFO 9836 --- [           main] c.e.b.BankServiceApplicationTests        : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:19:05.448+05:30  INFO 9836 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-19T14:19:05.824+05:30  INFO 9836 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 306 ms. Found 1 JPA repository interface.
+2026-08-19T14:19:09.294+05:30  INFO 9836 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-19T14:19:10.088+05:30  INFO 9836 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2026-08-19T14:19:10.452+05:30  INFO 9836 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-19T14:19:13.201+05:30  INFO 9836 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-19T14:19:13.402+05:30  INFO 9836 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-19T14:19:15.933+05:30  INFO 9836 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1dcca426
+2026-08-19T14:19:15.952+05:30  INFO 9836 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-19T14:19:16.367+05:30  INFO 9836 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.46
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-19T14:19:19.748+05:30  INFO 9836 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-19T14:19:20.078+05:30  INFO 9836 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-19T14:19:21.814+05:30  WARN 9836 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-19T14:19:23.384+05:30  INFO 9836 --- [           main] c.e.b.BankServiceApplicationTests        : Started BankServiceApplicationTests in 25.484 seconds (process running for 33.906)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\PI20587195\.m2\repository\net\bytebuddy\byte-buddy-agent\1.17.7\byte-buddy-agent-1.17.7.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-08-19T14:19:27.247+05:30  INFO 9836 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.bank_service.controller.BankControllerTest]: BankControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:19:27.390+05:30  INFO 9836 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.bank_service.BankServiceApplication for test class com.example.bank_service.controller.BankControllerTest
+2026-08-19T14:19:27.406+05:30  INFO 9836 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+2026-08-19T14:19:27.572+05:30  INFO 9836 --- [           main] c.e.b.controller.BankControllerTest      : Starting BankControllerTest using Java 22.0.1 with PID 9836 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\bank-service)
+2026-08-19T14:19:27.573+05:30  INFO 9836 --- [           main] c.e.b.controller.BankControllerTest      : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:19:29.068+05:30  INFO 9836 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-08-19T14:19:29.069+05:30  INFO 9836 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-08-19T14:19:29.084+05:30  INFO 9836 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 4 ms
+2026-08-19T14:19:29.180+05:30  INFO 9836 --- [           main] c.e.b.controller.BankControllerTest      : Started BankControllerTest in 1.775 seconds (process running for 39.702)
+2026-08-19T14:19:30.524+05:30  INFO 9836 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.bank_service.repository.BankRepositoryTest]: BankRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-08-19T14:19:30.683+05:30  INFO 9836 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.bank_service.BankServiceApplication for test class com.example.bank_service.repository.BankRepositoryTest
+2026-08-19T14:19:30.704+05:30  INFO 9836 --- [           main] o.s.b.d.r.RestartApplicationListener     : Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.5)
+
+2026-08-19T14:19:30.881+05:30  INFO 9836 --- [           main] c.e.b.repository.BankRepositoryTest      : Starting BankRepositoryTest using Java 22.0.1 with PID 9836 (started by PI20587195 in C:\Users\PI20587195\OneDrive - Wipro\Documents\banking-application-main-merge\banking-application-microservices\bank-service)
+2026-08-19T14:19:30.882+05:30  INFO 9836 --- [           main] c.e.b.repository.BankRepositoryTest      : No active profile set, falling back to 1 default profile: "default"
+2026-08-19T14:19:31.263+05:30  INFO 9836 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-19T14:19:31.405+05:30  INFO 9836 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 137 ms. Found 1 JPA repository interface.
+2026-08-19T14:19:31.454+05:30  INFO 9836 --- [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-08-19T14:19:31.555+05:30  INFO 9836 --- [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:7574020a-57aa-4cfa-a40b-895ebda8ed75;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-08-19T14:19:32.418+05:30  INFO 9836 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-08-19T14:19:32.432+05:30  INFO 9836 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-08-19T14:19:32.463+05:30  INFO 9836 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-19T14:19:32.537+05:30  INFO 9836 --- [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@5c4c4e96']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-19T14:19:32.821+05:30  INFO 9836 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table banks (id bigint generated by default as identity, bank_name varchar(100) not null, branch varchar(100) not null, city varchar(50) not null, code varchar(255) not null, country varchar(50) not null, primary key (id))
+2026-08-19T14:19:32.997+05:30  INFO 9836 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-19T14:19:33.148+05:30  INFO 9836 --- [           main] c.e.b.repository.BankRepositoryTest      : Started BankRepositoryTest in 2.446 seconds (process running for 43.671)
+Hibernate: insert into banks (bank_name,branch,city,code,country,id) values (?,?,?,?,?,default)
+Hibernate: select b1_0.id,b1_0.bank_name,b1_0.branch,b1_0.city,b1_0.code,b1_0.country from banks b1_0 where b1_0.country=?
+Hibernate: select b1_0.id,b1_0.bank_name,b1_0.branch,b1_0.city,b1_0.code,b1_0.country from banks b1_0 where b1_0.country=? and b1_0.city=?

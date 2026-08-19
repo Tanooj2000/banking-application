@@ -8,11 +8,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
@@ -45,8 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
-            System.out.println("[FILTER DEBUG] Processing JWT token: " + jwt.substring(0, Math.min(20, jwt.length())) + "...");
-            
+
             // Store JWT token in ThreadLocal for access in UserDetailsService
             JwtTokenHolder.setToken(jwt);
             
@@ -65,13 +67,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     if (jwtService.isTokenValid(jwt)) {
                         String role = jwtService.extractRole(jwt);
-                        Long adminId = jwtService.extractAdminId(jwt);
-                        
+
                         List<SimpleGrantedAuthority> authorities = List.of(
                                 new SimpleGrantedAuthority("ROLE_" + role)
                         );
-                        
-                        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+
+                        UserDetails userDetails = User.builder()
                                 .username(adminUsername)
                                 .password("")
                                 .authorities(authorities)
@@ -87,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 } catch (Exception authEx) {
-                    // Authentication failed, continue without setting context
+                    log.warn("JWT authentication failed for user '{}': {}", adminUsername, authEx.getMessage());
                 }
             }
 

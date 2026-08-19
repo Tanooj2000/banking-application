@@ -163,7 +163,7 @@ public class AccountController {
     }
     
     // Check application status by application ID
-    @GetMapping("/status/{applicationId}")
+    @GetMapping("/status/{applicationId:APP-[0-9]+}")
     public ResponseEntity<AccountCreationResponse> getApplicationStatus(@PathVariable String applicationId) {
         try {
             AccountCreationResponse response = accountService.getApplicationStatus(applicationId);
@@ -267,7 +267,7 @@ public class AccountController {
         }
     }
     
-    @GetMapping("/status/{status}")
+    @GetMapping("/status/{status:PENDING|APPROVED|REJECTED}")
     public ResponseEntity<List<Account>> getAccountsByStatus(@PathVariable String status) {
         try {
             AccountStatus accountStatus = AccountStatus.valueOf(status.toUpperCase());
@@ -317,6 +317,18 @@ public class AccountController {
             return ResponseEntity.ok(documents);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/account-id/{accountId}/documents")
+    public ResponseEntity<List<DocumentMetadata>> getAccountDocumentsById(@PathVariable Long accountId) {
+        try {
+            List<DocumentMetadata> documents = accountService.getAccountDocumentsById(accountId);
+            return ResponseEntity.ok(documents);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

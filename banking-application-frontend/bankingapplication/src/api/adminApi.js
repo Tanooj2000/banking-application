@@ -15,7 +15,7 @@ const ErrorTypes = {
 };
 
 const UserFriendlyMessages = {
-  [ErrorTypes.NETWORK]: 'Server not responding please try again',
+  [ErrorTypes.NETWORK]: 'Unable to connect. Please check your network connection and try again.',
   [ErrorTypes.AUTHENTICATION]: 'Your session has expired. Please sign in again.',
   [ErrorTypes.VALIDATION]: 'Please check the information you entered and try again.',
   [ErrorTypes.SERVER]: 'A server error occurred. Our team has been notified. Please try again later.',
@@ -25,6 +25,26 @@ const UserFriendlyMessages = {
   [ErrorTypes.TIMEOUT]: 'The request timed out. Please try again.'
 };
 
+const resolveUserMessage = (message, type, statusCode) => {
+  const trimmed = typeof message === 'string' ? message.trim() : '';
+  const genericStatusPattern = /^Request failed with status\s+\d+$/i;
+
+  if ([ErrorTypes.VALIDATION, ErrorTypes.AUTHENTICATION, ErrorTypes.NOT_FOUND].includes(type)) {
+    if (trimmed && !genericStatusPattern.test(trimmed)) {
+      return trimmed;
+    }
+  }
+
+  if ([ErrorTypes.NETWORK, ErrorTypes.SERVER, ErrorTypes.TIMEOUT, ErrorTypes.RATE_LIMIT, ErrorTypes.PERMISSION].includes(type)) {
+    return UserFriendlyMessages[type] || trimmed || 'An unexpected error occurred. Please try again.';
+  }
+
+  if (trimmed && !genericStatusPattern.test(trimmed)) {
+    return trimmed;
+  }
+  return UserFriendlyMessages[type] || `Request failed (${statusCode || 'unknown'}). Please try again.`;
+};
+
 class ApiError extends Error {
   constructor(message, type, statusCode = null, originalError = null) {
     super(message);
@@ -32,7 +52,7 @@ class ApiError extends Error {
     this.type = type;
     this.statusCode = statusCode;
     this.originalError = originalError;
-    this.userMessage = UserFriendlyMessages[type] || message;
+    this.userMessage = resolveUserMessage(message, type, statusCode);
     this.timestamp = new Date().toISOString();
   }
 }
@@ -100,16 +120,21 @@ const handleApiResponse = async (response, operation) => {
     let errorDetails = null;
     
     try {
+      const responseText = await response.text();
       const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || `Request failed with status ${response.status}`;
-        errorDetails = errorData;
+      if (contentType && contentType.includes('application/json') && responseText) {
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorData.error || responseText || `Request failed with status ${response.status}`;
+          errorDetails = errorData;
+        } catch {
+          errorMessage = responseText || `Request failed with status ${response.status}`;
+        }
       } else {
-        errorMessage = await response.text() || `Request failed with status ${response.status}`;
+        errorMessage = responseText || `Request failed with status ${response.status}`;
       }
     } catch (parseError) {
-      errorMessage = `Server error (${response.status}). Please try again later.`;
+      errorMessage = `Request failed with status ${response.status}`;
     }
     
     const errorType = determineErrorType(response);
@@ -161,7 +186,7 @@ const makeApiRequest = async (url, options = {}, operation = 'API Request') => {
         error.message.includes('ERR_NAME_NOT_RESOLVED') ||
         error.message.includes('fetch') ||
         error.message.includes('NetworkError')) {
-      networkErrorMessage = 'Server not responding please try again';
+      networkErrorMessage = 'Unable to connect. Please check your network connection and try again.';
     }
     
     const networkError = new ApiError(

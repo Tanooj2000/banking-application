@@ -1,29 +1,21 @@
 import axios from 'axios';
 
-// Base URL for the chatbot microservice
-const CHATBOT_BASE_URL = 'http://localhost:8086/api/v1/chatbot';
+// Base URL for the RAG chatbot Python API (FastAPI/uvicorn on port 8000)
+const CHATBOT_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance with default config
 const chatBotApi = axios.create({
   baseURL: CHATBOT_BASE_URL,
-  timeout: 30000, // 30 seconds timeout for AI responses
+  timeout: 60000, // 60 seconds — RAG + LLM inference can be slow
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to add authentication token if available
+// No auth required for local RAG API — interceptor kept for future use
 chatBotApi.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (config) => config,
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor for error handling
@@ -78,23 +70,29 @@ chatBotApi.interceptors.response.use(
  */
 export const sendChatMessage = async ({ message, userId, sessionId = null, context = null, authToken = null }) => {
   try {
+    // RAG API expects: { question, top_k?, model_name? }
     const requestData = {
-      message: message.trim(),
-      userId,
-      sessionId,
-      context,
-      authToken, // Include JWT token in request body for backend processing
+      question: message.trim(),
+      top_k: 5,
+      model_name: 'llama3.2:3b',
     };
 
-    const response = await chatBotApi.post('/chat', requestData);
-    
-    if (response.data && response.data.success) {
+    const response = await chatBotApi.post('/rag/ask', requestData);
+
+    // Adapt RAG API response { question, response } → shape ChatBot.jsx expects
+    if (response.data && response.data.response) {
       return {
         success: true,
-        data: response.data,
+        data: {
+          data: {
+            response: response.data.response,
+            quickReplies: [],
+            messageId: `rag_${Date.now()}`,
+          },
+        },
       };
     } else {
-      throw new Error(response.data?.errorMessage || 'Failed to get response from chatbot');
+      throw new Error('Empty response from RAG service');
     }
   } catch (error) {
     console.error('Error sending chat message:', error);
@@ -111,7 +109,8 @@ export const sendChatMessage = async ({ message, userId, sessionId = null, conte
  */
 export const getChatBotHealth = async () => {
   try {
-    const response = await chatBotApi.get('/health');
+    // FastAPI always exposes /openapi.json — use it as a lightweight health probe
+    const response = await chatBotApi.get('/openapi.json');
     return response.status === 200;
   } catch (error) {
     console.error('ChatBot health check failed:', error);

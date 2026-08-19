@@ -1,0 +1,45 @@
+service discovery and service registery
+ directly calls servcie using service B name not by complete address
+service A         ------------>   SERVICE B
+8000                               8020
+                 DISCOVERY 
+
+Simple definition and use:
+Eureka Server is a lightweight service registry for microservices. Services "register" themselves with Eureka under a logical name. When a client wants to call another service, it asks Eureka for the list of available instances for that logical name instead of using a fixed IP or hostname.
+
+Example (simple):
+- Service `orders` registers with Eureka as `orders-service` (host+port).
+- Service `payments` needs to call `orders`; it asks Eureka for `orders-service` and gets one or more instance addresses. The client or load balancer picks one and sends the request.
+
+Why this helps:
+- Removes hard-coded addresses so services can scale up/down or move.
+- Enables client-side or server-side load balancing using the registry's instance list.
+
+server.port=8761
+# short: run the registry on port 8761 so other services can find it
+
+
+eureka.client.register-with-eureka=false
+# short: What it does: Tells this app NOT to try to register itself as a Eureka client with another registry.
+Why it matters: A registry should be a server, not a client, unless you intentionally chain registries.
+Prevents: connection attempts/timeouts or "connection refused" errors at startup when there is no ups
+# Using this line we are telling discovery service dont register yourself in registry dicoverey, we know the complete details of
+discovery-servcice
+
+eureka.client.fetch-registry=false
+# What it does: Stops the registry from trying to fetch registry data from other Eureka servers.
+Why it matters: In a single-server setup the registry should not try to load peers.
+Prevents: startup timeouts, connection errors, and failed initializations when no other registries exist.
+#
+eureka.client.fetch-registry=false
+whenever we create discovery server it assumes that there is another discovery server running on same appilation and trying call that using 
+url default http://localhost/8761/eureka/ at startup as well for every 30 seconds for sync up but in real time there is no service like so we are getting exceptions
+whenever we start our discovery server so we need fix that using 
+eureka.client.fetch-registry=false
+what if we make it true and port as 8761 then at startup it gives exception but after startup (30 seconds )
+it calls again for sync up but in this time there is no exception why because we are using default port and it assumes there was discovery service
+###
+whenever services run they default see the dicoverey service by 8761/eureka url but in the case of we explicitly 
+make our discovery service port to 5000 then we get error
+## for that we need explicitly mention the discovery-service runs in that particular port 
+## we need to mention in every client service (appilation.properties) that we need to add this line  eureka.client.service-url.defaultZone=localhost:5000/eureka

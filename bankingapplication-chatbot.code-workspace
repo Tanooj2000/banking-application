@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "banking-application-frontend/bankingapplication"
+		},
+		{
+			"path": "banking-application-microservices/rag-chatbot-service"
+		},
+		{
+			"path": "rag-chatbot"
+		}
+	],
+	"settings": {}
+}

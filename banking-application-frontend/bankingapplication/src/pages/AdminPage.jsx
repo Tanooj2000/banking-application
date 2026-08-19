@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import BlockedOverlay from '../components/BlockedOverlay';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
-import { fetchAllAccounts, approveAccount, rejectAccount } from '../api/accountApi';
+import { fetchAllAccounts, approveAccount, rejectAccount, getAccountDocumentsById } from '../api/accountApi';
 import { updateAdminDetails, changeAdminPassword, getAdminById, updateAdminDetailsSimple } from '../api/adminApi';
 import { AuthGuard } from '../utils/authGuard';
 import { validateGmail, validatePassword, validateName, validateConfirmPassword, getErrorMessage } from '../utils/validation';
@@ -35,6 +35,32 @@ const AdminPage = () => {
   const adminBankName = admin.bankname || admin.bankName || admin.bank || admin.bank_name || '';
   const adminCountry = admin.country || admin.countryName || admin.locationCountry || '';
 
+  const pickFirst = (...values) => values.find(value => value !== undefined && value !== null && String(value).trim() !== '') || '';
+  const formatDateTime = (value) => {
+    if (!value) return '-';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  };
+  const getPersonalDetails = (account) => account?.personalDetails || account?.personal || account || {};
+  const getEducationalDetails = (account) => account?.educationalDetails || account?.educationDetails || {};
+  const getIncomeDetails = (account) => account?.incomeDetails || {};
+  const getNomineeDetails = (account) => account?.nomineeDetails || {};
+  const getApplicantName = (account) => {
+    const personal = getPersonalDetails(account);
+    return pickFirst(account?.applicant, account?.fullName, account?.name, account?.username, personal.fullName, personal.name, account?.userId, 'Unnamed Applicant');
+  };
+  const getApplicantEmail = (account) => {
+    const personal = getPersonalDetails(account);
+    return pickFirst(account?.email, personal.email, '-');
+  };
+  const getApplicantPhone = (account) => {
+    const personal = getPersonalDetails(account);
+    return pickFirst(account?.mobile, account?.phone, personal.mobile, personal.phone, '-');
+  };
+  const getAccountType = (account) => pickFirst(account?.accountType, account?.type, '-');
+  const getDeposit = (account) => pickFirst(account?.deposit, account?.depositAmount, account?.initialDeposit, '-');
+  const getPendingCount = () => accounts.filter(acc => acc.status?.toLowerCase() === 'pending').length;
+
   // Store admin data when received
   useEffect(() => {
     if (location.state?.admin) {
@@ -47,26 +73,23 @@ const AdminPage = () => {
   useEffect(() => {
     const checkAuth = () => {
       if (!AuthGuard.isAdminAuthenticated()) {
-        AuthGuard.logoutAdmin();
+        navigate('/signin', { replace: true });
         return;
       }
     };
 
     // Check authentication every 5 minutes
     const interval = setInterval(checkAuth, 5 * 60 * 1000);
-    
-    // Initial check
-    checkAuth();
 
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   // Redirect if not authenticated
   useEffect(() => {
     if (!AuthGuard.isAdminAuthenticated()) {
-      AuthGuard.logoutAdmin();
+      navigate('/signin', { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   // State for sections navigation
   const [activeSection, setActiveSection] = useState('Profile');
@@ -82,6 +105,9 @@ const AdminPage = () => {
   const [processingId, setProcessingId] = useState(null); // for animation/feedback
   const [successMsg, setSuccessMsg] = useState("");
   const [selectedAccount, setSelectedAccount] = useState(null); // for modal
+  const [selectedAccountDocuments, setSelectedAccountDocuments] = useState([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [documentsError, setDocumentsError] = useState('');
   
   // Modal states for admin edit functionality
   const [showEditModal, setShowEditModal] = useState(false);
@@ -219,6 +245,30 @@ const AdminPage = () => {
       return newAccounts;
     });
   };
+
+  useEffect(() => {
+    const loadSelectedAccountDocuments = async () => {
+      if (!selectedAccount?.id) {
+        setSelectedAccountDocuments([]);
+        return;
+      }
+
+      setDocumentsLoading(true);
+      setDocumentsError('');
+      try {
+        const documents = await getAccountDocumentsById(selectedAccount.id);
+        setSelectedAccountDocuments(documents || []);
+      } catch (error) {
+        console.error('Failed to load application documents:', error);
+        setSelectedAccountDocuments([]);
+        setDocumentsError('Unable to load uploaded documents for this application.');
+      } finally {
+        setDocumentsLoading(false);
+      }
+    };
+
+    loadSelectedAccountDocuments();
+  }, [selectedAccount?.id]);
 
   // Prevent browser back navigation to admin pages
   useEffect(() => {
@@ -490,7 +540,7 @@ const AdminPage = () => {
   const sidebarItems = [
     { id: 'Profile', label: 'My Profile', icon: <FaUserShield /> },
     { id: 'Dashboard', label: 'Dashboard', icon: <FaChartBar /> },
-    { id: 'Applications', label: 'Applications', icon: <FaUsers /> },
+    { id: 'Applications', label: 'Applications', icon: <FaUsers />, badge: getPendingCount() },
     { id: 'AddBranch', label: 'New Branch', icon: <FaBuilding /> }
   ];
 
@@ -503,7 +553,7 @@ const AdminPage = () => {
           <div className="stat-card">
             <div className="stat-icon pending">📋</div>
             <div className="stat-info">
-              <h3>{accounts.filter(acc => acc.status?.toLowerCase() === 'pending').length}</h3>
+              <h3>{getPendingCount()}</h3>
               <p>Pending Applications</p>
             </div>
           </div>
@@ -544,6 +594,10 @@ const AdminPage = () => {
   const renderApplicationsContent = () => (
     <div className="content-section">
       <h2 className="section-title">Bank <em>Applications</em></h2>
+      <div className="applications-summary-strip">
+        <span className="summary-pill pending">{getPendingCount()} Pending</span>
+        <span className="summary-note">New account applications awaiting review for {adminBankName || 'your bank'}.</span>
+      </div>
       <div className="applications-controls">
         <div className="filter-container">
           <label htmlFor="statusFilter">Filter by Status:</label>
@@ -588,15 +642,19 @@ const AdminPage = () => {
             {filteredAccounts.map(app => (
               <div key={app.id} className="application-card">
                 <div className="application-header">
-                  <h4>👤 {app.applicant || app.fullName}</h4>
+                  <h4>👤 {getApplicantName(app)}</h4>
                   <span className={`status-badge ${app.status?.toLowerCase()}`}>
                     {app.status}
                   </span>
                 </div>
                 <div className="application-details">
-                  <p><strong>📧 Email:</strong> {app.email}</p>
+                  <p><strong>📧 Email:</strong> {getApplicantEmail(app)}</p>
+                  <p><strong>📞 Phone:</strong> {getApplicantPhone(app)}</p>
                   <p><strong>🌍 Country:</strong> {app.country || app.location || '-'}</p>
                   <p><strong>🏦 Bank:</strong> {app.bank || app.bankName || adminBankName}</p>
+                  <p><strong>🏢 Branch:</strong> {app.branch || '-'}</p>
+                  <p><strong>💳 Account Type:</strong> {getAccountType(app)}</p>
+                  <p><strong>🗓️ Submitted:</strong> {formatDateTime(app.createdDate)}</p>
                 </div>
                 <div className="application-actions">
                   {app.status?.toLowerCase() === 'pending' && (
@@ -821,6 +879,7 @@ const AdminPage = () => {
               >
                 <span className="sidebar-icon">{item.icon}</span>
                 <span className="sidebar-label">{item.label}</span>
+                {item.badge > 0 && <span className="sidebar-badge">{item.badge}</span>}
               </button>
             ))}
           </nav>
@@ -849,24 +908,99 @@ const AdminPage = () => {
             </button>
             <h2 className="modal-title">Application Details</h2>
             <div className="account-details-content">
-              <h3>{selectedAccount.applicant || selectedAccount.fullName}</h3>
-              <div className="details-grid">
-                <div className="detail-item">
-                  <strong>Email:</strong> {selectedAccount.email}
-                </div>
-                <div className="detail-item">
-                  <strong>Country:</strong> {selectedAccount.country || selectedAccount.location || '-'}
-                </div>
-                <div className="detail-item">
-                  <strong>Bank:</strong> {selectedAccount.bank || selectedAccount.bankName || adminBankName}
-                </div>
-                <div className="detail-item">
-                  <strong>Status:</strong> 
-                  <span className={`status-badge ${selectedAccount.status?.toLowerCase()}`}>
-                    {selectedAccount.status}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const personal = getPersonalDetails(selectedAccount);
+                const education = getEducationalDetails(selectedAccount);
+                const income = getIncomeDetails(selectedAccount);
+                const nominee = getNomineeDetails(selectedAccount);
+                return (
+                  <>
+                    <h3>{getApplicantName(selectedAccount)}</h3>
+                    <div className="application-detail-section">
+                      <h4>Application Summary</h4>
+                      <div className="details-grid">
+                        <div className="detail-item"><strong>Application ID:</strong> APP-{selectedAccount.id}</div>
+                        <div className="detail-item"><strong>User ID:</strong> {selectedAccount.userId || '-'}</div>
+                        <div className="detail-item"><strong>Status:</strong> <span className={`status-badge ${selectedAccount.status?.toLowerCase()}`}>{selectedAccount.status}</span></div>
+                        <div className="detail-item"><strong>Submitted:</strong> {formatDateTime(selectedAccount.createdDate)}</div>
+                        <div className="detail-item"><strong>Bank:</strong> {selectedAccount.bank || selectedAccount.bankName || adminBankName}</div>
+                        <div className="detail-item"><strong>Branch:</strong> {selectedAccount.branch || '-'}</div>
+                        <div className="detail-item"><strong>IFSC/Code:</strong> {selectedAccount.ifscCode || selectedAccount.code || '-'}</div>
+                        <div className="detail-item"><strong>Country:</strong> {selectedAccount.country || selectedAccount.location || '-'}</div>
+                        <div className="detail-item"><strong>Account Type:</strong> {getAccountType(selectedAccount)}</div>
+                        <div className="detail-item"><strong>Initial Deposit:</strong> {getDeposit(selectedAccount)}</div>
+                      </div>
+                    </div>
+
+                    <div className="application-detail-section">
+                      <h4>Applicant Details</h4>
+                      <div className="details-grid">
+                        <div className="detail-item"><strong>Name:</strong> {getApplicantName(selectedAccount)}</div>
+                        <div className="detail-item"><strong>Email:</strong> {getApplicantEmail(selectedAccount)}</div>
+                        <div className="detail-item"><strong>Phone:</strong> {getApplicantPhone(selectedAccount)}</div>
+                        <div className="detail-item"><strong>DOB:</strong> {personal.dob || '-'}</div>
+                        <div className="detail-item"><strong>Gender:</strong> {personal.gender || '-'}</div>
+                        <div className="detail-item full-width"><strong>Address:</strong> {personal.address || selectedAccount.address || '-'}</div>
+                        <div className="detail-item"><strong>Aadhaar:</strong> {personal.aadhaar || selectedAccount.aadhaar || '-'}</div>
+                        <div className="detail-item"><strong>PAN:</strong> {personal.pan || selectedAccount.pan || '-'}</div>
+                        <div className="detail-item"><strong>SSN:</strong> {personal.ssn || selectedAccount.ssn || '-'}</div>
+                        <div className="detail-item"><strong>NIN:</strong> {personal.nin || selectedAccount.nin || '-'}</div>
+                      </div>
+                    </div>
+
+                    <div className="application-detail-section">
+                      <h4>Education & Income</h4>
+                      <div className="details-grid">
+                        <div className="detail-item"><strong>Education:</strong> {education.educationLevel || selectedAccount.educationLevel || '-'}</div>
+                        <div className="detail-item"><strong>Institution:</strong> {education.institutionName || selectedAccount.institutionName || '-'}</div>
+                        <div className="detail-item"><strong>Course:</strong> {education.course || selectedAccount.course || '-'}</div>
+                        <div className="detail-item"><strong>Completed:</strong> {education.yearOfCompletion || selectedAccount.yearOfCompletion || '-'}</div>
+                        <div className="detail-item"><strong>Employment:</strong> {income.employmentStatus || selectedAccount.employmentStatus || '-'}</div>
+                        <div className="detail-item"><strong>Occupation:</strong> {income.occupation || selectedAccount.occupation || '-'}</div>
+                        <div className="detail-item"><strong>Monthly Income:</strong> {income.monthlyIncome || selectedAccount.monthlyIncome || '-'}</div>
+                        <div className="detail-item"><strong>Annual Income:</strong> {income.annualIncome || selectedAccount.annualIncome || '-'}</div>
+                      </div>
+                    </div>
+
+                    <div className="application-detail-section">
+                      <h4>Nominee Details</h4>
+                      <div className="details-grid">
+                        <div className="detail-item"><strong>Name:</strong> {nominee.nomineeName || selectedAccount.nomineeName || '-'}</div>
+                        <div className="detail-item"><strong>Relation:</strong> {nominee.nomineeRelation || selectedAccount.nomineeRelation || '-'}</div>
+                        <div className="detail-item"><strong>DOB:</strong> {nominee.nomineeDob || selectedAccount.nomineeDob || '-'}</div>
+                        <div className="detail-item"><strong>Contact:</strong> {nominee.nomineeContact || selectedAccount.nomineeContact || '-'}</div>
+                        <div className="detail-item full-width"><strong>Address:</strong> {nominee.nomineeAddress || selectedAccount.nomineeAddress || '-'}</div>
+                      </div>
+                    </div>
+
+                    <div className="application-detail-section">
+                      <h4>Uploaded Documents</h4>
+                      {documentsLoading ? (
+                        <p className="documents-note">Loading documents...</p>
+                      ) : documentsError ? (
+                        <p className="documents-note error">{documentsError}</p>
+                      ) : selectedAccountDocuments.length === 0 ? (
+                        <p className="documents-note">No uploaded documents found for this application.</p>
+                      ) : (
+                        <div className="documents-list">
+                          {selectedAccountDocuments.map(document => (
+                            <div className="document-row" key={document.id}>
+                              <div>
+                                <strong>{document.documentType?.replaceAll('_', ' ') || 'Document'}</strong>
+                                <span>{document.originalFilename}</span>
+                              </div>
+                              <div className="document-actions">
+                                <a href={`http://localhost:8085/api/accounts/documents/${document.id}/view`} target="_blank" rel="noreferrer">View</a>
+                                <a href={`http://localhost:8085/api/accounts/documents/${document.id}/download`}>Download</a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>

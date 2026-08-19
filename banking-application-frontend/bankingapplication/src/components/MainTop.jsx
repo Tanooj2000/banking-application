@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './MainTop.css';
+import { AuthGuard } from '../utils/authGuard';
 
 
 
@@ -9,14 +10,18 @@ const MainTop = () => {
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('userToken');
-    const type = sessionStorage.getItem('userType');
-    const adminData = sessionStorage.getItem('adminData');
-    const loggedOut = sessionStorage.getItem('loggedOut');
-    const isAdminAuth = type === 'admin' && adminData && loggedOut !== 'true';
-    const isUserAuth = type === 'user' && token;
-    setIsSignedIn(isAdminAuth || isUserAuth);
-    setUserType(isAdminAuth ? 'admin' : isUserAuth ? 'user' : null);
+    const syncAuthState = () => {
+      const isAdminAuth = AuthGuard.isAdminAuthenticated();
+      const isUserAuth = AuthGuard.isAuthenticated() && AuthGuard.getUserType() !== 'admin';
+      setIsSignedIn(isAdminAuth || isUserAuth);
+      setUserType(isAdminAuth ? 'admin' : isUserAuth ? 'user' : null);
+    };
+
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+    };
   }, []);
 
   const hour = new Date().getHours();
