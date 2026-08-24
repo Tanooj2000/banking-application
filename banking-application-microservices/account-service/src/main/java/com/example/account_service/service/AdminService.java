@@ -1,12 +1,9 @@
 package com.example.account_service.service;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.account_service.client.AdminClient;
 import com.example.account_service.dto.AdminEmailResponse;
 
 import java.util.List;
@@ -16,11 +13,15 @@ public class AdminService {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
-    @Autowired
-    private WebClient webClient;
+    private final AdminClient adminClient;
+    
 
-    @Value("${admin.service.url}")
-    private String adminServiceUrl;
+    // @Value("${admin.service.url}")
+    // private String adminServiceUrl;
+
+    public AdminService(AdminClient adminClient) {
+        this.adminClient = adminClient;
+    }
 
     /**
      * Fetches admin emails for a specific bank from the admin microservice
@@ -29,7 +30,7 @@ public class AdminService {
      */
     public List<String> getAdminEmailsByBank(String bankName) {
         try {
-            String url = adminServiceUrl + "/api/admin/emails/by-bank?bankName=" + bankName;
+           /*  String url = adminServiceUrl + "/api/admin/emails/by-bank?bankName=" + bankName;
             
             logger.info("Fetching admin email for bank: {} from URL: {}", bankName, url);
             
@@ -39,7 +40,8 @@ public class AdminService {
                 .retrieve()
                 .bodyToMono(AdminEmailResponse.class)
                 .block();
-
+*/
+         AdminEmailResponse response= adminClient.getAdminEmailResponse(bankName);
             if (response != null && response.getAdminEmails() != null && !response.getAdminEmails().isEmpty()) {
                 logger.info("Successfully fetched {} admin email(s) for bank: {}", response.getCount(), bankName);
                 return response.getAdminEmails();
